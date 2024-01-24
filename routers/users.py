@@ -5,15 +5,16 @@ from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 
 from database.config import session
-from models.users import Role, User 
+from models.users import Role, User
 from models.users_code import UserCode
 from models.codes import Code
 from schemas.users import UserSchema, UserUpdateSchema
 from passlib.context import CryptContext
 
 
-bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 user_router = APIRouter()
+
 
 @user_router.post("/")
 async def create_user(user_data: UserSchema):
@@ -23,15 +24,12 @@ async def create_user(user_data: UserSchema):
         .one_or_none()
     )
 
-    is_code = (
-        session.query(Code)
-        .where(Code.code == user_data.user_code)
-        .one_or_none()        
-    )
+    is_code = session.query(Code).where(Code.code == user_data.user_code).one_or_none()
 
     if not is_code:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail="Codigo no es valido.")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Codigo no es valido."
+        )
 
     if is_user:
         # Usamos una lista para guardar los mensajes de error
@@ -51,12 +49,16 @@ async def create_user(user_data: UserSchema):
         ok = False if errores else True
 
         # Devolvemos el resultado como un diccionario
-        return {"ok": ok,"msg": f"Already exists user with {msg}" if msg else "","result": is_user,}
+        return {
+            "ok": ok,
+            "msg": f"Already exists user with {msg}" if msg else "",
+            "result": is_user,
+        }
 
-    hashed_password = bcrypt_context.hash(user_data.password) 
-    
+    hashed_password = bcrypt_context.hash(user_data.password)
+
     user_query = User(
-        name=user_data.name,       
+        name=user_data.name,
         lastname=user_data.lastname,
         email=user_data.email,
         phone=user_data.phone,
@@ -64,23 +66,18 @@ async def create_user(user_data: UserSchema):
         role_id=1,
     )
     code_query = UserCode(
-        user_id = user_query.id,
-        code_id = is_code.id,
+        user_id=user_query.id,
+        code_id=is_code.id,
     )
 
     user_query.user_code = [code_query]
     session.add(code_query)
     session.add(user_query)
-    
+
     session.commit()
     session.refresh(user_query)
     session.refresh(code_query)
     return {"ok": True, "msg": "user was successfully created", "result": user_query}
-
-
-  
-
-
 
 
 @user_router.get("/")
