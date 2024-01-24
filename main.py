@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+import uvicorn
 from database.config import init_db
 from sqlalchemy import event
 from routers.users import user_router
@@ -35,3 +36,7 @@ app.include_router(auth_router, tags=["auth"], prefix="/api/auth")
 app.include_router(user_router, tags=["users"], prefix="/api/users")
 app.include_router(role_router, tags=["roles"], prefix="/api/roles")
 app.include_router(code_router, tags=["codes"], prefix="/api/codes")
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, port=8080, host="0.0.0.0")
