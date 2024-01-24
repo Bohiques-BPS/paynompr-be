@@ -13,16 +13,17 @@ INITIAL_DATA = {
             'email': 'admin@admin.com',
             'phone' : '123456789',
             'role_id' : 1,                
-            'password': bcrypt_context.hash("123456")
-
-    
-        }
-           
+            'password': bcrypt_context.hash("123456")    
+        }           
     ],
     'roles' : [
         {
             'role' : 'Owner',              
-        }  
+        },
+        {
+            'role' : 'SuperAdmin',              
+        },
+         
     ]
 }
 
