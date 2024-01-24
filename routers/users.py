@@ -1,14 +1,19 @@
 import bcrypt
 
 from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException
+from starlette import status
 
 from database.config import session
-from models.users import Role, User
+from models.users import Role, User 
+from models.users_code import UserCode
+from models.codes import Code
 from schemas.users import UserSchema, UserUpdateSchema
+from passlib.context import CryptContext
 
 
+bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 user_router = APIRouter()
-
 
 @user_router.post("/")
 async def create_user(user_data: UserSchema):
@@ -18,54 +23,69 @@ async def create_user(user_data: UserSchema):
         .one_or_none()
     )
 
-    if is_user:
-        msg = "Already exists user with "
-        email_msg = ""
-        phone_msg = ""
-
-        if is_user.email == user_data.email:
-            email_msg = f"email: {user_data.email}"
-
-        if is_user.phone == user_data.phone:
-            phone_msg = f"phone: {user_data.phone}"
-
-        if email_msg and phone_msg:
-            return {
-                "ok": False,
-                "msg": f"{msg} {email_msg} and {phone_msg}",
-                "result": is_user,
-            }
-
-        if email_msg:
-            return {
-                "ok": False,
-                "msg": f"{msg}{email_msg}",
-                "result": is_user,
-            }
-
-        if phone_msg:
-            return {
-                "ok": False,
-                "msg": f"{msg}{phone_msg}",
-                "result": is_user,
-            }
-
-    hashed_password = bcrypt.hashpw(
-        user_data.password.encode("utf-8"), bcrypt.gensalt()
+    is_code = (
+        session.query(Code)
+        .where(Code.code == user_data.user_code)
+        .one_or_none()
+        
     )
 
+    if not is_code:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Codigo no es valido.")
+
+    if is_user:
+        # Usamos una lista para guardar los mensajes de error
+        errores = []
+
+        # Comprobamos si el email o el teléfono coinciden con el usuario existente
+        if is_user.email == user_data.email:
+            errores.append(f"email: {user_data.email}")
+
+        if is_user.phone == user_data.phone:
+            errores.append(f"phone: {user_data.phone}")
+
+        # Unimos los mensajes de error con "and" si hay más de uno
+        msg = " and ".join(errores)
+
+        # Usamos una expresión ternaria para asignar el valor de ok
+        ok = False if errores else True
+
+        # Devolvemos el resultado como un diccionario
+        return {"ok": ok,"msg": f"Already exists user with {msg}" if msg else "","result": is_user,}
+
+    hashed_password = bcrypt_context.hash(user_data.password)
+    
+
+    
     user_query = User(
         name=user_data.name,
+       
         lastname=user_data.lastname,
         email=user_data.email,
         phone=user_data.phone,
         password=hashed_password,
-        role_id=user_data.role_id,
+        role_id=1,
     )
+    code_query = UserCode(
+        user_id = user_query.id,
+        code_id = is_code.id,
+    )
+    user_query.user_code = [code_query]
+    session.add(code_query)
     session.add(user_query)
+    
+
+    
     session.commit()
     session.refresh(user_query)
+    session.refresh(code_query)
     return {"ok": True, "msg": "user was successfully created", "result": user_query}
+
+
+  
+
+
 
 
 @user_router.get("/")
