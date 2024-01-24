@@ -1,5 +1,7 @@
 from fastapi import FastAPI
+import os
 import uvicorn
+from dotenv import load_dotenv
 from database.config import init_db
 from sqlalchemy import event
 from routers.users import user_router
@@ -10,10 +12,13 @@ from routers.code import code_router
 from models.users import User, Role
 from fastapi.middleware.cors import CORSMiddleware
 
-origins = ["http://localhost:5173", "https://app-paynompr.onrender.com"]
-
-
 from database.seed.user import initialize_table
+
+load_dotenv()
+
+URL = os.environ.get("URL")
+PORT = os.environ.get("PORT")
+
 
 # I set up this event before table creation
 event.listen(User.__table__, "after_create", initialize_table)
@@ -23,7 +28,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=[URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -39,4 +44,4 @@ app.include_router(code_router, tags=["codes"], prefix="/api/codes")
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, port=8080, host="0.0.0.0")
+    uvicorn.run(app, port=PORT, host="0.0.0.0")
