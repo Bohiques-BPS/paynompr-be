@@ -1,6 +1,7 @@
-import random
-import string
-from fastapi import APIRouter
+from sqlalchemy import or_
+from starlette import status
+
+from fastapi import APIRouter, Depends, HTTPException
 
 from database.config import session
 from models.codes import Code
@@ -11,12 +12,24 @@ code_router = APIRouter()
 
 @code_router.post("/")
 async def create_code(code_data: CodeSchema):
-    code_query = Code(
-        code=code_data.code,
-        amount=code_data.amount,
-        owner="",
+    is_code = (
+        session.query(Code)
+        .where(or_(Code.code == code_data.code, Code.email == code_data.email))
+        .one_or_none()        
     )
 
+    if is_code:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Correo o código ya están registrados.")
+
+    code_query = Code(
+        code = code_data.code,
+
+        amount = code_data.amount,
+        owner = code_data.owner,
+        email = code_data.email,
+    )  
+ 
     session.add(code_query)
     session.commit()
     session.refresh(code_query)

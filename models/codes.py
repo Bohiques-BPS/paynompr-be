@@ -11,6 +11,7 @@ class Code(Base):
     id: Mapped[int] = mapped_column(
         Integer, primary_key=True, autoincrement=True, index=True
     )
+    email: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
     code: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
     owner: Mapped[str] = mapped_column(String(50), nullable=False)
     amount: Mapped[int] = mapped_column(
