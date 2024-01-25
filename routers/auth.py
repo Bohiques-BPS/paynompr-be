@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from database.config import Session as local
 from models.users import User
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
-from jose import jwt, JWTError
+from jose import jwt , JWTError
 from sqlalchemy import or_
 from datetime import datetime, timedelta
 
@@ -20,12 +20,6 @@ ALGORITHM = 'HS256'
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-
-
-
-
 
 def get_db():
     db = local()
@@ -58,10 +52,14 @@ async def login_for_access_token(form_data : Annotated[OAuth2PasswordRequestForm
 
 
 def authenticate_user(username: str, password: str, db):
-    user = db.query(User).filter(or_(User.email == username, User.phone == username)).first()       
+    user = (
+        db.query(User)
+        .filter(or_(User.email == username, User.phone == username))
+        .first()
+    )
     if not user:
         return False
-    if not bcrypt_context.verify(password, user.password ):
+    if not bcrypt_context.verify(password, user.password):
         return False
     return user
 
