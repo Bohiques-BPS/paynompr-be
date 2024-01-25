@@ -3,7 +3,7 @@ from pydantic import BaseModel, ConfigDict
 
 class CodeSchema(BaseModel):
     code: str
-
+    email: str
     owner: str | None = None
     amount : int
 

@@ -61,7 +61,7 @@ async def create_user(user_data: UserSchema):
         email=user_data.email,
         phone=user_data.phone,
         password=hashed_password,
-        role_id=1,
+        role_id=2,
     )
     code_query = UserCode(
         user_id = user_query.id,
