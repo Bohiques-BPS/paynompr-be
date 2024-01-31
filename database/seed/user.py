@@ -12,9 +12,25 @@ INITIAL_DATA = {
             "email": "admin@admin.com",
             "phone": "123456789",
             "role_id": 1,
+            "code_id": 1,
             "password": bcrypt_context.hash("123456"),
         }
     ],
+    "users_coders": [
+        {
+            "code_id" : 1,
+            "user_id" : 1,
+        }
+       
+    ],
+    "codes" : [
+        {
+            "code" : "WZgeig",
+            "owner" : "Admin",
+            "email" : "admin@admin.com",
+            "amount" : 3000,
+        }
+    ],    
     "roles": [
         {
             "role": "Owner",
@@ -22,6 +38,9 @@ INITIAL_DATA = {
         {
             "role": "SuperAdmin",
         },
+        {
+            "role": "Accountant"
+        }
     ],
 }
 

@@ -6,7 +6,7 @@ from starlette import status
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from database.config import Session as local
-from models.users import User
+from models.users import User, Code, Role, UserCode
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import jwt , JWTError
 from sqlalchemy import or_
@@ -41,12 +41,13 @@ async def login_for_access_token(form_data : Annotated[OAuth2PasswordRequestForm
                                  db: db_dependency
                                  ):
     user = authenticate_user(form_data.username,form_data.password,db)
-   
+    
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Usuario o contraseña no son validos.")
     
-    token = create_access_token(user.email,user.id,user.user_code,user.name,timedelta(hours=3))
+    token = create_access_token(user.email,user.id,user.codes.id,user.name,user.role_id,timedelta(hours=3))
+   
     return {'access_token' : token, 'token_type' : 'bearer', 'name' : user.name}
    
 
@@ -54,17 +55,18 @@ async def login_for_access_token(form_data : Annotated[OAuth2PasswordRequestForm
 def authenticate_user(username: str, password: str, db):
     user = (
         db.query(User)
-        .filter(or_(User.email == username, User.phone == username))
-        .first()
+        .filter(or_(User.email == username, User.phone == username), )
+        .one()
     )
+   
     if not user:
         return False
     if not bcrypt_context.verify(password, user.password):
         return False
     return user
 
-def create_access_token(username: str, user_id: int,code: str,name: str,expires_delta: timedelta):
-    encode = {'sub': username, 'id': user_id, 'name' : name, 'code': code}
+def create_access_token(username: str, user_id: int,code: str,name: str,role_id: int,expires_delta: timedelta):
+    encode = {'sub': username, 'id': user_id, 'name' : name, 'code': code, 'role_id': role_id }
     expires = datetime.utcnow() + expires_delta
     encode.update({'exp':expires})
     return jwt.encode(encode,SECRET_KEY,algorithm=ALGORITHM)
@@ -75,12 +77,13 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
         payload = jwt.decode(token, SECRET_KEY,algorithms=[ALGORITHM])
         username: str = payload.get('sub')
         user_id: int = payload.get('id')
+        role_id: int = payload.get('role_id')
         code: str = payload.get('code')
         name: int = payload.get('name')
         if username is None or user_id is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Usuario o contraseña no son validos.") 
-        return {'username': username, 'id': user_id, 'name': name, 'code': code}
+        return {'username': username, 'id': user_id, 'name': name, 'code': code, 'role_id' : role_id}
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Usuario no valido.") 
@@ -91,6 +94,9 @@ user_dependency = Annotated[dict, Depends(get_current_user)]
 async def currentUser(user: user_dependency, db : db_dependency):
     if user is None:
         raise HTTPException(status_code=401, detail="Fallo en la autenticación.")
-    return {"User": user}
+    
+    profile = db.query(User).join(Role).join(UserCode).filter(User.role_id == Role.id,User.id == user['id'],User.id == UserCode.user_id).one()
+    
+    return {"profile": profile,"user": user}
 
 

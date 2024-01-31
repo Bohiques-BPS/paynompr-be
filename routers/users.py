@@ -1,13 +1,12 @@
 import bcrypt
-
 from fastapi import APIRouter
 from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 
 from database.config import session
-from models.users import Role, User
-from models.users_code import UserCode
-from models.codes import Code
+from models.users import Role, User , Code , UserCode
+
+
 from schemas.users import UserSchema, UserUpdateSchema
 from passlib.context import CryptContext
 
@@ -65,14 +64,16 @@ async def create_user(user_data: UserSchema):
         password=hashed_password,
         role_id=2,
     )
+    session.add(user_query)
+    session.commit()
     code_query = UserCode(
         user_id=user_query.id,
         code_id=is_code.id,
     )
 
-    user_query.user_code = [code_query]
+    
     session.add(code_query)
-    session.add(user_query)
+   
 
     session.commit()
     session.refresh(user_query)
