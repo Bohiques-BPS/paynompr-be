@@ -19,7 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from database.seed.user import initialize_table
 
 load_dotenv()
-print(os.environ.get("URL"))
+
 URL = os.environ.get("URL")
 PORT = os.environ.get("PORT")
 

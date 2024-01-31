@@ -11,27 +11,6 @@ from database.config import Base
 
 
 
-class UserCode(Base):
-    __tablename__ = "users_coders"
-
-    id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True, index=True
-    )
-    code_id = mapped_column( ForeignKey('codes.id'), primary_key=True)
-    user_id =  mapped_column( ForeignKey('users.id'), primary_key=True)
-  
-    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
-    deleted_at: Mapped[TIMESTAMP] = mapped_column(
-        TIMESTAMP(timezone=False), nullable=True
-    )
-    created_at: Mapped[TIMESTAMP] = mapped_column(
-        TIMESTAMP(timezone=False), server_default=func.now(), nullable=False
-    )
-    update_at: Mapped[TIMESTAMP] = mapped_column(
-        TIMESTAMP(timezone=False),
-        nullable=True,
-        onupdate=func.now(),
-    )
 
   
 
@@ -102,6 +81,29 @@ class Code(Base):
     amount: Mapped[int] = mapped_column(
         Integer, nullable=False, default=1, server_default="1"
     )
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
+    deleted_at: Mapped[TIMESTAMP] = mapped_column(
+        TIMESTAMP(timezone=False), nullable=True
+    )
+    created_at: Mapped[TIMESTAMP] = mapped_column(
+        TIMESTAMP(timezone=False), server_default=func.now(), nullable=False
+    )
+    update_at: Mapped[TIMESTAMP] = mapped_column(
+        TIMESTAMP(timezone=False),
+        nullable=True,
+        onupdate=func.now(),
+    )
+
+
+class UserCode(Base):
+    __tablename__ = "users_coders"
+
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True, index=True
+    )
+    code_id = mapped_column( ForeignKey('codes.id'), primary_key=True)
+    user_id =  mapped_column( ForeignKey('users.id'), primary_key=True)
+  
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
     deleted_at: Mapped[TIMESTAMP] = mapped_column(
         TIMESTAMP(timezone=False), nullable=True
