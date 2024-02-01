@@ -85,3 +85,16 @@ async def get_code_by_id(code_id: int):
         return {"ok": False, "msg": "Code not found", "result": None}
 
     return {"ok": True, "msg": "Lista de codigos.", "result": code_query}
+
+
+@code_router.delete("/{id}")
+async def update_accountant(id: int):
+    code_query = session.query(Code).filter(Code.id == id).first()
+   
+    
+    
+    code_query.is_deleted = not code_query.is_deleted    
+    session.add(code_query)   
+    session.commit()  
+    session.refresh(code_query)   
+    return {"ok": True, "msg": "user was successfully created", "result": code_query}

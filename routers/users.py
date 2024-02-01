@@ -23,7 +23,7 @@ async def create_user(user_data: UserSchema):
         .one_or_none()
     )
 
-    is_code = session.query(Code).where(Code.code == user_data.user_code).one_or_none()
+    is_code = session.query(Code).where(Code.code == user_data.user_code,Code.is_deleted == False,).one_or_none()
 
     if not is_code:
         raise HTTPException(

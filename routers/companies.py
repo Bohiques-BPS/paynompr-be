@@ -64,7 +64,7 @@ async def get_all_companies(user: user_dependency):
     }
 
 @companies_router.get("/employers/{companies_id}")
-async def get_all_companies(user: user_dependency,companies_id: int):
+async def get_company(user: user_dependency,companies_id: int):
     companies_query = session.query(Companies).filter(Companies.code_id == user["code"], Companies.id == companies_id).one_or_none()
 
     return {
@@ -123,3 +123,16 @@ async def update_company(companies_id: int, new_user_data: CompaniesSchema):
     session.refresh(company_query)
 
     return {"ok": True, "msg": "Companies was successfully updated", "result": company_query}
+
+
+@companies_router.delete("/{id}")
+async def update_company(id: int):
+    companie_query = session.query(Companies).filter(Companies.id == id).first()
+   
+    
+    
+    companie_query.is_deleted = not companie_query.is_deleted    
+    session.add(companie_query)   
+    session.commit()  
+    session.refresh(companie_query)   
+    return {"ok": True, "msg": "user was successfully created", "result": companie_query}
