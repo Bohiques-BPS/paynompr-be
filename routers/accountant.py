@@ -3,6 +3,7 @@ import bcrypt
 from fastapi import APIRouter
 from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
+from datetime import  datetime
 
 from database.config import session
 from models.users import Role, User , Code , UserCode
@@ -82,13 +83,9 @@ async def create_accountant(accountants_data: Accountants,user: user_dependency)
     code_query = UserCode(
         user_id=user_query.id,
         code_id=user["code"],
-    )
-
-    
-    session.add(accountant_query)
-    
+    )    
+    session.add(accountant_query)    
     session.add(code_query)
-
     session.commit()
     session.refresh(user_query)
     session.refresh(accountant_query)
@@ -142,11 +139,11 @@ async def update_accountant(accountants_data: Accountants,user: user_dependency,
     return {"ok": True, "msg": "user was successfully created", "result": accountant_query}
 
 @accountant_router.delete("/{id}")
-async def update_accountant(user: user_dependency,id: int):
+async def disable_accountant(user: user_dependency,id: int):
     accountant_query = session.query(Accountant).join(User).filter(Accountant.id == id, User.id == Accountant.user_id ).first()
    
     
-    
+    accountant_query.deleted_at = datetime.utcnow()
     accountant_query.is_deleted = not accountant_query.is_deleted    
     session.add(accountant_query)   
     session.commit()  

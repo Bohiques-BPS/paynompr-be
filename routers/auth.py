@@ -55,8 +55,8 @@ async def login_for_access_token(form_data : Annotated[OAuth2PasswordRequestForm
 def authenticate_user(username: str, password: str, db):
     user = (
         db.query(User)
-        .filter(or_(User.email == username, User.phone == username), )
-        .one()
+        .filter(or_(User.email == username, User.phone == username), User.is_deleted == False )
+        .one_or_none()
     )
    
     if not user:
@@ -95,7 +95,7 @@ async def currentUser(user: user_dependency, db : db_dependency):
     if user is None:
         raise HTTPException(status_code=401, detail="Fallo en la autenticación.")
     
-    profile = db.query(User).join(Role).join(UserCode).filter(User.role_id == Role.id,User.id == user['id'],User.id == UserCode.user_id).one()
+    profile = db.query(User).join(Role).join(UserCode).filter(User.role_id == Role.id,User.id == user['id'],User.id == UserCode.user_id, User.is_deleted == False).one_or_none()
     
     return {"profile": profile,"user": user}
 

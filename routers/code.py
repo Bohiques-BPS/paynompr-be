@@ -1,5 +1,6 @@
 from sqlalchemy import or_
 from starlette import status
+from datetime import  datetime
 
 from fastapi import APIRouter,  Depends, HTTPException
 
@@ -38,7 +39,7 @@ async def create_code(code_data: CodeSchema):
 
 
 @code_router.put("/{code_id}")
-async def create_code(code_data: CodeSchema,code_id: int):
+async def update_code(code_data: CodeSchema,code_id: int):
     is_code = (
         session.query(Code)
         .where(Code.id == code_id)
@@ -56,14 +57,7 @@ async def create_code(code_data: CodeSchema,code_id: int):
     session.refresh(is_code)   
     return {"ok": True, "msg": "user was successfully created", "result": is_code}
 
-def create_code():
-    code = "".join(
-        random.choice(string.ascii_uppercase + string.digits) for _ in range(6)
-    )
-    # Validar luego que no este repetido
-    is_code = session.query(Code).where(Code.code == code).one_or_none()
 
-    return code
 
 
 @code_router.get("/")
@@ -88,11 +82,12 @@ async def get_code_by_id(code_id: int):
 
 
 @code_router.delete("/{id}")
-async def update_accountant(id: int):
+async def disable_code(id: int):
     code_query = session.query(Code).filter(Code.id == id).first()
    
     
-    
+    code_query.deleted_at = datetime.utcnow()
+
     code_query.is_deleted = not code_query.is_deleted    
     session.add(code_query)   
     session.commit()  

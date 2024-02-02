@@ -23,7 +23,7 @@ async def create_user(user_data: UserSchema):
         .one_or_none()
     )
 
-    is_code = session.query(Code).where(Code.code == user_data.user_code,Code.is_deleted == False,).one_or_none()
+    is_code = session.query(Code).where(Code.code == user_data.user_code,Code.is_deleted == False,user_data.email == Code.email).one_or_none()
 
     if not is_code:
         raise HTTPException(
@@ -69,12 +69,8 @@ async def create_user(user_data: UserSchema):
     code_query = UserCode(
         user_id=user_query.id,
         code_id=is_code.id,
-    )
-
-    
+    )    
     session.add(code_query)
-   
-
     session.commit()
     session.refresh(user_query)
     session.refresh(code_query)

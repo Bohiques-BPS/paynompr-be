@@ -1,4 +1,5 @@
 import bcrypt
+from datetime import  datetime
 
 from fastapi import APIRouter
 from database.config import session
@@ -126,12 +127,13 @@ async def update_company(companies_id: int, new_user_data: CompaniesSchema):
 
 
 @companies_router.delete("/{id}")
-async def update_company(id: int):
+async def disable_company(id: int):
     companie_query = session.query(Companies).filter(Companies.id == id).first()
    
     
     
     companie_query.is_deleted = not companie_query.is_deleted    
+    companie_query.deleted_at = datetime.utcnow()
     session.add(companie_query)   
     session.commit()  
     session.refresh(companie_query)   

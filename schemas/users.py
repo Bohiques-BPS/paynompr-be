@@ -4,7 +4,7 @@ from models.users import Code
 class UserSchema(BaseModel):
     name: str
     lastname: str
- 
+    user_code : str | None = None
     role_id: int
     email: str
     password: str
