@@ -46,7 +46,7 @@ async def login_for_access_token(form_data : Annotated[OAuth2PasswordRequestForm
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Usuario o contraseña no son validos.")
     
-    token = create_access_token(user.email,user.id,user.codes.id,user.name,user.role_id,timedelta(hours=3))
+    token = create_access_token(user.email,user.id,user.codes.id,user.name,user.role_id,timedelta(days=3))
    
     return {'access_token' : token, 'token_type' : 'bearer', 'name' : user.name}
    
