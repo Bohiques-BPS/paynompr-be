@@ -22,6 +22,8 @@ async def create_company(companie_data: CompaniesSchema,user: user_dependency):
         contact= companie_data.contact,
         contact_number = companie_data.contact_number,
         website = companie_data.website,
+        number_patronal= companie_data.number_patronal,
+        coml = companie_data.coml,
         postal_address = companie_data.postal_address,
         zipcode_postal_address = companie_data.zipcode_postal_address,
         country_postal_address = companie_data.country_postal_address,
@@ -87,7 +89,7 @@ async def get_companies_by_id(companies_id: int):
 
 @companies_router.put("/{companies_id}")
 async def update_company(companies_id: int, new_user_data: CompaniesSchema):
-    company_query = session.query(Companies).filter_by(id=companies_id).first()
+    company_query = session.query(Companies).filter_by(id=companies_id).one_or_none()
 
     if not company_query:
         return {"ok": False, "msg": "Companies not found", "result": new_user_data}
@@ -103,6 +105,8 @@ async def update_company(companies_id: int, new_user_data: CompaniesSchema):
     company_query.zipcode_postal_address = new_user_data.zipcode_postal_address
     company_query.country_postal_address = new_user_data.country_postal_address
     company_query.state_postal_addess = new_user_data.state_postal_addess
+    company_query.number_patronal= new_user_data.number_patronal
+    company_query.coml = new_user_data.coml
     company_query.physical_address = new_user_data.physical_address
     company_query.zipcode_physical_address = new_user_data.zipcode_physical_address
     company_query.country_physical_address = new_user_data.country_physical_address

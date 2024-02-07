@@ -1,5 +1,5 @@
 from typing import List
-from sqlalchemy import TIMESTAMP, ForeignKey, Integer, String, Boolean, func
+from sqlalchemy import TIMESTAMP,Date , ForeignKey, Integer, String, Boolean, func
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import relationship
@@ -22,6 +22,10 @@ class  Companies(Base):
     code_id: Mapped[int] = mapped_column(
         Integer(), ForeignKey("codes.id"), nullable=False, index=True
     )
+    coml : Mapped[TIMESTAMP] = mapped_column(
+        Date(), nullable=True
+    )
+    number_patronal : Mapped[str] = mapped_column(String(50))
     accountant_id: Mapped[int] = mapped_column(nullable=True,)
     email: Mapped[str] = mapped_column(String(50))
     contact: Mapped[str] = mapped_column(String(50))

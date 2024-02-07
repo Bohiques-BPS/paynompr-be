@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict
+from datetime import date
 
 
 class CompaniesSchema(BaseModel):
@@ -27,6 +28,8 @@ class CompaniesSchema(BaseModel):
     industrial_code: str | None = None
     payer: str | None = None
     desem: str | None = None
+    number_patronal: str | None = None
+    coml : date | None = None
 
     disabled_percent: str | None = None
     driver: str | None = None

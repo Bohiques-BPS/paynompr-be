@@ -1,5 +1,5 @@
 from typing import List
-from sqlalchemy import TIMESTAMP, ForeignKey, Integer, String, Boolean, func
+from sqlalchemy import TIMESTAMP, ForeignKey, Integer, String,Date, Boolean, func
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import relationship
@@ -13,35 +13,70 @@ class  Employers(Base):
     id: Mapped[int] = mapped_column(
         Integer, primary_key=True, autoincrement=True, index=True
     )
-    last_name: Mapped[str] = mapped_column(String(50),nullable=False)    
-    mother_last_name: Mapped[str] = mapped_column(String(50),nullable=False)    
-    first_name: Mapped[str] = mapped_column(String(50),nullable=False)    
-    middle_name: Mapped[str] = mapped_column(String(50),nullable=False)  
+    last_name: Mapped[str] = mapped_column(String(50),nullable=True)    
+    mother_last_name: Mapped[str] = mapped_column(String(50),nullable=True)    
+    first_name: Mapped[str] = mapped_column(String(50),nullable=True)    
+    middle_name: Mapped[str] = mapped_column(String(50),nullable=True)  
     company_id: Mapped[int] = mapped_column(
-        Integer(), ForeignKey("companies.id"), nullable=False, index=True
-    )  
+        Integer(), ForeignKey("companies.id"), nullable=True, index=True
+    )
+    marbete: Mapped[str] = mapped_column(String(50),nullable=True) 
+    type: Mapped[int] = mapped_column(nullable=True,)
+    date_marb: Mapped[TIMESTAMP] = mapped_column(
+        Date(), nullable=True
+    )
+    clipboard: Mapped[str] = mapped_column(String(50),nullable=True) 
+    exec_personal: Mapped[int] = mapped_column(nullable=True,)
+    choferil: Mapped[str] = mapped_column(String(50),nullable=True) 
+    regular_time: Mapped[str] = mapped_column(String(50),nullable=True) 
+    period_norma: Mapped[int] = mapped_column(nullable=True,)
+    licence: Mapped[str] = mapped_column(String(50),nullable=True) 
+    category_cfse: Mapped[str] = mapped_column(String(50),nullable=True) 
+    gender: Mapped[int] = mapped_column(nullable=True,)
+    birthday: Mapped[TIMESTAMP] = mapped_column(
+        Date(), nullable=True
+    )
+    date_admission: Mapped[TIMESTAMP] = mapped_column(
+        Date(), nullable=True
+    )
+    date_egress: Mapped[TIMESTAMP] = mapped_column(
+        Date(), nullable=True
+    )
+    about_time: Mapped[str] = mapped_column(String(50),nullable=True) 
+    mealtime: Mapped[str] = mapped_column(String(50),nullable=True) 
+    vacation_hours: Mapped[str] = mapped_column(String(50),nullable=True) 
+    vacation_date: Mapped[TIMESTAMP] = mapped_column(
+        Date(), nullable=True
+    )
+    number_dependents: Mapped[str] = mapped_column(String(50),nullable=True) 
+    shared_custody: Mapped[str] = mapped_column(String(50),nullable=True) 
+    number_concessions: Mapped[str] = mapped_column(String(50),nullable=True) 
+    veteran: Mapped[str] = mapped_column(String(50),nullable=True) 
+    type_payroll: Mapped[str] = mapped_column(String(50),nullable=True) 
+    schedule_type: Mapped[str] = mapped_column(String(50),nullable=True) 
+    payment_percentage: Mapped[str] = mapped_column(String(50),nullable=True)   
     
-    employee_type: Mapped[str] = mapped_column(String(50),nullable=False)    
-    social_security_number: Mapped[str] = mapped_column(String(50),nullable=False)    
-    marital_status: Mapped[str] = mapped_column(String(50),nullable=False)    
-    address: Mapped[str] = mapped_column(String(50),nullable=False)    
-    address_state: Mapped[str] = mapped_column(String(50),nullable=False)    
-    address_country: Mapped[str] = mapped_column(String(50),nullable=False)    
-    address_number: Mapped[str] = mapped_column(String(50),nullable=False)    
-    phone_number: Mapped[str] = mapped_column(String(50),nullable=False)    
-    smartphone_number: Mapped[str] = mapped_column(String(50),nullable=False)    
+    employee_type: Mapped[str] = mapped_column(String(50),nullable=True)    
+    social_security_number: Mapped[str] = mapped_column(String(50),nullable=True)    
+    marital_status:  Mapped[int] = mapped_column(nullable=True,)   
+    address: Mapped[str] = mapped_column(String(50),nullable=True)    
+    address_state: Mapped[str] = mapped_column(String(50),nullable=True)    
+    address_country: Mapped[str] = mapped_column(String(50),nullable=True)    
+    address_number: Mapped[str] = mapped_column(String(50),nullable=True)    
+    phone_number: Mapped[str] = mapped_column(String(50),nullable=True)    
+    smartphone_number: Mapped[str] = mapped_column(String(50),nullable=True)    
 
     
 
-    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=True)
     deleted_at: Mapped[TIMESTAMP] = mapped_column(
-        TIMESTAMP(timezone=False), nullable=True
+        TIMESTAMP(timezone=True), nullable=True
     )
     created_at: Mapped[TIMESTAMP] = mapped_column(
-        TIMESTAMP(timezone=False), server_default=func.now()
+        TIMESTAMP(timezone=True), server_default=func.now()
     )
     update_at: Mapped[TIMESTAMP] = mapped_column(
-        TIMESTAMP(timezone=False),
+        TIMESTAMP(timezone=True),
         nullable=True,
         onupdate=func.now(),
     )
