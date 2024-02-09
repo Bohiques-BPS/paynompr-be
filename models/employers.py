@@ -20,6 +20,9 @@ class  Employers(Base):
     company_id: Mapped[int] = mapped_column(
         Integer(), ForeignKey("companies.id"), nullable=True, index=True
     )
+    time = relationship("Time", back_populates="employer")
+
+    company = relationship("Companies", back_populates="employers")
     marbete: Mapped[str] = mapped_column(String(50),nullable=True) 
     type: Mapped[int] = mapped_column(nullable=True,)
     date_marb: Mapped[TIMESTAMP] = mapped_column(

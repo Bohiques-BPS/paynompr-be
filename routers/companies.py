@@ -3,7 +3,7 @@ from datetime import  datetime
 
 from fastapi import APIRouter
 from database.config import session
-from schemas.companies import CompaniesSchema
+from schemas.companies import CompaniesSchema , CompaniesWithEmployersSchema
 from models.companies import Companies
 from routers.auth import user_dependency
 
@@ -56,15 +56,11 @@ async def create_company(companie_data: CompaniesSchema,user: user_dependency):
     return {"ok": True, "msg": "user was successfully created", "result": companie_query}
 
 
-@companies_router.get("/")
+@companies_router.get("/",response_model=list[CompaniesWithEmployersSchema])
 async def get_all_companies(user: user_dependency):
     companies_query = session.query(Companies).filter(Companies.code_id == user["code"]).all()
 
-    return {
-        "ok": True,
-        "msg": "Companies were successfully retrieved",
-        "result": companies_query,
-    }
+    return companies_query
 
 @companies_router.get("/employers/{companies_id}")
 async def get_company(user: user_dependency,companies_id: int):

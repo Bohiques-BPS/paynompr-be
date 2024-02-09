@@ -2,8 +2,7 @@ from pydantic import BaseModel
 from datetime import date
 
 
-class EmployersSchema(BaseModel):
-   
+class EmployersSchema(BaseModel):    
     last_name:  str | None = None
     mother_last_name: str | None = None
     first_name:  str | None = None
@@ -43,3 +42,7 @@ class EmployersSchema(BaseModel):
     type_payroll:  int | None = None
     schedule_type:  int | None = None
     payment_percentage:  str | None = None
+
+
+class EmployerReturnIDShema(EmployersSchema):
+    id : int

@@ -68,14 +68,10 @@ async def create_employer(employer_data: EmployersSchema, company_id : int):
     session.refresh(employer_query)   
     return {"ok": True, "msg": "user was successfully created", "result": employer_query}
 
-def authenticate_user(username: str, password: str, db):
-    employers = employer_query = session.query(Employers).join(Companies).filter(Employers.company_id == company_id, Companies.id == Employers.company_id,Companies.code_id == user["code"]).all()
-       
-    if not employers:
-        return False    
-    return employers
+
+
 @employers_router.get("/{company_id}")
-async def get_all_employers(company_id: int,user: user_dependency):
+async def get_all_employers_by_company_id(company_id: int,user: user_dependency):
     employer_query = session.query(Employers).join(Companies).filter(Employers.company_id == company_id, Companies.id == Employers.company_id,Companies.code_id == user["code"]).all()
 
     return {
@@ -83,6 +79,8 @@ async def get_all_employers(company_id: int,user: user_dependency):
         "msg": "Employers were successfully retrieved",
         "result": employer_query,
     }
+
+
 
 
 @employers_router.get("/{company_id}/{employers_id}")

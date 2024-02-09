@@ -1,15 +1,12 @@
 from pydantic import BaseModel, ConfigDict
 from datetime import date
+from schemas.employee import EmployerReturnIDShema
 
-
-class CompaniesSchema(BaseModel):
+class CompaniesSchema(BaseModel):    
     
-
     name: str | None = None    
-    commercial_register: str | None = None
-    
-    jurisdiction: str | None = None
-    
+    commercial_register: str | None = None    
+    jurisdiction: str | None = None    
     accountant_id: int | None = None
     email: str | None = None
     contact: str | None = None
@@ -38,5 +35,15 @@ class CompaniesSchema(BaseModel):
     driver_rate: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class CompaniesIdSchema(CompaniesSchema):
+    id: int
+
+class CompaniesWithEmployersSchema(CompaniesIdSchema): 
+    employers: list[EmployerReturnIDShema] = []    
+    class Config:
+        orm_mode = True
+      
 
 
