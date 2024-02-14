@@ -44,6 +44,8 @@ class CompaniesWithEmployersSchema(CompaniesIdSchema):
     employers: list[EmployerReturnIDShema] = []    
     class Config:
         orm_mode = True
+
+
       
 
 

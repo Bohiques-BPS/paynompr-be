@@ -31,7 +31,7 @@ class  Employers(Base):
     clipboard: Mapped[str] = mapped_column(String(50),nullable=True) 
     exec_personal: Mapped[int] = mapped_column(nullable=True,)
     choferil: Mapped[str] = mapped_column(String(50),nullable=True) 
-    regular_time: Mapped[str] = mapped_column(String(50),nullable=True) 
+    regular_time: Mapped[float] = mapped_column(nullable=True) 
     period_norma: Mapped[int] = mapped_column(nullable=True,)
     licence: Mapped[str] = mapped_column(String(50),nullable=True) 
     category_cfse: Mapped[str] = mapped_column(String(50),nullable=True) 
@@ -45,16 +45,16 @@ class  Employers(Base):
     date_egress: Mapped[TIMESTAMP] = mapped_column(
         Date(), nullable=True
     )
-    about_time: Mapped[str] = mapped_column(String(50),nullable=True) 
-    mealtime: Mapped[str] = mapped_column(String(50),nullable=True) 
+    overtime: Mapped[float] = mapped_column(nullable=True) 
+    mealtime: Mapped[float] = mapped_column(nullable=True) 
     vacation_hours: Mapped[str] = mapped_column(String(50),nullable=True) 
     vacation_date: Mapped[TIMESTAMP] = mapped_column(
         Date(), nullable=True
     )
     number_dependents: Mapped[str] = mapped_column(String(50),nullable=True) 
-    shared_custody: Mapped[str] = mapped_column(String(50),nullable=True) 
+    shared_custody: Mapped[bool] = mapped_column(Boolean,default=True) 
     number_concessions: Mapped[str] = mapped_column(String(50),nullable=True) 
-    veteran: Mapped[str] = mapped_column(String(50),nullable=True) 
+    veteran: Mapped[bool] = mapped_column(Boolean,default=True) 
     type_payroll: Mapped[str] = mapped_column(String(50),nullable=True) 
     schedule_type: Mapped[str] = mapped_column(String(50),nullable=True) 
     payment_percentage: Mapped[str] = mapped_column(String(50),nullable=True)   

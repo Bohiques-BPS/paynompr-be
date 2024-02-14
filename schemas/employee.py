@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import date
-
+from schemas.time import TimeIDShema
 
 class EmployersSchema(BaseModel):    
     last_name:  str | None = None
@@ -23,7 +23,7 @@ class EmployersSchema(BaseModel):
     clipboard:  str | None = None
     exec_personal:  int | None = None
     choferil:  str | None = None
-    regular_time:  str | None = None
+    regular_time:  float | None = None
     period_norma:  int | None = None
     licence:  str | None = None
     category_cfse:  str | None = None
@@ -31,14 +31,14 @@ class EmployersSchema(BaseModel):
     birthday:  date | None = None
     date_admission:  date | None = None
     date_egress:  date | None = None
-    about_time:  str | None = None
-    mealtime:  str | None = None
+    overtime:  float | None = None
+    mealtime:  float | None = None
     vacation_hours:  str | None = None
     vacation_date:  date | None = None
     number_dependents:  str | None = None
-    shared_custody:  str | None = None
+    shared_custody:  bool | None = None
     number_concessions:  str | None = None
-    veteran:  str | None = None
+    veteran:  bool | None = None
     type_payroll:  int | None = None
     schedule_type:  int | None = None
     payment_percentage:  str | None = None
@@ -46,3 +46,9 @@ class EmployersSchema(BaseModel):
 
 class EmployerReturnIDShema(EmployersSchema):
     id : int
+
+
+class EmployerTimeShema(EmployerReturnIDShema):
+    times: list[TimeIDShema] = []    
+    class Config:
+        orm_mode = True

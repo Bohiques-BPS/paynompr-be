@@ -27,9 +27,13 @@ async def create_time(time_data: TimeShema, employer_id : int):
         overtime = time_data.overtime,
         meal_time = time_data.meal_time,
         sick_hours = time_data.sick_hours,
-        vacations_hours =  time_data.sick_vacations,     
-        employer_id = employer_id
-    )   
+        vacations_hours =  time_data.vacations_hours,     
+        employer_id = employer_id,
+        disability = time_data.disability,
+        medicare = time_data.medicare,
+        regular_pay = time_data.regular_pay,
+    )
+     
   
     session.add(time_query)
     session.commit()

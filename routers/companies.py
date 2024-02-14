@@ -1,10 +1,16 @@
 import bcrypt
 from datetime import  datetime
 
+from sqlalchemy.orm import aliased
+
 from fastapi import APIRouter
 from database.config import session
-from schemas.companies import CompaniesSchema , CompaniesWithEmployersSchema
+from schemas.companies import CompaniesSchema , CompaniesWithEmployersSchema 
+
 from models.companies import Companies
+from models.employers import Employers
+from models.time import Time
+
 from routers.auth import user_dependency
 
 companies_router = APIRouter()
@@ -62,6 +68,20 @@ async def get_all_companies(user: user_dependency):
 
     return companies_query
 
+
+
+
+@companies_router.get("/{company_id}/{employers_id}")
+async def get_all_company_and_employer(user: user_dependency,company_id: int,employers_id: int):    
+    companies_query = session.query(Employers, Companies).join(Companies, onclause=Companies.id == company_id).filter(Companies.code_id == user["code"], Employers.id == employers_id).first()
+    employer, company = companies_query # Desempaquetar la tupla  
+    time_query = session.query(Time).filter(Time.employer_id == employers_id).all()
+
+
+    return {"ok": True, "msg": "user was successfully created", "result": {"company": company, "employer": employer, "time": time_query}}
+
+    
+
 @companies_router.get("/employers/{companies_id}")
 async def get_company(user: user_dependency,companies_id: int):
     companies_query = session.query(Companies).filter(Companies.code_id == user["code"], Companies.id == companies_id).one_or_none()
@@ -86,7 +106,7 @@ async def get_companies_by_id(companies_id: int):
 @companies_router.put("/{companies_id}")
 async def update_company(companies_id: int, new_user_data: CompaniesSchema):
     company_query = session.query(Companies).filter_by(id=companies_id).one_or_none()
-
+    
     if not company_query:
         return {"ok": False, "msg": "Companies not found", "result": new_user_data}
     company_query.name= new_user_data.name

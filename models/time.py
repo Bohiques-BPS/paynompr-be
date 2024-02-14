@@ -13,13 +13,14 @@ class  Time(Base):
     id: Mapped[int] = mapped_column(
         Integer, primary_key=True, autoincrement=True, index=True
     )
-    regular_time: Mapped[str] = mapped_column(String(50),nullable=True)    
-    overtime: Mapped[str] = mapped_column(String(50),nullable=True)    
-    meal_time: Mapped[str] = mapped_column(String(50),nullable=True)    
-    sick_hours: Mapped[str] = mapped_column(String(50),nullable=True)    
-    vacations_hours: Mapped[str] = mapped_column(String(50),nullable=True)    
-
-
+    regular_time: Mapped[int] = mapped_column(nullable=True,default=0)    
+    overtime: Mapped[int] = mapped_column(nullable=True,default=0)     
+    meal_time: Mapped[int] = mapped_column(nullable=True,default=0)     
+    sick_hours: Mapped[int] = mapped_column(nullable=True,default=0)     
+    vacations_hours: Mapped[int] = mapped_column(nullable=True,default=0)     
+    disability: Mapped[float] = mapped_column(nullable=True,default=0)     
+    medicare: Mapped[float] = mapped_column(nullable=True,default=0)     
+    regular_pay: Mapped[float] = mapped_column(nullable=True,default=0)  
 
     employer_id: Mapped[int] = mapped_column(
         Integer(), ForeignKey("employers.id"), nullable=True, index=True
