@@ -3,16 +3,16 @@ from starlette import status
 from datetime import  datetime
 
 from fastapi import APIRouter,  Depends, HTTPException
-
+from fastapi import BackgroundTasks
 from database.config import session
 from models.users import Code
 from schemas.codes import CodeSchema
-
+from routers.mail import send_email_background
 code_router = APIRouter()
 
 
 @code_router.post("/")
-async def create_code(code_data: CodeSchema):
+async def create_code(code_data: CodeSchema,background_tasks: BackgroundTasks):
     is_code = (
         session.query(Code)
         .where(or_(Code.code == code_data.code, Code.email == code_data.email))
@@ -29,8 +29,8 @@ async def create_code(code_data: CodeSchema):
         amount = code_data.amount,
         owner = code_data.owner,
         email = code_data.email,
-    )  
- 
+    )
+    send_email_background(background_tasks,subject="Código de activación.",email_to=code_data.email,body={'code': code_data.code, 'title': "Código de activación",'name': code_data.owner})
     session.add(code_query)
     session.commit()
     session.refresh(code_query)

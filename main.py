@@ -8,6 +8,8 @@ from routers.users import user_router
 from routers.roles import role_router
 from routers.auth import auth_router
 from routers.code import code_router
+from routers.mail import email_router
+
 from routers.employers import employers_router
 from routers.accountant import accountant_router
 from routers.companies import companies_router
@@ -54,6 +56,7 @@ app.include_router(accountant_router, tags=["accountant"], prefix="/api/accounta
 app.include_router(companies_router, tags=["companies"], prefix="/api/companies")
 app.include_router(employers_router, tags=["employers"], prefix="/api/employers")
 app.include_router(time_router, tags=["time"], prefix="/api/time")
+app.include_router(email_router, tags=["email"], prefix="/api/email")
 
 
 if __name__ == "__main__":

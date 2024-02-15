@@ -73,7 +73,7 @@ class Code(Base):
     id: Mapped[int] = mapped_column(
         Integer, primary_key=True, autoincrement=True, index=True
     )
-    email: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
+    email: Mapped[str] = mapped_column(String(30), nullable=False, index=True)
     code: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
     users : Mapped["User"] =     relationship("User",secondary="users_coders",back_populates="codes")
 
