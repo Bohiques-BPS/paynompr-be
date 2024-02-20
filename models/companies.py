@@ -45,9 +45,11 @@ class  Companies(Base):
     industrial_code: Mapped[str] = mapped_column(String(50))
     payer: Mapped[str] = mapped_column(String(50))
     desem: Mapped[str] = mapped_column(String(50))
+    employed_contribution: Mapped[str] = mapped_column(String(50))
+
 
     disabled_percent: Mapped[str] = mapped_column(String(50))
-    driver: Mapped[str] = mapped_column(String(50))
+    unemployment_percentage: Mapped[str] = mapped_column(String(50))
     polize_number: Mapped[str] = mapped_column(String(50))
     driver_code: Mapped[str] = mapped_column(String(50))
     driver_rate: Mapped[str] = mapped_column(String(50))

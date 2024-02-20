@@ -27,9 +27,9 @@ class CompaniesSchema(BaseModel):
     desem: str | None = None
     number_patronal: str | None = None
     coml : date | None = None
-
+    employed_contribution: str | None = None
     disabled_percent: str | None = None
-    driver: str | None = None
+    unemployment_percentage: str | None = None
     polize_number: str | None = None
     driver_code: str | None = None
     driver_rate: str | None = None

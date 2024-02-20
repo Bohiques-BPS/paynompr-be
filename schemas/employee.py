@@ -33,11 +33,13 @@ class EmployersSchema(BaseModel):
     date_egress:  date | None = None
     overtime:  float | None = None
     mealtime:  float | None = None
-    vacation_hours:  str | None = None
+    vacation_hours:  int | None = None
     vacation_date:  date | None = None
-    number_dependents:  str | None = None
+    sicks_hours:  int | None = None
+    sicks_date:  date | None = None
+    number_dependents:  int | None = None
     shared_custody:  bool | None = None
-    number_concessions:  str | None = None
+    number_concessions:  int | None = None
     veteran:  bool | None = None
     type_payroll:  int | None = None
     schedule_type:  int | None = None

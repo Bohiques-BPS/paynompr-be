@@ -25,6 +25,7 @@ async def create_company(companie_data: CompaniesSchema,user: user_dependency):
         jurisdiction = companie_data.jurisdiction,
         accountant_id = companie_data.accountant_id,
         email= companie_data.email,
+        employed_contribution = companie_data.employed_contribution,
         contact= companie_data.contact,
         contact_number = companie_data.contact_number,
         website = companie_data.website,
@@ -44,7 +45,7 @@ async def create_company(companie_data: CompaniesSchema,user: user_dependency):
         payer = companie_data.payer,
         desem = companie_data.desem,
         disabled_percent = companie_data.disabled_percent,
-        driver = companie_data.driver,
+        unemployment_percentage = companie_data.unemployment_percentage,
         code_id = user["code"],
         polize_number = companie_data.polize_number,
         driver_code = companie_data.driver_code,
@@ -104,40 +105,42 @@ async def get_companies_by_id(companies_id: int):
 
 
 @companies_router.put("/{companies_id}")
-async def update_company(companies_id: int, new_user_data: CompaniesSchema):
+async def update_company(companies_id: int, company_data: CompaniesSchema):
     company_query = session.query(Companies).filter_by(id=companies_id).one_or_none()
     
     if not company_query:
-        return {"ok": False, "msg": "Companies not found", "result": new_user_data}
-    company_query.name= new_user_data.name
-    company_query.commercial_register = new_user_data.commercial_register
-    company_query.jurisdiction = new_user_data.jurisdiction
-    company_query.accountant_id = new_user_data.accountant_id
-    company_query.email= new_user_data.email
-    company_query.contact= new_user_data.contact
-    company_query.contact_number = new_user_data.contact_number
-    company_query.website = new_user_data.website
-    company_query.postal_address = new_user_data.postal_address
-    company_query.zipcode_postal_address = new_user_data.zipcode_postal_address
-    company_query.country_postal_address = new_user_data.country_postal_address
-    company_query.state_postal_addess = new_user_data.state_postal_addess
-    company_query.number_patronal= new_user_data.number_patronal
-    company_query.coml = new_user_data.coml
-    company_query.physical_address = new_user_data.physical_address
-    company_query.zipcode_physical_address = new_user_data.zipcode_physical_address
-    company_query.country_physical_address = new_user_data.country_physical_address
-    company_query.state_physical_address = new_user_data.state_physical_address
-    company_query.phone_number = new_user_data.phone_number
-    company_query.fax_number = new_user_data.fax_number
-    company_query.industrial_code = new_user_data.industrial_code
-    company_query.payer = new_user_data.payer
-    company_query.desem = new_user_data.desem
-    company_query.disabled_percent = new_user_data.disabled_percent
-    company_query.driver = new_user_data.driver
+        return {"ok": False, "msg": "Companies not found"}
+    company_query.name= company_data.name
+    company_query.commercial_register = company_data.commercial_register
+    company_query.jurisdiction = company_data.jurisdiction
+    company_query.accountant_id = company_data.accountant_id
+    company_query.email= company_data.email
+    company_query.contact= company_data.contact
+    company_query.contact_number = company_data.contact_number
+    company_query.website = company_data.website
+    company_query.employed_contribution = company_data.employed_contribution
+    company_query.postal_address = company_data.postal_address
+    company_query.zipcode_postal_address = company_data.zipcode_postal_address
+    company_query.country_postal_address = company_data.country_postal_address
+    company_query.state_postal_addess = company_data.state_postal_addess
+    company_query.number_patronal= company_data.number_patronal
+    company_query.coml = company_data.coml
+    
+    company_query.physical_address = company_data.physical_address
+    company_query.zipcode_physical_address = company_data.zipcode_physical_address
+    company_query.country_physical_address = company_data.country_physical_address
+    company_query.state_physical_address = company_data.state_physical_address
+    company_query.phone_number = company_data.phone_number
+    company_query.fax_number = company_data.fax_number
+    company_query.industrial_code = company_data.industrial_code
+    company_query.payer = company_data.payer
+    company_query.desem = company_data.desem
+    company_query.disabled_percent = company_data.disabled_percent
+    company_query.unemployment_percentage = company_data.unemployment_percentage
   
-    company_query.polize_number = new_user_data.polize_number
-    company_query.driver_code = new_user_data.driver_code
-    company_query.driver_rate = new_user_data.driver_rate
+    company_query.polize_number = company_data.polize_number
+    company_query.driver_code = company_data.driver_code
+    company_query.driver_rate = company_data.driver_rate
 
     session.add(company_query)
     session.commit()

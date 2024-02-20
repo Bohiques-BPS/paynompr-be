@@ -47,13 +47,17 @@ class  Employers(Base):
     )
     overtime: Mapped[float] = mapped_column(nullable=True) 
     mealtime: Mapped[float] = mapped_column(nullable=True) 
-    vacation_hours: Mapped[str] = mapped_column(String(50),nullable=True) 
+    vacation_hours: Mapped[str] = mapped_column(nullable=True) 
     vacation_date: Mapped[TIMESTAMP] = mapped_column(
         Date(), nullable=True
     )
-    number_dependents: Mapped[str] = mapped_column(String(50),nullable=True) 
+    sicks_hours: Mapped[int] = mapped_column(nullable=True) 
+    sicks_date: Mapped[TIMESTAMP] = mapped_column(
+        Date(), nullable=True
+    )
+    number_dependents: Mapped[int] = mapped_column(nullable=True) 
     shared_custody: Mapped[bool] = mapped_column(Boolean,default=True) 
-    number_concessions: Mapped[str] = mapped_column(String(50),nullable=True) 
+    number_concessions: Mapped[int] = mapped_column(nullable=True) 
     veteran: Mapped[bool] = mapped_column(Boolean,default=True) 
     type_payroll: Mapped[str] = mapped_column(String(50),nullable=True) 
     schedule_type: Mapped[str] = mapped_column(String(50),nullable=True) 

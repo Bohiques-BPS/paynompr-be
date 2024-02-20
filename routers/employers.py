@@ -55,6 +55,9 @@ async def create_employer(employer_data: EmployersSchema, company_id : int):
         mealtime = employer_data.mealtime,
         vacation_hours = employer_data.vacation_hours,
         vacation_date = employer_data.vacation_date,
+        sicks_hours = employer_data.sicks_hours,
+        sicks_date = employer_data.sicks_date,
+        
         number_dependents = employer_data.number_dependents,
         shared_custody = employer_data.shared_custody,
         number_concessions = employer_data.number_concessions,
@@ -125,6 +128,8 @@ async def update_employer(employers_id: int, employer: EmployersSchema, user: us
     employer_query.birthday = employer.birthday
     employer_query.date_admission = employer.date_admission
     employer_query.date_egress = employer.date_egress
+    employer_query.sicks_hours = employer.sicks_hours,
+    employer_query.sicks_date = employer.sicks_date,
     employer_query.overtime = employer.overtime
     employer_query.mealtime = employer.mealtime
     employer_query.vacation_hours = employer.vacation_hours
