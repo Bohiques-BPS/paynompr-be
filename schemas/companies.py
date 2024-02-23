@@ -1,6 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 from datetime import date
 from schemas.employee import EmployerReturnIDShema
+from schemas.taxes import TaxeIDShema
 
 class CompaniesSchema(BaseModel):    
     
@@ -41,7 +42,8 @@ class CompaniesIdSchema(CompaniesSchema):
     id: int
 
 class CompaniesWithEmployersSchema(CompaniesIdSchema): 
-    employers: list[EmployerReturnIDShema] = []    
+    employers: list[EmployerReturnIDShema] = [] 
+    taxes:     list[TaxeIDShema] = [] 
     class Config:
         orm_mode = True
 

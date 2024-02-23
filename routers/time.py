@@ -8,6 +8,7 @@ from database.config import session
 from routers.auth import user_dependency
 
 from models.time import Time
+from models.payments import Payments
 
 
 
@@ -29,11 +30,19 @@ async def create_time(time_data: TimeShema, employer_id : int):
         sick_hours = time_data.sick_hours,
         vacations_hours =  time_data.vacations_hours,     
         employer_id = employer_id,
+        
         disability = time_data.disability,
         medicare = time_data.medicare,
         regular_pay = time_data.regular_pay,
     )
-     
+
+    for item in time_data.payments:
+        payment_query = Payments(
+            name = item.name,
+            amount = item.amount
+        );
+        session.add(payment_query)
+        session.commit() 
   
     session.add(time_query)
     session.commit()
@@ -56,12 +65,12 @@ async def get_time_by_employer_id(employer_id: int):
 async def update_employer(employers_id: int, time: TimeIDShema):
     time_query = session.query(Time).filter_by(Time.employer_id==employers_id).first()
         
-    regular_time = time.regular_time,
-    overtime = time.overtime,
-    meal_time = time.meal_time,
-    sick_hours = time.sick_hours,
-    vacations_hours =  time.sick_vacations,     
-    employer_id = employer_id    
+    time_query.regular_time = time.regular_time,
+    time_query.overtime = time.overtime,
+    time_query.meal_time = time.meal_time,
+    time_query.sick_hours = time.sick_hours,
+    time_query.vacations_hours =  time.vacations_hours,     
+  
     
 
     session.add(time_query)

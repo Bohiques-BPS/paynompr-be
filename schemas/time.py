@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict
-
+from schemas.payments import PaymentIDShema
 
 class TimeShema(BaseModel):
     regular_time : int
@@ -10,6 +10,7 @@ class TimeShema(BaseModel):
     disability : float
     medicare: float
     regular_pay: float
+    payments: list[PaymentIDShema]
      
 
     model_config : ConfigDict(from_attributes=True)

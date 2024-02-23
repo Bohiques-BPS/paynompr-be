@@ -28,6 +28,8 @@ class  Companies(Base):
     number_patronal : Mapped[str] = mapped_column(String(50))
     accountant_id: Mapped[int] = mapped_column(nullable=True,)
     employers = relationship("Employers", back_populates="company")
+    taxes = relationship("Taxes", back_populates="company")
+
     email: Mapped[str] = mapped_column(String(50))
     contact: Mapped[str] = mapped_column(String(50))
     contact_number: Mapped[str] = mapped_column(String(50))

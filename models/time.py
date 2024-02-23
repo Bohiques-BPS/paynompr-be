@@ -21,12 +21,13 @@ class  Time(Base):
     disability: Mapped[float] = mapped_column(nullable=True,default=0)     
     medicare: Mapped[float] = mapped_column(nullable=True,default=0)     
     regular_pay: Mapped[float] = mapped_column(nullable=True,default=0)  
-
+    
     employer_id: Mapped[int] = mapped_column(
         Integer(), ForeignKey("employers.id"), nullable=True, index=True
     )
     
     employer = relationship("Employers", back_populates="time")
+    payment = relationship("Payments", back_populates="time")
     
 
     

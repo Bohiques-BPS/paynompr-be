@@ -9,6 +9,8 @@ from schemas.companies import CompaniesSchema , CompaniesWithEmployersSchema
 
 from models.companies import Companies
 from models.employers import Employers
+from models.taxes import Taxes
+
 from models.time import Time
 
 from routers.auth import user_dependency
@@ -77,9 +79,10 @@ async def get_all_company_and_employer(user: user_dependency,company_id: int,emp
     companies_query = session.query(Employers, Companies).join(Companies, onclause=Companies.id == company_id).filter(Companies.code_id == user["code"], Employers.id == employers_id).first()
     employer, company = companies_query # Desempaquetar la tupla  
     time_query = session.query(Time).filter(Time.employer_id == employers_id).all()
+    taxes_query = session.query(Taxes).filter(Taxes.company_id == company_id).all()
 
 
-    return {"ok": True, "msg": "user was successfully created", "result": {"company": company, "employer": employer, "time": time_query}}
+    return {"ok": True, "msg": "user was successfully created", "result": {"company": company, "employer": employer, "time": time_query, "taxes" : taxes_query}}
 
     
 
