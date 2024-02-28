@@ -18,8 +18,10 @@ class  Time(Base):
     meal_time: Mapped[int] = mapped_column(nullable=True,default=0)     
     sick_hours: Mapped[int] = mapped_column(nullable=True,default=0)     
     vacations_hours: Mapped[int] = mapped_column(nullable=True,default=0)     
-    disability: Mapped[float] = mapped_column(nullable=True,default=0)     
-    medicare: Mapped[float] = mapped_column(nullable=True,default=0)     
+    sick_pay: Mapped[float] = mapped_column(nullable=True,default=0) 
+    vacation_pay: Mapped[float] = mapped_column(nullable=True,default=0) 
+    meal_time_pay: Mapped[float] = mapped_column(nullable=True,default=0)  
+    overtime_pay: Mapped[float] = mapped_column(nullable=True,default=0)  
     regular_pay: Mapped[float] = mapped_column(nullable=True,default=0)  
     
     employer_id: Mapped[int] = mapped_column(

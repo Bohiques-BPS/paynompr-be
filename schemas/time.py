@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 from schemas.payments import PaymentIDShema
+from datetime import date
 
 class TimeShema(BaseModel):
     regular_time : int
@@ -7,9 +8,12 @@ class TimeShema(BaseModel):
     meal_time : int
     sick_hours : int
     vacations_hours :  int
-    disability : float
-    medicare: float
+    sick_pay: int
     regular_pay: float
+    vacation_pay:float
+    meal_time_pay: float
+    overtime_pay:float 
+   
     payments: list[PaymentIDShema]
      
 
@@ -17,6 +21,7 @@ class TimeShema(BaseModel):
 
 
 class TimeIDShema(TimeShema):
+    created_at : date
     id: int
    
 
