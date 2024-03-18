@@ -51,13 +51,29 @@ async def create_time(time_data: TimeShema, employer_id : int):
     session.refresh(time_query) 
 
     for item in time_data.payments:
-        payment_query = Payments(
-            name = item.name,
-            amount = item.amount,
-            time_id = time_query.id
-        );
-        session.add(payment_query)
-        session.commit() 
+        if (item.requiered == 2):
+            payment_query = Payments(
+                name = item.name,
+                amount = item.amount,
+                time_id = time_query.id,
+                requiered = item.requiered,
+                type_taxe = item.type_taxe,
+                type_amount = item.type_amount
+            );
+            session.add(payment_query)
+            session.commit() 
+        if (item.requiered == 1 and item.is_active ):
+            payment_query = Payments(
+                name = item.name,
+                amount = item.amount,
+                time_id = time_query.id,
+                requiered = item.requiered,
+                type_taxe = item.type_taxe,
+                type_amount = item.type_amount
+            );
+            session.add(payment_query)
+            session.commit() 
+        
   
       
     return {"ok": True, "msg": "Time was successfully created", "result": time_query}

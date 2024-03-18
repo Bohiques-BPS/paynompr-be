@@ -25,9 +25,14 @@ async def create_taxe(taxe_data: TaxeShema, company_id : int):
     taxes_query = Taxes(        
         name = taxe_data.name,
         amount = taxe_data.amount,
-        company_id = company_id,     
+        company_id = company_id,   
+        requiered = taxe_data.requiered,  
+        type_taxe = taxe_data.type_taxe,  
+
+        type_amount = taxe_data.type_amount,  
+
     )     
-  
+     
     session.add(taxes_query)
     session.commit()
     session.refresh(taxes_query)   
@@ -55,12 +60,15 @@ async def get_taxes_by_company(company_id: int,taxe_id:int):
     }
 
 @taxes_router.put("/{taxe_id}")
-async def update_taxe(taxe_id: int, time: TaxeIDShema):
+async def update_taxe(taxe_id: int, taxe: TaxeIDShema):
     taxes_query = session.query(Taxes).filter(Taxes.id==taxe_id).first()
         
-    taxes_query.name = time.name,
-    taxes_query.amount = time.amount,   
-    
+    taxes_query.name = taxe.name,
+    taxes_query.amount = taxe.amount,   
+    taxes_query.requiered = taxe.requiered,  
+    taxes_query.type_taxe = taxe.type_taxe,  
+
+    taxes_query.type_amount = taxe.type_amount,  
 
     session.add(taxes_query)
     session.commit()

@@ -15,6 +15,9 @@ class  Payments(Base):
     )
     name: Mapped[str] = mapped_column(String(50),nullable=False,)    
     amount: Mapped[float] = mapped_column(nullable=True,default=0)  
+    requiered: Mapped[float] = mapped_column(nullable=True,default=0)  
+    type_taxe: Mapped[float] = mapped_column(nullable=True,default=0)  
+    type_amount: Mapped[float] = mapped_column(nullable=True,default=0)  
 
     time_id: Mapped[int] = mapped_column(
         Integer(), ForeignKey("employers_time.id"), nullable=True, index=True
