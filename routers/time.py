@@ -40,6 +40,7 @@ async def create_time(time_data: TimeShema, employer_id : int):
         sick_hours = time_data.sick_hours,
         vacations_hours =  time_data.vacations_hours,     
         employer_id = employer_id,
+        tips = time_data.tips,
         sick_pay= time_data.sick_pay,
         vacation_pay = time_data.vacation_pay,
         meal_time_pay = time_data.meal_time_pay,
@@ -107,7 +108,7 @@ async def update_employer(employers_id: int, time: TimeIDShema):
     time_query.vacation_pay = time.vacation_pay
     time_query.meal_time_pay = time.meal_time_pay
     time_query.overtime_pay =   time.overtime_pay
-    
+    time_query.tips = time.tips
 
     session.add(time_query)
     session.commit()
