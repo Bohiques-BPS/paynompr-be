@@ -63,7 +63,7 @@ async def create_company(companie_data: CompaniesSchema,user: user_dependency):
     session.commit()
     
     session.refresh(companie_query)
-    return {"ok": True, "msg": "user was successfully created", "result": companie_query}
+    return {"ok": True, "msg": "", "result": companie_query}
 
 
 @companies_router.get("/",response_model=list[CompaniesWithEmployersSchema])
@@ -83,7 +83,7 @@ async def get_all_company_and_employer(user: user_dependency,company_id: int,emp
     taxes_query = session.query(Taxes).filter(Taxes.company_id == company_id).all()
 
 
-    return {"ok": True, "msg": "user was successfully created", "result": {"company": company, "employer": employer, "time": time_query, "taxes" : taxes_query}}
+    return {"ok": True, "msg": "", "result": {"company": company, "employer": employer, "time": time_query, "taxes" : taxes_query}}
 
 @companies_router.get("/{company_id}/{employers_id}/{period_id}")
 async def get_talonario(user: user_dependency,company_id: int,employers_id: int, period_id : int):    
@@ -93,7 +93,7 @@ async def get_talonario(user: user_dependency,company_id: int,employers_id: int,
     taxes_query = session.query(Payments).filter(Payments.time_id == period_id).all()
 
 
-    return {"ok": True, "msg": "user was successfully created", "result": {"company": company, "employer": employer, "time": time_query, "taxes" : taxes_query}}
+    return {"ok": True, "msg": "", "result": {"company": company, "employer": employer, "time": time_query, "taxes" : taxes_query}}
 
   
 
@@ -174,4 +174,21 @@ async def disable_company(id: int):
     session.add(companie_query)   
     session.commit()  
     session.refresh(companie_query)   
-    return {"ok": True, "msg": "user was successfully created", "result": companie_query}
+    return {"ok": True, "msg": "", "result": companie_query}
+
+@companies_router.delete("/delete/{id}")
+async def delete_company(id: int):
+    
+    # Verificar si la compañía tiene empleados asociados
+    employee_count = session.query(Employers).filter(Employers.company_id == id).count()
+
+    if employee_count > 0:   
+        return {"ok": False, "msg": "La compañía tiene empleados y no puede ser eliminada.", "result": None}
+    # Si no hay empleados, proceder con la eliminación
+    company_query = session.query(Companies).filter(Companies.id == id).first()
+    if company_query:
+        session.delete(company_query)
+        session.commit()
+        return {"ok": True, "msg": "Compañía eliminada con éxito.", "result": company_query}
+    else:
+        return {"ok": False, "msg": "Compañía no encontrada.", "result": None}

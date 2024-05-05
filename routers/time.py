@@ -34,11 +34,21 @@ time_router = APIRouter()
 async def create_time(time_data: TimeShema, employer_id : int):    
 
     time_query = Time(        
-        regular_time = time_data.regular_time,
-        overtime = time_data.overtime,
-        meal_time = time_data.meal_time,
+        regular_hours = time_data.regular_hours,
+        regular_min = time_data.regular_min,
+
+        over_hours = time_data.over_hours,
+        over_min = time_data.over_min,
+
+        meal_hours = time_data.meal_hours,
+        meal_min = time_data.meal_min,
+
         sick_hours = time_data.sick_hours,
-        vacations_hours =  time_data.vacations_hours,     
+        sick_min = time_data.sick_min,
+
+        vacations_hours =  time_data.vacations_hours,  
+        vacations_min =  time_data.vacations_min,     
+
         employer_id = employer_id,
         tips = time_data.tips,
         sick_pay= time_data.sick_pay,
@@ -99,12 +109,23 @@ async def get_time_by_employer_id(employer_id: int):
 async def update_employer(employers_id: int, time: TimeIDShema):
     time_query = session.query(Time).filter_by(Time.employer_id==employers_id).first()
         
-    time_query.regular_time = time.regular_time
-    time_query.overtime = time.overtime
-    time_query.meal_time = time.meal_time
+    time_query.regular_hours = time.regular_hours
+    time_query.regular_min = time.regular_min
+
+    time_query.over_hours = time.over_hours
+    time_query.over_min = time.over_min
+
+    time_query.meal_hourss = time.meal_hours
+    time_query.meal_min = time.meal_min
+
+    time_query.vacations_hours =  time.vacations_hours
+    time_query.vacations_min =  time.vacations_min    
+
     time_query.sick_hours = time.sick_hours
+    time_query.sick_min = time.sick_min
+
+
     time_query.sick_pay = time.sick_pay
-    time_query.vacations_hours =  time.vacations_hours    
     time_query.vacation_pay = time.vacation_pay
     time_query.meal_time_pay = time.meal_time_pay
     time_query.overtime_pay =   time.overtime_pay

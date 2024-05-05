@@ -9,6 +9,7 @@ from routers.auth import user_dependency
 
 from models.employers import Employers
 from models.companies import Companies
+from models.time import Time
 
 
 from schemas.employee import EmployersSchema
@@ -162,3 +163,21 @@ async def employers(employers_id: int, user: user_dependency):
     session.commit()  
     session.refresh(employer_query)   
     return {"ok": True, "msg": "user was successfully created", "result": employer_query}
+
+
+@employers_router.delete("/delete/{employers_id}")
+async def delete_employer(employers_id: int, user: user_dependency):
+    
+    # Verificar si la compañía tiene time asociados
+    time_count = session.query(Time).filter(Time.employer_id == employers_id).count()
+
+    if time_count > 0:   
+        return {"ok": False, "msg": "El empleado tiene horas cargadas y no puede ser eliminada.", "result": None}
+    # Si no hay empleados, proceder con la eliminación
+    employer_query = session.query(Employers).join(Companies).filter(Employers.id == employers_id, Companies.id == Employers.company_id,Companies.code_id == user["code"]).first()
+    if employer_query:
+        session.delete(employer_query)
+        session.commit()
+        return {"ok": True, "msg": "Empleado eliminada con éxito.", "result": employer_query}
+    else:
+        return {"ok": False, "msg": "Empleado no encontrada.", "result": None}

@@ -13,11 +13,22 @@ class  Time(Base):
     id: Mapped[int] = mapped_column(
         Integer, primary_key=True, autoincrement=True, index=True
     )
-    regular_time: Mapped[str] = mapped_column(nullable=True,default=0)    
-    overtime: Mapped[str] = mapped_column(nullable=True,default=0)     
-    meal_time: Mapped[str] = mapped_column(nullable=True,default=0)     
-    sick_hours: Mapped[str] = mapped_column(nullable=True,default=0)     
-    vacations_hours: Mapped[str] = mapped_column(nullable=True,default=0)     
+    regular_hours: Mapped[str] = mapped_column(nullable=True,default=0) 
+    regular_min: Mapped[str] = mapped_column(nullable=True,default=0)  
+
+    over_hours: Mapped[str] = mapped_column(nullable=True,default=0)   
+    over_min: Mapped[str] = mapped_column(nullable=True,default=0) 
+
+    meal_hours: Mapped[str] = mapped_column(nullable=True,default=0)     
+    meal_min: Mapped[str] = mapped_column(nullable=True,default=0)   
+
+    sick_hours: Mapped[str] = mapped_column(nullable=True,default=0)
+    sick_min: Mapped[str] = mapped_column(nullable=True,default=0)
+
+    vacations_hours: Mapped[str] = mapped_column(nullable=True,default=0)  
+    vacations_min: Mapped[str] = mapped_column(nullable=True,default=0)  
+
+
     sick_pay: Mapped[float] = mapped_column(nullable=True,default=0) 
     tips: Mapped[float] = mapped_column(nullable=True,default=0) 
     vacation_pay: Mapped[float] = mapped_column(nullable=True,default=0) 

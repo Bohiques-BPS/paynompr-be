@@ -34,7 +34,7 @@ class CompaniesSchema(BaseModel):
     polize_number: str | None = None
     driver_code: str | None = None
     driver_rate: str | None = None
-
+    is_deleted: bool | None = None
     model_config = ConfigDict(from_attributes=True)
 
 
