@@ -24,11 +24,13 @@ class  Time(Base):
 
     sick_hours: Mapped[str] = mapped_column(nullable=True,default=0)
     sick_min: Mapped[str] = mapped_column(nullable=True,default=0)
-
+    holiday_hours: Mapped[str] = mapped_column(nullable=True,default=0)
+    holiday_min: Mapped[str] = mapped_column(nullable=True,default=0)
     vacations_hours: Mapped[str] = mapped_column(nullable=True,default=0)  
     vacations_min: Mapped[str] = mapped_column(nullable=True,default=0)  
-
-
+    commissions: Mapped[float] = mapped_column(nullable=True,default=0) 
+    concessions: Mapped[float] = mapped_column(nullable=True,default=0) 
+    holyday_pay: Mapped[float] = mapped_column(nullable=True,default=0) 
     sick_pay: Mapped[float] = mapped_column(nullable=True,default=0) 
     tips: Mapped[float] = mapped_column(nullable=True,default=0) 
     vacation_pay: Mapped[float] = mapped_column(nullable=True,default=0) 

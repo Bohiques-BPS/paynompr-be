@@ -39,12 +39,16 @@ async def create_time(time_data: TimeShema, employer_id : int):
 
         over_hours = time_data.over_hours,
         over_min = time_data.over_min,
-
+        holyday_pay = time_data.holyday_pay,
         meal_hours = time_data.meal_hours,
         meal_min = time_data.meal_min,
+        holiday_min = time_data.holiday_min,
+        holiday_hours = time_data.holiday_hours,
 
         sick_hours = time_data.sick_hours,
         sick_min = time_data.sick_min,
+        concessions = time_data.concessions,
+        commissions = time_data.commissions,
 
         vacations_hours =  time_data.vacations_hours,  
         vacations_min =  time_data.vacations_min,     
@@ -111,12 +115,15 @@ async def update_employer(employers_id: int, time: TimeIDShema):
         
     time_query.regular_hours = time.regular_hours
     time_query.regular_min = time.regular_min
-
+    time_query.holyday_pay = time.holyday_pay
     time_query.over_hours = time.over_hours
     time_query.over_min = time.over_min
-
+    time_query.concessions = time.concessions,
+    time_query.commissions = time.commissions,
     time_query.meal_hourss = time.meal_hours
     time_query.meal_min = time.meal_min
+    time_query.holiday_hours = time.holiday_hours
+    time_query.holiday_min = time.holiday_min
 
     time_query.vacations_hours =  time.vacations_hours
     time_query.vacations_min =  time.vacations_min    
