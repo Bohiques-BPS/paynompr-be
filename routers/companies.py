@@ -10,6 +10,7 @@ from schemas.companies import CompaniesSchema , CompaniesWithEmployersSchema
 from models.companies import Companies
 from models.employers import Employers
 from models.taxes import Taxes
+from sqlalchemy.orm import joinedload
 
 from models.time import Time
 from models.payments import Payments
@@ -79,11 +80,13 @@ async def get_all_companies(user: user_dependency):
 async def get_all_company_and_employer(user: user_dependency,company_id: int,employers_id: int):    
     companies_query = session.query(Employers, Companies).join(Companies, onclause=Companies.id == company_id).filter(Companies.code_id == user["code"], Employers.id == employers_id).first()
     employer, company = companies_query # Desempaquetar la tupla  
-    time_query = session.query(Time).filter(Time.employer_id == employers_id).all()
+    simple_query = session.query(Time).join(Payments).filter(Time.employer_id==employers_id).all()
+    for time_obj in simple_query:
+        print(time_obj.payment)  # Acceder a la relación payment definida en el modelo Time
     taxes_query = session.query(Taxes).filter(Taxes.company_id == company_id).all()
 
 
-    return {"ok": True, "msg": "", "result": {"company": company, "employer": employer, "time": time_query, "taxes" : taxes_query}}
+    return {"ok": True, "msg": "", "result": {"company": company, "employer": employer, "time": simple_query, "taxes" : taxes_query}}
 
 @companies_router.get("/{company_id}/{employers_id}/{period_id}")
 async def get_talonario(user: user_dependency,company_id: int,employers_id: int, period_id : int):    

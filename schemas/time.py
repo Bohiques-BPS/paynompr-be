@@ -26,7 +26,7 @@ class TimeShema(BaseModel):
     meal_time_pay: float
     overtime_pay:float 
     tips: float
-    payments: list[PaymentIDShema]
+    payment: list[PaymentIDShema]
      
 
     model_config : ConfigDict(from_attributes=True)
@@ -35,5 +35,11 @@ class TimeShema(BaseModel):
 class TimeIDShema(TimeShema):
     created_at : date
     id: int
+
+class TimeIDShema2(TimeShema):
+   
+    id: int
+   
+
    
 

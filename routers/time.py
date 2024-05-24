@@ -22,7 +22,7 @@ from models.payments import Payments
 
 
 
-from schemas.time import TimeIDShema, TimeShema
+from schemas.time import TimeIDShema, TimeShema, TimeIDShema2
 from passlib.context import CryptContext
 
 
@@ -65,7 +65,7 @@ async def create_time(time_data: TimeShema, employer_id : int):
     session.commit()
     session.refresh(time_query) 
 
-    for item in time_data.payments:
+    for item in time_data.payment:
         if (item.requiered == 2):
             payment_query = Payments(
                 name = item.name,
@@ -108,10 +108,11 @@ async def get_time_by_employer_id(employer_id: int):
         "msg": "Employers were successfully retrieved",
         "result": time_query,
     }
+ 
 
-@time_router.put("/{employers_id}")
-async def update_employer(employers_id: int, time: TimeIDShema):
-    time_query = session.query(Time).filter_by(Time.employer_id==employers_id).first()
+@time_router.put("/{time_id}")
+async def update_time(time_id: int, time: TimeIDShema2):
+    time_query = session.query(Time).filter_by(id=time_id).one_or_none()
         
     time_query.regular_hours = time.regular_hours
     time_query.regular_min = time.regular_min
@@ -142,6 +143,29 @@ async def update_employer(employers_id: int, time: TimeIDShema):
     session.commit()
     session.refresh(time_query)
 
-    return {"ok": True, "msg": "user was successfully updated", "result": time_query}
+    for item in time.payment:
+        payment_query = session.query(Payments).filter_by(id=item.id).first()
+        if (item.requiered == 2):            
+            payment_query.name = item.name,
+            payment_query.amount = item.amount,
+          
+            payment_query.requiered = item.requiered,
+            payment_query.type_taxe = item.type_taxe,
+            payment_query.type_amount = item.type_amount          
+            
+        if (item.requiered == 1 and item.is_active ):
+           
+            payment_query.name = item.name,
+            payment_query.amount = item.amount,
+          
+            payment_query.requiered = item.requiered,
+            payment_query.type_taxe = item.type_taxe,
+            payment_query.type_amount = item.type_amount
+
+        session.add(payment_query)
+        session.commit()             
+           
+    
+    return {"ok": True, "msg": "Time was successfully updated", "result": time_query}
 
 
