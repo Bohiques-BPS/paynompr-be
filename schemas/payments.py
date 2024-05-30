@@ -3,7 +3,8 @@ from pydantic import BaseModel, ConfigDict
 
 class PaymentShema(BaseModel):
     name : str
-    amount : float  
+    amount : float 
+    value: float 
     requiered: float  
     type_taxe: float
     is_active: bool | None = None

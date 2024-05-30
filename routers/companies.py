@@ -6,11 +6,13 @@ from sqlalchemy.orm import aliased
 from fastapi import APIRouter
 from database.config import session
 from schemas.companies import CompaniesSchema , CompaniesWithEmployersSchema 
+from sqlalchemy.orm import Session
 
 from models.companies import Companies
 from models.employers import Employers
 from models.taxes import Taxes
 from sqlalchemy.orm import joinedload
+
 
 from models.time import Time
 from models.payments import Payments
@@ -67,9 +69,18 @@ async def create_company(companie_data: CompaniesSchema,user: user_dependency):
     return {"ok": True, "msg": "", "result": companie_query}
 
 
-@companies_router.get("/",response_model=list[CompaniesWithEmployersSchema])
+@companies_router.get("/", response_model=list[CompaniesWithEmployersSchema])
 async def get_all_companies(user: user_dependency):
-    companies_query = session.query(Companies).filter(Companies.code_id == user["code"]).all()
+    companies_query = (
+    session.query(Companies)
+    .options(joinedload(Companies.employers))
+    .filter(Companies.code_id == user["code"])
+    .all()
+    )
+
+    # Filtrar manualmente los empleados con is_deleted false para cada compañía
+    for company in companies_query:
+        company.employers = [employer for employer in company.employers if not employer.is_deleted]
 
     return companies_query
 
@@ -80,10 +91,10 @@ async def get_all_companies(user: user_dependency):
 async def get_all_company_and_employer(user: user_dependency,company_id: int,employers_id: int):    
     companies_query = session.query(Employers, Companies).join(Companies, onclause=Companies.id == company_id).filter(Companies.code_id == user["code"], Employers.id == employers_id).first()
     employer, company = companies_query # Desempaquetar la tupla  
-    simple_query = session.query(Time).join(Payments).filter(Time.employer_id==employers_id).all()
+    simple_query = session.query(Time).join(Payments).filter(Time.employer_id == employers_id ).all()
     for time_obj in simple_query:
         print(time_obj.payment)  # Acceder a la relación payment definida en el modelo Time
-    taxes_query = session.query(Taxes).filter(Taxes.company_id == company_id).all()
+    taxes_query = session.query(Taxes).filter(Taxes.company_id == company_id, Taxes.is_deleted == False).all()
 
 
     return {"ok": True, "msg": "", "result": {"company": company, "employer": employer, "time": simple_query, "taxes" : taxes_query}}

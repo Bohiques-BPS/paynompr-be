@@ -40,6 +40,7 @@ async def create_employer(employer_data: EmployersSchema, company_id : int):
         smartphone_number = employer_data.smartphone_number,
         marbete = employer_data.marbete,
         date_marb = employer_data.date_marb,
+        is_deleted = False,
         type = employer_data.type,
         clipboard = employer_data.clipboard,
         exec_personal = employer_data.exec_personal,
@@ -110,6 +111,7 @@ async def update_employer(employers_id: int, employer: EmployersSchema, user: us
     employer_query.social_security_number = employer.social_security_number
     employer_query.marital_status = employer.marital_status
     employer_query.address = employer.address
+    
     employer_query.address_state = employer.address_state
     employer_query.address_country = employer.address_country
     employer_query.address_number = employer.address_number
@@ -162,7 +164,7 @@ async def employers(employers_id: int, user: user_dependency):
     session.add(employer_query)   
     session.commit()  
     session.refresh(employer_query)   
-    return {"ok": True, "msg": "user was successfully created", "result": employer_query}
+    return {"ok": True, "msg": "Employer was change status", "result": employer_query}
 
 
 @employers_router.delete("/delete/{employers_id}")

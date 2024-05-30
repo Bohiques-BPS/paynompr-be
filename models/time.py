@@ -15,7 +15,7 @@ class  Time(Base):
     )
     regular_hours: Mapped[str] = mapped_column(nullable=True,default=0) 
     regular_min: Mapped[str] = mapped_column(nullable=True,default=0)  
-
+    
     over_hours: Mapped[str] = mapped_column(nullable=True,default=0)   
     over_min: Mapped[str] = mapped_column(nullable=True,default=0) 
 

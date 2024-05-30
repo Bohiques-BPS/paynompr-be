@@ -47,6 +47,7 @@ class EmployersSchema(BaseModel):
 
 
 class EmployerReturnIDShema(EmployersSchema):
+    is_deleted: bool | None = None 
     id : int
 
 

@@ -15,7 +15,7 @@ from routers.accountant import accountant_router
 from routers.companies import companies_router
 from routers.taxes import taxes_router
 from routers.time import time_router
-
+from routers.outemployers import outemployers_router
 
 from models.users import User, Role ,Code , UserCode
 
@@ -59,7 +59,8 @@ app.include_router(companies_router, tags=["companies"], prefix="/api/companies"
 app.include_router(employers_router, tags=["employers"], prefix="/api/employers")
 app.include_router(time_router, tags=["time"], prefix="/api/time")
 app.include_router(taxes_router, tags=["taxes"], prefix="/api/taxes")
+app.include_router(outemployers_router, tags=["outemployers"], prefix="/api/outemployers")
 
-taxes_router
+
 if __name__ == "__main__":
     uvicorn.run(app, port=PORT, host="0.0.0.0")

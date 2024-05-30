@@ -8,7 +8,7 @@ class TimeShema(BaseModel):
 
     over_hours: str   
     over_min: str 
-
+  
     meal_hours: str     
     meal_min: str   
     holiday_hours: str
@@ -37,7 +37,7 @@ class TimeIDShema(TimeShema):
     id: int
 
 class TimeIDShema2(TimeShema):
-   
+    
     id: int
    
 
