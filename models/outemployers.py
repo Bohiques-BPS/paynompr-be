@@ -30,10 +30,12 @@ class  OutEmployers(Base):
     email: Mapped[str] = mapped_column(String(50),nullable=True) 
     fax : Mapped[str] = mapped_column(String(50),nullable=True) 
     website : Mapped[str] = mapped_column(String(50),nullable=True) 
-    withholding: Mapped[str] = mapped_column(String(50),nullable=True)   
+    withholding: Mapped[str] = mapped_column(nullable=True)   
     merchant_register : Mapped[str] = mapped_column(String(50),nullable=True) 
     employer_id: Mapped[str] = mapped_column(String(50),nullable=True) 
-    bank_account: Mapped[str] = mapped_column(String(50),nullable=True)    
+    bank_account: Mapped[str] = mapped_column(String(50),nullable=True)  
+        
+  
     address: Mapped[str] = mapped_column(String(50),nullable=True)    
     address_state: Mapped[str] = mapped_column(String(50),nullable=True)    
     address_country: Mapped[str] = mapped_column(String(50),nullable=True)    

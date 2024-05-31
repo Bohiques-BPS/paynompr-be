@@ -31,13 +31,17 @@ async def create_employer(employer_data: OutEmployersSchema, company_id : int):
         company_id =  company_id,
         account_number = employer_data.account_number,
         email = employer_data.email,
+        type_entity = employer_data.type_entity,
+        withholding = employer_data.withholding,
+        employer_id = employer_data.employer_id,
         address = employer_data.address,
         address_state = employer_data.address_state,
         address_country = employer_data.address_country,
         address_number = employer_data.address_number,
         phone_number = employer_data.phone_number,
         smartphone_number = employer_data.smartphone_number,
-        
+        bank_account = employer_data.bank_account,
+        merchant_register= employer_data.merchant_register,
         is_deleted = False,
         
         
@@ -85,15 +89,20 @@ async def update_employer(outemployers_id: int, employer: OutEmployersSchema, us
     outemployer_query.mother_last_name = employer.mother_last_name
     outemployer_query.first_name = employer.first_name
     outemployer_query.middle_name = employer.middle_name    
-    outemployer_query.address = employer.address    
+    outemployer_query.address = employer.address   
+    outemployer_query.withholding = employer.withholding 
+    outemployer_query.employer_id = employer.employer_id
     outemployer_query.address_state = employer.address_state
     outemployer_query.address_country = employer.address_country
     outemployer_query.address_number = employer.address_number
     outemployer_query.phone_number = employer.phone_number
+    outemployer_query.type_entity = employer.type_entity
     outemployer_query.smartphone_number = employer.smartphone_number   
     outemployer_query.gender = employer.gender
     outemployer_query.birthday = employer.birthday   
-
+    outemployer_query.merchant_register = employer.merchant_register
+    outemployer_query.account_number = employer.account_number
+    outemployer_query.bank_account = employer.bank_account
     session.add(outemployer_query)
     session.commit()
     session.refresh(outemployer_query)
@@ -114,4 +123,14 @@ async def outemployers(outemployers_id: int, user: user_dependency):
     session.refresh(outemployer_query)   
     return {"ok": True, "msg": "Employer was change status", "result": outemployer_query}
 
-
+@outemployers_router.delete("/delete/{employers_id}")
+async def delete_employer(employers_id: int, user: user_dependency):
+    
+    
+    employer_query = session.query(OutEmployers).join(Companies).filter(OutEmployers.id == employers_id, Companies.id == OutEmployers.company_id,Companies.code_id == user["code"]).first()
+    if employer_query:
+        session.delete(employer_query)
+        session.commit()
+        return {"ok": True, "msg": "Empleado eliminada con éxito.", "result": employer_query}
+    else:
+        return {"ok": False, "msg": "Empleado no encontrada.", "result": None}
