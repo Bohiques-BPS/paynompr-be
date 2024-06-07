@@ -20,7 +20,14 @@ from models.payments import Payments
 from routers.auth import user_dependency
 
 companies_router = APIRouter()
-
+# Datos de los impuestos
+taxes_data = [
+{"name": "Incapacidad", "amount": 0.30, "required": 2, "type_taxe": 1, "type_amount": 1},
+{"name": "Medicare", "amount": 1.45, "required": 2, "type_taxe": 1, "type_amount": 1},
+{"name": "Seguro Social", "amount": 6.2, "required": 2, "type_taxe": 1, "type_amount": 1},
+{"name": "Tax Retenido PR", "amount": 10, "required": 2, "type_taxe": 1, "type_amount": 1},
+{"name": "Seg Social Propinas", "amount": 6.2, "required": 1, "type_taxe": 1, "type_amount": 1}
+]
 
 @companies_router.post("/")
 async def create_company(companie_data: CompaniesSchema,user: user_dependency):    
@@ -66,6 +73,20 @@ async def create_company(companie_data: CompaniesSchema,user: user_dependency):
     session.commit()
     
     session.refresh(companie_query)
+    # Insertar cada impuesto en la base de datos
+    for taxe_data in taxes_data:
+        taxes_query = Taxes(
+        name=taxe_data["name"],
+        amount=taxe_data["amount"],
+        company_id=companie_query.id,  
+        is_deleted=False,
+        requiered=taxe_data["required"],
+        type_taxe=taxe_data["type_taxe"],
+        type_amount=taxe_data["type_amount"]  
+        )
+        session.add(taxes_query)
+
+        session.commit()
     return {"ok": True, "msg": "", "result": companie_query}
 
 
