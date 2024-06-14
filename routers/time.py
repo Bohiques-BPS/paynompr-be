@@ -30,13 +30,14 @@ bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 time_router = APIRouter()
 
 
+
 @time_router.post("/{employer_id}")
 async def create_time(time_data: TimeShema, employer_id : int):    
 
     time_query = Time(        
         regular_hours = time_data.regular_hours,
         regular_min = time_data.regular_min,
-   
+        
         over_hours = time_data.over_hours,
         over_min = time_data.over_min,
         holyday_pay = time_data.holyday_pay,
@@ -49,7 +50,11 @@ async def create_time(time_data: TimeShema, employer_id : int):
         sick_min = time_data.sick_min,
         concessions = time_data.concessions,
         commissions = time_data.commissions,
-
+        inability = time_data.inability,
+        medicare = time_data.medicare,
+        secure_social = time_data.secure_social,
+        social_tips = time_data.social_tips,
+        tax_pr = time_data.tax_pr,
         vacations_hours =  time_data.vacations_hours,  
         vacations_min =  time_data.vacations_min,     
 
@@ -147,7 +152,11 @@ async def update_time(time_id: int, time: TimeIDShema2):
 
     time_query.vacations_hours =  time.vacations_hours
     time_query.vacations_min =  time.vacations_min    
-
+    time_query.inability = time.inability,
+    time_query.medicare = time.medicare,
+    time_query.secure_social = time.secure_social,
+    time_query.social_tips = time.social_tips,
+    time_query.tax_pr = time.tax_pr,
     time_query.sick_hours = time.sick_hours
     time_query.sick_min = time.sick_min
 

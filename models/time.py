@@ -7,6 +7,7 @@ from sqlalchemy.orm import relationship
 from database.config import Base
 
 
+
 class  Time(Base):
     __tablename__ = "employers_time"
 
@@ -37,6 +38,12 @@ class  Time(Base):
     meal_time_pay: Mapped[float] = mapped_column(nullable=True,default=0)  
     overtime_pay: Mapped[float] = mapped_column(nullable=True,default=0)  
     regular_pay: Mapped[float] = mapped_column(nullable=True,default=0)  
+    inability: Mapped[float] = mapped_column(nullable=True,default=0)
+    medicare: Mapped[float] = mapped_column(nullable=True,default=0)
+    secure_social: Mapped[float] = mapped_column(nullable=True,default=0)
+    social_tips: Mapped[float] = mapped_column(nullable=True,default=0)
+    tax_pr: Mapped[float] = mapped_column(nullable=True,default=0)
+
     
     employer_id: Mapped[int] = mapped_column(
         Integer(), ForeignKey("employers.id"), nullable=True, index=True

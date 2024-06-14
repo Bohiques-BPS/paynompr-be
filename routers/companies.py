@@ -21,13 +21,7 @@ from routers.auth import user_dependency
 
 companies_router = APIRouter()
 # Datos de los impuestos
-taxes_data = [
-{"name": "Incapacidad", "amount": 0.30, "required": 2, "type_taxe": 1, "type_amount": 1},
-{"name": "Medicare", "amount": 1.45, "required": 2, "type_taxe": 1, "type_amount": 1},
-{"name": "Seguro Social", "amount": 6.2, "required": 2, "type_taxe": 1, "type_amount": 1},
-{"name": "Tax Retenido PR", "amount": 10, "required": 2, "type_taxe": 1, "type_amount": 1},
-{"name": "Seg Social Propinas", "amount": 6.2, "required": 1, "type_taxe": 1, "type_amount": 1}
-]
+
 
 @companies_router.post("/")
 async def create_company(companie_data: CompaniesSchema,user: user_dependency):    
@@ -73,20 +67,6 @@ async def create_company(companie_data: CompaniesSchema,user: user_dependency):
     session.commit()
     
     session.refresh(companie_query)
-    # Insertar cada impuesto en la base de datos
-    for taxe_data in taxes_data:
-        taxes_query = Taxes(
-        name=taxe_data["name"],
-        amount=taxe_data["amount"],
-        company_id=companie_query.id,  
-        is_deleted=False,
-        requiered=taxe_data["required"],
-        type_taxe=taxe_data["type_taxe"],
-        type_amount=taxe_data["type_amount"]  
-        )
-        session.add(taxes_query)
-
-        session.commit()
     return {"ok": True, "msg": "", "result": companie_query}
 
 
@@ -112,7 +92,7 @@ async def get_all_companies(user: user_dependency):
 async def get_all_company_and_employer(user: user_dependency,company_id: int,employers_id: int):    
     companies_query = session.query(Employers, Companies).join(Companies, onclause=Companies.id == company_id).filter(Companies.code_id == user["code"], Employers.id == employers_id).first()
     employer, company = companies_query # Desempaquetar la tupla  
-    simple_query = session.query(Time).join(Payments).filter(Time.employer_id == employers_id ).all()
+    simple_query = session.query(Time).outerjoin(Payments).filter(Time.employer_id == employers_id).all()
     for time_obj in simple_query:
         print(time_obj.payment)  # Acceder a la relación payment definida en el modelo Time
     taxes_query = session.query(Taxes).filter(Taxes.company_id == company_id, Taxes.is_deleted == False).all()

@@ -26,6 +26,7 @@ class  OutEmployers(Base):
     birthday: Mapped[TIMESTAMP] = mapped_column(
         Date(), nullable=True
     )  
+    regular_pay: Mapped[float] = mapped_column(nullable=True,default=0)  
     account_number: Mapped[str] = mapped_column(String(50),nullable=True) 
     email: Mapped[str] = mapped_column(String(50),nullable=True) 
     fax : Mapped[str] = mapped_column(String(50),nullable=True) 

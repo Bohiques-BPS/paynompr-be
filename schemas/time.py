@@ -17,6 +17,11 @@ class TimeShema(BaseModel):
     sick_min: str
     commissions :float
     concessions :float
+    inability:float
+    medicare :float
+    secure_social :float
+    social_tips :float
+    tax_pr :float
     vacations_hours: str  
     vacations_min: str  
     sick_pay: float

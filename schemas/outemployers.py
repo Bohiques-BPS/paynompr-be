@@ -10,7 +10,7 @@ class OutEmployersSchema(BaseModel):
     middle_name: str | None = None
     email: str | None = None
     account_number : str | None = None
-
+    regular_pay:  float | None = None 
     type_entity:  int | None = None 
     gender:  int | None = None
     birthday:date | None = None

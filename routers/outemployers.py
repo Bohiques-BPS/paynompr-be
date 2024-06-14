@@ -29,6 +29,7 @@ async def create_employer(employer_data: OutEmployersSchema, company_id : int):
         first_name = employer_data.first_name,
         middle_name = employer_data.middle_name,
         company_id =  company_id,
+        regular_pay = employer_data.regular_pay,
         account_number = employer_data.account_number,
         email = employer_data.email,
         type_entity = employer_data.type_entity,
@@ -55,7 +56,16 @@ async def create_employer(employer_data: OutEmployersSchema, company_id : int):
     session.refresh(outemployer_query)   
     return {"ok": True, "msg": "user was successfully created", "result": outemployer_query}
 
+@outemployers_router.get("/{company_id}/{employers_id}")
+async def get_all_company_and_employer(user: user_dependency,company_id: int,employers_id: int):    
+    companies_query = session.query(OutEmployers, Companies).join(Companies, onclause=Companies.id == company_id).filter(Companies.code_id == user["code"], OutEmployers.id == employers_id).first()
+    employer, company = companies_query # Desempaquetar la tupla  
+   
+   
+  
 
+
+    return {"ok": True, "msg": "", "result": {"company": company, "employer": employer}}
 
 @outemployers_router.get("/{company_id}")
 async def get_all_outemployers_by_company_id(company_id: int,user: user_dependency):
@@ -90,6 +100,7 @@ async def update_employer(outemployers_id: int, employer: OutEmployersSchema, us
     outemployer_query.first_name = employer.first_name
     outemployer_query.middle_name = employer.middle_name    
     outemployer_query.address = employer.address   
+    outemployer_query.regular_pay = employer.regular_pay
     outemployer_query.withholding = employer.withholding 
     outemployer_query.employer_id = employer.employer_id
     outemployer_query.address_state = employer.address_state
