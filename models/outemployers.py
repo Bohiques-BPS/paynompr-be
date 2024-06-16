@@ -35,7 +35,7 @@ class  OutEmployers(Base):
     merchant_register : Mapped[str] = mapped_column(String(50),nullable=True) 
     employer_id: Mapped[str] = mapped_column(String(50),nullable=True) 
     bank_account: Mapped[str] = mapped_column(String(50),nullable=True)  
-        
+    time = relationship("TimeOutEmployer", back_populates="employer")
   
     address: Mapped[str] = mapped_column(String(50),nullable=True)    
     address_state: Mapped[str] = mapped_column(String(50),nullable=True)    

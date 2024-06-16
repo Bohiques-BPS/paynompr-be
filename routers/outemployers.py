@@ -9,7 +9,7 @@ from routers.auth import user_dependency
 
 from models.outemployers import OutEmployers
 from models.companies import Companies
-from models.time import Time
+from models.time_outemployer import TimeOutEmployer
 
 
 from schemas.outemployers import OutEmployersSchema
@@ -60,12 +60,12 @@ async def create_employer(employer_data: OutEmployersSchema, company_id : int):
 async def get_all_company_and_employer(user: user_dependency,company_id: int,employers_id: int):    
     companies_query = session.query(OutEmployers, Companies).join(Companies, onclause=Companies.id == company_id).filter(Companies.code_id == user["code"], OutEmployers.id == employers_id).first()
     employer, company = companies_query # Desempaquetar la tupla  
-   
+    simple_query = session.query(TimeOutEmployer).filter(TimeOutEmployer.employer_id == employers_id).all()
    
   
 
 
-    return {"ok": True, "msg": "", "result": {"company": company, "employer": employer}}
+    return {"ok": True, "msg": "", "result": {"company": company, "employer": employer,"time": simple_query}}
 
 @outemployers_router.get("/{company_id}")
 async def get_all_outemployers_by_company_id(company_id: int,user: user_dependency):
