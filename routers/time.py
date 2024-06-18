@@ -152,10 +152,10 @@ async def update_time(time_id: int, time: TimeIDShema2):
 
     time_query.vacations_hours =  time.vacations_hours
     time_query.vacations_min =  time.vacations_min    
-    time_query.inability = time.inability,
-    time_query.medicare = time.medicare,
-    time_query.secure_social = time.secure_social,
-    time_query.social_tips = time.social_tips,
+    time_query.inability = time.inability
+    time_query.medicare = time.medicare
+    time_query.secure_social = time.secure_social
+    time_query.social_tips = time.social_tips
     time_query.tax_pr = time.tax_pr,
     time_query.sick_hours = time.sick_hours
     time_query.sick_min = time.sick_min
