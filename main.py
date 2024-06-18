@@ -4,11 +4,13 @@ import uvicorn
 from dotenv import load_dotenv
 from database.config import init_db
 from sqlalchemy import event
+from models.periods import Period
+from models.time import Time
 from routers.users import user_router
 from routers.roles import role_router
 from routers.auth import auth_router
 from routers.code import code_router
-from routers.mail import email_router
+# from routers.mail import email_router
 
 from routers.employers import employers_router
 from routers.accountant import accountant_router
@@ -17,7 +19,7 @@ from routers.taxes import taxes_router
 from routers.time import time_router
 from routers.outemployers import outemployers_router
 from routers.time_outemployer import outtime_router
-from models.users import User, Role ,Code , UserCode
+from models.users import User, Role, Code, UserCode
 
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -34,6 +36,8 @@ PORT = os.environ.get("PORT")
 event.listen(Role.__table__, "after_create", initialize_table)
 event.listen(Code.__table__, "after_create", initialize_table)
 event.listen(User.__table__, "after_create", initialize_table)
+event.listen(Time.__table__, "after_create", initialize_table)
+event.listen(Period.__table__, "after_create", initialize_table)
 event.listen(UserCode.__table__, "after_create", initialize_table)
 
 
@@ -59,9 +63,11 @@ app.include_router(companies_router, tags=["companies"], prefix="/api/companies"
 app.include_router(employers_router, tags=["employers"], prefix="/api/employers")
 app.include_router(time_router, tags=["time"], prefix="/api/time")
 app.include_router(taxes_router, tags=["taxes"], prefix="/api/taxes")
-app.include_router(outemployers_router, tags=["outemployers"], prefix="/api/outemployers")
+app.include_router(
+    outemployers_router, tags=["outemployers"], prefix="/api/outemployers"
+)
 app.include_router(outtime_router, tags=["outtime_router"], prefix="/api/outtime")
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, port=PORT, host="0.0.0.0")
+    uvicorn.run("main:app", port=int(PORT), host="0.0.0.0", reload=True)
