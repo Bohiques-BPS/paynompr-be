@@ -51,10 +51,10 @@ class Time(Base):
     period_id: Mapped[int] = mapped_column(
         Integer(), ForeignKey("periods.id"), nullable=True, index=True
     )
-
     employer = relationship("Employers", back_populates="time")
+
     payment = relationship("Payments", back_populates="time")
-    period = relationship("Periods", back_populates="time")
+    period = relationship("Period", back_populates="time")
 
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=True)
     deleted_at: Mapped[TIMESTAMP] = mapped_column(
