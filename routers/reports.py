@@ -18,7 +18,7 @@ from utils.pdfkit.pdfhandled import create_pdf
 report_router = APIRouter()
 
 
-@report_router.post("/counterfoil1/{company_id}/{period_Id}")
+@report_router.get("/counterfoil1/{company_id}/{period_Id}")
 async def all_counterfoil(company_id: int, period_Id: int):
     return {
         "ok": True,
@@ -52,8 +52,8 @@ async def counterfoil(company_id: int, employer_id: int, period_id: int):
         return {"ok": False, "msg": "time not found", "result": None}
 
     dir_path = pathlib.Path().resolve()
-
-    template_path = f"{dir_path}\\utils\\pdfkit\\templates\\counterfoil.html"
+    print(dir_path)
+    template_path = f"{dir_path}/utils/pdfkit/templates/counterfoil.html"
 
     info = {
         "first_name": employers.first_name,
@@ -77,7 +77,7 @@ async def counterfoil(company_id: int, employer_id: int, period_id: int):
     create_pdf(
         template_path,
         info=info,
-        css=f"{dir_path}\\utils\\pdfkit\\assets\\css\\styles.css",
+        css=f"{dir_path}/utils/pdfkit/assets/css/styles.css",
     )
 
     pprint(info)

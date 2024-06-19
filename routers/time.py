@@ -1,22 +1,15 @@
-import bcrypt
 from fastapi import APIRouter
-from fastapi import APIRouter, Depends
 
-
-from starlette.responses import FileResponse
-from fastapi import Response
 
 from database.config import session
 from routers.auth import user_dependency
 
 from models.time import Time
-from models.employers import Employers
-from models.companies import Companies
 
 from models.payments import Payments
 
 
-from schemas.time import TimeIDShema, TimeShema, TimeIDShema2
+from schemas.time import TimeShema, TimeIDShema2
 from passlib.context import CryptContext
 
 
@@ -153,21 +146,44 @@ async def update_time(time_id: int, time: TimeIDShema2):
 
     for item in time.payment:
         payment_query = session.query(Payments).filter_by(id=item.id).first()
-        if item.requiered == 2:
-            payment_query.name = (item.name,)
-            payment_query.amount = (item.amount,)
-            payment_query.value = (item.value,)
-            payment_query.requiered = (item.requiered,)
-            payment_query.type_taxe = (item.type_taxe,)
-            payment_query.type_amount = item.type_amount
+        if payment_query:
+            if item.requiered == 2:
+                payment_query.name = (item.name,)
+                payment_query.amount = (item.amount,)
+                payment_query.value = (item.value,)
+                payment_query.requiered = (item.requiered,)
+                payment_query.type_taxe = (item.type_taxe,)
+                payment_query.type_amount = item.type_amount
 
-        if item.requiered == 1 and item.is_active:
-            payment_query.name = (item.name,)
-            payment_query.amount = (item.amount,)
-            payment_query.value = (item.value,)
-            payment_query.requiered = (item.requiered,)
-            payment_query.type_taxe = (item.type_taxe,)
-            payment_query.type_amount = item.type_amount
+            if item.requiered == 1 and item.is_active:
+                payment_query.name = (item.name,)
+                payment_query.amount = (item.amount,)
+                payment_query.value = (item.value,)
+                payment_query.requiered = (item.requiered,)
+                payment_query.type_taxe = (item.type_taxe,)
+                payment_query.type_amount = item.type_amount
+        else:
+            if item.requiered == 2:
+                payment_query = Payments(
+                    name=item.name,
+                    amount=item.amount,
+                    value=item.value,
+                    time_id=time_query.id,
+                    requiered=item.requiered,
+                    type_taxe=item.type_taxe,
+                    type_amount=item.type_amount,
+                )
+
+            if item.requiered == 1 and item.is_active:
+                payment_query = Payments(
+                    name=item.name,
+                    amount=item.amount,
+                    value=item.value,
+                    time_id=time_query.id,
+                    requiered=item.requiered,
+                    type_taxe=item.type_taxe,
+                    type_amount=item.type_amount,
+                )
 
         session.add(payment_query)
         session.commit()

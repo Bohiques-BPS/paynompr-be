@@ -42,7 +42,7 @@ INITIAL_DATA = {
     ],
     "companies": [
         {
-            "id": 1,
+           
             "name": "Empresa S.A.",
             "commercial_register": "357951",
             "registration_date": date.fromisoformat("1975-05-12"),
@@ -77,7 +77,7 @@ INITIAL_DATA = {
             "is_deleted": False,
         },
         {
-            "id": 2,
+           
             "name": "ACME Company",
             "commercial_register": "453228",
             "registration_date": date.fromisoformat("1986-12-20"),
@@ -114,7 +114,7 @@ INITIAL_DATA = {
     ],
     "employers": [
         {
-            "id": 1,
+           
             "last_name": "Perez",
             "mother_last_name": "Sanchez",
             "first_name": "Juan",
@@ -159,7 +159,7 @@ INITIAL_DATA = {
             "payment_percentage": "10%",
         },
         {
-            "id": 2,
+           
             "last_name": "Saavedra",
             "mother_last_name": "REbolledo",
             "first_name": "Dagoberto",
@@ -204,7 +204,7 @@ INITIAL_DATA = {
             "payment_percentage": "10%",
         },
         {
-            "id": 3,
+          
             "last_name": "Vergara",
             "mother_last_name": "Restrepo",
             "first_name": "Sophia",
@@ -251,7 +251,7 @@ INITIAL_DATA = {
     ],
     "employers_time": [
         {
-            "id": 1,
+            
             "regular_hours": 30,
             "regular_min": 0,
             "over_hours": 0,
@@ -283,7 +283,7 @@ INITIAL_DATA = {
             "company_id": 1,
         },
         {
-            "id": 2,
+           
             "regular_hours": 16,
             "regular_min": 0,
             "over_hours": 1,
@@ -315,7 +315,7 @@ INITIAL_DATA = {
             "company_id": 1,
         },
         {
-            "id": 3,
+           
             "regular_hours": 40,
             "regular_min": 0,
             "over_hours": 1,
@@ -347,7 +347,7 @@ INITIAL_DATA = {
             "company_id": 1,
         },
         {
-            "id": 4,
+           
             "regular_hours": 0,
             "regular_min": 0,
             "over_hours": 0,
@@ -379,7 +379,7 @@ INITIAL_DATA = {
             "company_id": 1,
         },
         {
-            "id": 5,
+          
             "regular_hours": 0,
             "regular_min": 0,
             "over_hours": 0,
@@ -413,35 +413,35 @@ INITIAL_DATA = {
     ],
     "periods": [
         {
-            "id": 1,
+           
             "year": 2024,
             "period_number": 1,
             "period_start": date.fromisoformat("2024-01-01"),
             "period_end": date.fromisoformat("2024-01-07"),
         },
         {
-            "id": 2,
+           
             "year": 2024,
             "period_number": 2,
             "period_start": date.fromisoformat("2024-01-08"),
             "period_end": date.fromisoformat("2024-01-14"),
         },
         {
-            "id": 3,
+           
             "year": 2024,
             "period_number": 3,
             "period_start": date.fromisoformat("2024-01-15"),
             "period_end": date.fromisoformat("2024-01-21"),
         },
         {
-            "id": 4,
+           
             "year": 2024,
             "period_number": 4,
             "period_start": date.fromisoformat("2024-01-22"),
             "period_end": date.fromisoformat("2024-01-28"),
         },
         {
-            "id": 5,
+           
             "year": 2024,
             "period_number": 5,
             "period_start": date.fromisoformat("2024-01-29"),

@@ -29,14 +29,8 @@ def create_pdf(html_path, info, css=None):
         "enable-javascript": True,
     }
 
-    config = pdfkit.configuration(
-        wkhtmltopdf=f"{dir_path}\\utils\\pdfkit\\binary\\windows\\wkhtmltopdf.exe"
-    )
-
-    output_path = f"{dir_path}\\utils\\pdfkit\\output\\output.pdf"
-    pdfkit.from_string(
-        html, output_path, css=css, options=options, configuration=config
-    )
+    output_path = f"{dir_path}/utils/pdfkit/output/output.pdf"
+    pdfkit.from_string(html, output_path, css=css, options=options)
 
 
 # sample usage

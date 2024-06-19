@@ -28,7 +28,7 @@ from models.employers import Employers
 
 
 from fastapi.middleware.cors import CORSMiddleware
-
+from database.config import init_db
 from database.seed.user import initialize_table
 
 load_dotenv()
@@ -60,7 +60,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# init_db()
+init_db()
 
 
 app.include_router(auth_router, tags=["auth"], prefix="/api/auth")

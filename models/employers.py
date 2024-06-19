@@ -1,4 +1,3 @@
-from typing import List
 from sqlalchemy import TIMESTAMP, ForeignKey, Integer, String, Date, Boolean, func
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import Mapped
