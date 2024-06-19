@@ -2,7 +2,8 @@ from fastapi import FastAPI
 import os
 import uvicorn
 from dotenv import load_dotenv
-from database.config import init_db
+
+# from database.config import init_db
 from sqlalchemy import event
 from models.periods import Period
 from models.time import Time
@@ -19,13 +20,15 @@ from routers.taxes import taxes_router
 from routers.time import time_router
 from routers.outemployers import outemployers_router
 from routers.time_outemployer import outtime_router
+from routers.reports import report_router
+
 from models.users import User, Role, Code, UserCode
 from models.companies import Companies
 from models.employers import Employers
 
 
 from fastapi.middleware.cors import CORSMiddleware
-
+from database.config import init_db
 from database.seed.user import initialize_table
 
 load_dotenv()
@@ -73,6 +76,7 @@ app.include_router(
     outemployers_router, tags=["outemployers"], prefix="/api/outemployers"
 )
 app.include_router(outtime_router, tags=["outtime_router"], prefix="/api/outtime")
+app.include_router(report_router, tags=["report_router"], prefix="/api/reports")
 
 
 if __name__ == "__main__":

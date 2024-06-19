@@ -3,11 +3,11 @@ from datetime import date
 from schemas.employee import EmployerReturnIDShema
 from schemas.taxes import TaxeIDShema
 
-class CompaniesSchema(BaseModel):    
-    
-    name: str | None = None    
-    commercial_register: str | None = None    
-    jurisdiction: str | None = None    
+
+class CompaniesSchema(BaseModel):
+    name: str | None = None
+    commercial_register: str | None = None
+    jurisdiction: str | None = None
     accountant_id: int | None = None
     email: str | None = None
     contact: str | None = None
@@ -16,7 +16,7 @@ class CompaniesSchema(BaseModel):
     postal_address: str | None = None
     zipcode_postal_address: str | None = None
     country_postal_address: str | None = None
-    state_postal_addess: str | None = None    
+    state_postal_addess: str | None = None
     physical_address: str | None = None
     zipcode_physical_address: str | None = None
     country_physical_address: str | None = None
@@ -27,7 +27,7 @@ class CompaniesSchema(BaseModel):
     payer: str | None = None
     desem: str | None = None
     number_patronal: str | None = None
-    coml : date | None = None
+    coml: date | None = None
     employed_contribution: str | None = None
     disabled_percent: str | None = None
     unemployment_percentage: str | None = None
@@ -41,13 +41,10 @@ class CompaniesSchema(BaseModel):
 class CompaniesIdSchema(CompaniesSchema):
     id: int
 
-class CompaniesWithEmployersSchema(CompaniesIdSchema): 
-    employers: list[EmployerReturnIDShema] = [] 
-    taxes:     list[TaxeIDShema] = [] 
+
+class CompaniesWithEmployersSchema(CompaniesIdSchema):
+    employers: list[EmployerReturnIDShema] = []
+    taxes: list[TaxeIDShema] = []
+
     class Config:
-        orm_mode = True
-
-
-      
-
-
+        from_attributes = True
