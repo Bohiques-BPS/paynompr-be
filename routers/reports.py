@@ -58,11 +58,16 @@ async def counterfoil(company_id: int, employer_id: int, period_id: int):
     info = {
         "first_name": employers.first_name,
         "last_name": employers.last_name,
+        "social_security_number": employers.social_security_number,
         "periodo": period.period_number,
         "start_date": datetime.strftime(period.period_start, "%b %d, %Y"),
         "end_date": datetime.strftime(period.period_end, "%b %d, %Y"),
         "company": company.name,
-        "regular_pay": "{:.2f}".format(round(time["regular_pay"], 2)),
+        "regular_pay": str("{0:.2f}".format(time["regular_pay"])),
+        "overtime_pay": str("{0:.2f}".format(time["overtime_pay"])),
+        "meal_time_pay": str("{0:.2f}".format(time["meal_time_pay"])),
+        "sick_pay": str("{0:.2f}".format(time["sick_pay"])),
+        "vacation_pay": str("{0:.2f}".format(time["vacation_pay"])),
         **time,
     }
 
