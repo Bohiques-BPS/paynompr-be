@@ -27,7 +27,7 @@ async def all_counterfoil(company_id: int, period_Id: int):
     }
 
 
-@report_router.post("/counterfoil/{company_id}/{period_id}/{employer_id}")
+@report_router.get("/counterfoil/{company_id}/{period_id}/{employer_id}")
 async def counterfoil(company_id: int, employer_id: int, period_id: int):
     employer_time_query = (
         session.query(Time)
@@ -68,6 +68,9 @@ async def counterfoil(company_id: int, employer_id: int, period_id: int):
         "meal_time_pay": str("{0:.2f}".format(time["meal_time_pay"])),
         "sick_pay": str("{0:.2f}".format(time["sick_pay"])),
         "vacation_pay": str("{0:.2f}".format(time["vacation_pay"])),
+        "secure_social": str("{0:.2f}".format(time["secure_social"])),
+        "medicare": str("{0:.2f}".format(time["medicare"])),
+        "inability": str("{0:.2f}".format(time["inability"])),
         **time,
     }
 
@@ -80,5 +83,7 @@ async def counterfoil(company_id: int, employer_id: int, period_id: int):
     pprint(info)
 
     return FileResponse(
-        f"{dir_path}\\utils\\pdfkit\\output\\output.pdf", media_type="application/pdf"
+        f"{dir_path}\\utils\\pdfkit\\output\\output.pdf",
+        media_type="application/octet-stream",
+        filename=f"Talonario de Pagos.{employers.first_name} {employers.last_name}.pdf",
     )
