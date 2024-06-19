@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="/utils/pdfkit/assets/css/styles.css" />
+</head>
+
+<body>
+  <div class="container flex-column">
+    <div class="flex flex-row space-between">
+      <div> Name:{{first_name}} {{last_name}}: {{company}}</div>
+
+      <div>
+        <div class="flex flex-row">
+          <div style=" font-weight: bold;"> Period: </div>
+          <span> {{periodo}}</span>
+        </div>
+        <div class="flex flex-row" style="justify-content: space-between;">
+          <span style="font-weight: bold; margin: 0px; padding: 0px;">
+            From:
+          </span>
+          <span>
+            {{start_date}}
+          </span>
+          <span style="font-weight: bold; margin: 0px; padding: 0px;">
+            To:
+          </span>
+          <span>
+            {{end_date}}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-row" style="width: 100%;">
+      <div class="flex flex-column" style="width: 50%;">
+        <div class="align-center">
+          <h3>GROSS PAY</h3>
+        </div>
+        <table width="100%">
+          <tr>
+            <th class="text-color-black" style="width: 50%">WAGES</th>
+            <th class="text-color-black" style="width: 20%">CURRENT</th>
+            <th class="text-color-black" style="width: 30%">YEAR</th>
+          </tr>
+          <tr>
+            <td class="text-color-black">REGULAR PAY</td>
+            <td class="text-color-black">$ {{ regular_pay }}</td>
+            <td class="text-color-black align-right">${{2,400.00}}</td>
+          </tr>
+          <tr>
+            <td class="text-color-black">OVER TIME PAY</td>
+            <td class="text-color-black align-right">${{380.00}}</td>
+          </tr>
+          <tr>
+            <td class="text-color-black">MEAL TIME PAY</td>
+            <td class="text-color-black align-right">${{60.00}}</td>
+          </tr>
+          <tr>
+            <td class="text-color-black">SICK TIME PAY</td>
+            <td class="text-color-black align-right">${{0.00}}</td>
+          </tr>
+          <tr>
+            <td class="text-color-black">VACATION TIME PAY</td>
+            <td class="text-color-black" style="text-align: right;">${{0.00}}</td>
+          </tr>
+        </table>
+      </div>
+      <div class="flex flex-column" style="width: 50%;">
+        <div style="text-align: center;">
+          <h3>DEDUCTIONS</h3>
+        </div>
+        <table width="100%">
+          <tr>
+            <th class="text-color-black" style="width: 50%">WAGES</th>
+            <th class="text-color-black" style="width: 20%">CURRENT</th>
+            <th class="text-color-black" style="width: 30%">YEAR</th>
+          </tr>
+          <tr>
+            <td class="text-color-black">REGULAR PAY</td>
+            <td class="text-color-black" style="text-align: right;">${{400.00}}</td>
+            <td class="text-color-black" style="text-align: right;">${{2,400.00}}</td>
+          </tr>
+          <tr>
+            <td class="text-color-black">OVER TIME PAY</td>
+            <td class="text-color-black" style="text-align: right;">${{380.00}}</td>
+          </tr>
+          <tr>
+            <td class="text-color-black">MEAL TIME PAY</td>
+            <td class="text-color-black" style="text-align: right;">${{60.00}}</td>
+          </tr>
+          <tr>
+            <td class="text-color-black">SICK TIME PAY</td>
+            <td class="text-color-black" style="text-align: right;">${{0.00}}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- <img src="{{logo}}" alt="hhjhhkk" width="64px" />  -->
+
+    <!--  <div class="flex flex-column bordered align-center justify-center" style="
+            -webkit-box-flex: 1;
+            -webkit-flex: 1;
+            flex: 1;
+            justify-content: center;
+            -webkit-justify-content:space-center;
+            align-content: center;
+            text-align: center;
+          ">
+        <h1>{{company}}</h1>
+      </div>
+      <div class="flex flex-column align-center justify-center" style="
+            border-top: 1px solid black;
+            border-bottom: 1px solid black;
+            border-right: 1px solid black;
+            font-size: 32px;
+            -webkit-box-flex: 3;
+            -webkit-flex: 3;
+            flex: 3;
+            justify-content: center;
+            -webkit-justify-content: space-center;
+            align-items: center;
+            -webkit-align-items: center;
+            text-align: center;
+          ">
+        <p>Talonario de Pago</p>
+      </div>
+      <div class="flex flex-column align-center justify-center" style="
+            border-top: 1px solid black;
+            border-bottom: 1px solid black;
+            border-right: 1px solid black;
+            -webkit-box-flex: 1;
+            -webkit-flex: 1;
+            flex: 1;
+            justify-content:center;
+          ">
+        <p style="font-size: 14px; font-weight: bold; text-align: center; margin: 0px; padding: 0px; ;">Periodo de Pago
+        </p>
+        <p style="margin: 0px; padding: 0px; text-align: center;">Inicio: {{start_date}}</p>
+        <p style="margin: 0px; padding: 0px; text-align: center;">Final: {{end_date}}</p>
+      </div> -->
+
+  </div>
+
+
+</body>
+
+</html>
