@@ -51,8 +51,16 @@ async def counterfoil(company_id: int, employer_id: int, period_id: int):
         return {"ok": False, "msg": "time not found", "result": None}
 
     dir_path = pathlib.Path().resolve()
-    print(dir_path)
     template_path = f"{dir_path}/utils/pdfkit/templates/counterfoil.html"
+    print(f"Ruta del archivo de plantilla: {template_path}")
+
+    # Verifica si el archivo existe
+    if not pathlib.Path(template_path).is_file():
+        print("El archivo de plantilla no existe en la ruta especificada.")
+    else:
+        print("El archivo de plantilla existe y está listo para ser utilizado.")
+    
+   
 
     info = {
         "first_name": employers.first_name,
