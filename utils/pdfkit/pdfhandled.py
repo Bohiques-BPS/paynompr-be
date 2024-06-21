@@ -6,13 +6,11 @@ import platform
 
 dir_path = pathlib.Path().resolve()
 
-print(platform.system())
-
 
 wkhtmltopdf_path = (
     f"{dir_path}/utils/pdfkit/binary/windows/wkhtmltopdf.exe"
     if "windows" in platform.system().lower()
-    else f"{dir_path}/utils/pdfkit/binary/linux/wkhtmltopdf.exe"
+    else f"{dir_path}/utils/pdfkit/binary/linux/wkhtmltopdf"
 )
 
 
@@ -43,9 +41,7 @@ def create_pdf(html_path, info, filename="output"):
 
     css = f"{dir_path}/utils/pdfkit/assets/css/{html_path.split("/")[-1].split(".")[0]}.css"
 
-    config = pdfkit.configuration(
-        wkhtmltopdf=f"{dir_path}/utils/pdfkit/binary/windows/wkhtmltopdf.exe"
-    )
+    config = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
 
     pdfkit.from_string(
         html, output_path, css=css, options=options, configuration=config
