@@ -94,6 +94,7 @@ async def get_all_company_and_employer(
         .filter(Companies.code_id == user["code"], Employers.id == employers_id)
         .first()
     )
+    employers_query = session.query(Employers).filter(Employers.company_id == company_id).all()
     employer, company = companies_query  # Desempaquetar la tupla
     simple_query = (
         session.query(Time)
@@ -117,6 +118,7 @@ async def get_all_company_and_employer(
         "result": {
             "company": company,
             "employer": employer,
+            "employers": employers_query,
             "time": simple_query,
             "taxes": taxes_query,
         },
