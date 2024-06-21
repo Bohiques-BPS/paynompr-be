@@ -1,6 +1,5 @@
 from datetime import datetime
 import pathlib
-from pprint import pprint
 
 
 from fastapi import APIRouter
@@ -74,16 +73,10 @@ async def counterfoil(company_id: int, employer_id: int, period_id: int):
         **time,
     }
 
-    create_pdf(
-        template_path,
-        info=info,
-        css=f"{dir_path}/utils/pdfkit/assets/css/styles.css",
-    )
-
-    pprint(info)
+    output = create_pdf(template_path, info=info, filename="counterfoil")
 
     return FileResponse(
-        f"{dir_path}\\utils\\pdfkit\\output\\output.pdf",
+        output,
         media_type="application/octet-stream",
-        filename=f"Talonario de Pagos.{employers.first_name} {employers.last_name}.pdf",
+        filename=f"Talonario de Pagos de {employers.first_name} {employers.last_name}.pdf",
     )

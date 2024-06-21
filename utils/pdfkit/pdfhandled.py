@@ -1,12 +1,22 @@
 import jinja2
 import pdfkit
 import pathlib
+import platform
 
 
 dir_path = pathlib.Path().resolve()
 
+print(platform.system())
 
-def create_pdf(html_path, info, css=None):
+
+wkhtmltopdf_path = (
+    f"{dir_path}/utils/pdfkit/binary/windows/wkhtmltopdf.exe"
+    if "windows" in platform.system().lower()
+    else f"{dir_path}/utils/pdfkit/binary/linux/wkhtmltopdf.exe"
+)
+
+
+def create_pdf(html_path, info, filename="output"):
     template_name = html_path.split("\\")[-1]
     template_path = html_path.replace(template_name, "")
 
@@ -29,22 +39,16 @@ def create_pdf(html_path, info, css=None):
         "enable-javascript": True,
     }
 
-    output_path = f"{dir_path}/utils/pdfkit/output/output.pdf"
-    pdfkit.from_string(html, output_path, css=css, options=options)
+    output_path = f"{dir_path}/utils/pdfkit/output/{filename}.pdf"
 
+    css = f"{dir_path}/utils/pdfkit/assets/css/{html_path.split("/")[-1].split(".")[0]}.css"
 
-# sample usage
-# template_path = f"{dir_path}\\templates\\counterfoil.html"
-# info = {
-#    "pupil_name": "Pedro Gómez",
-#    "course_name": "Python Básico",
-#    "date": "2024-06-03",
-#    "logo": f"{dir_path}\\public\\images\\icon.png",
-#    "headings": ["Item", "Titulo", "Precio"],
-#    "data": [
-#        {"key": 1, "title": "Item 1", "price": 100.5},
-#        {"key": 2, "title": "Item 2", "price": 4.45},
-#        {"key": 3, "title": "Item 3", "price": 12.25},
-#    ],
-# }
-# create_pdf(template_path, info, css=f"{dir_path}\\public\\css\\styles.css")
+    config = pdfkit.configuration(
+        wkhtmltopdf=f"{dir_path}/utils/pdfkit/binary/windows/wkhtmltopdf.exe"
+    )
+
+    pdfkit.from_string(
+        html, output_path, css=css, options=options, configuration=config
+    )
+
+    return output_path
