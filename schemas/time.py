@@ -22,6 +22,7 @@ class TimeShema(BaseModel):
     secure_social :float
     social_tips :float
     tax_pr :float
+    choferil:float
     vacations_hours: str  
     vacations_min: str  
     sick_pay: float

@@ -13,6 +13,10 @@ class CompaniesSchema(BaseModel):
     contact: str | None = None
     contact_number: str | None = None
     website: str | None = None
+    vacation_hours: int | None = None
+    vacation_date: int | None = None
+    sicks_hours: int | None = None
+    sicks_date: int | None = None
     postal_address: str | None = None
     zipcode_postal_address: str | None = None
     country_postal_address: str | None = None

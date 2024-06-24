@@ -30,6 +30,8 @@ class Time(Base):
     vacations_hours: Mapped[str] = mapped_column(nullable=True, default=0)
     vacations_min: Mapped[str] = mapped_column(nullable=True, default=0)
     commissions: Mapped[float] = mapped_column(nullable=True, default=0)
+    choferil: Mapped[float] = mapped_column(nullable=True, default=0)
+
     concessions: Mapped[float] = mapped_column(nullable=True, default=0)
     holyday_pay: Mapped[float] = mapped_column(nullable=True, default=0)
     sick_pay: Mapped[float] = mapped_column(nullable=True, default=0)

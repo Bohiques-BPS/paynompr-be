@@ -36,6 +36,10 @@ async def create_company(companie_data: CompaniesSchema, user: user_dependency):
         contact_number=companie_data.contact_number,
         website=companie_data.website,
         number_patronal=companie_data.number_patronal,
+        vacation_hours = companie_data.vacation_hours,
+        vacation_date = companie_data.vacation_date,
+        sicks_hours = companie_data.sicks_hours,
+        sicks_date = companie_data.sicks_date,
         coml=companie_data.coml,
         postal_address=companie_data.postal_address,
         zipcode_postal_address=companie_data.zipcode_postal_address,
@@ -205,7 +209,10 @@ async def update_company(companies_id: int, company_data: CompaniesSchema):
     company_query.state_postal_addess = company_data.state_postal_addess
     company_query.number_patronal = company_data.number_patronal
     company_query.coml = company_data.coml
-
+    company_query.vacation_hours = company_data.vacation_hours,
+    company_query.vacation_date = company_data.vacation_date,
+    company_query.sicks_hours = company_data.sicks_hours,
+    company_query.sicks_date = company_data.sicks_date,
     company_query.physical_address = company_data.physical_address
     company_query.zipcode_physical_address = company_data.zipcode_physical_address
     company_query.country_physical_address = company_data.country_physical_address

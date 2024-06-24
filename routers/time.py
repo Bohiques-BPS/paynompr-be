@@ -33,6 +33,7 @@ async def create_time(time_data: TimeShema, employer_id: int):
         sick_min=time_data.sick_min,
         concessions=time_data.concessions,
         commissions=time_data.commissions,
+        choferil = time_data.choferil,
         inability=time_data.inability,
         medicare=time_data.medicare,
         secure_social=time_data.secure_social,
@@ -122,7 +123,7 @@ async def update_time(time_id: int, time: TimeIDShema2):
     time_query.meal_min = time.meal_min
     time_query.holiday_hours = time.holiday_hours
     time_query.holiday_min = time.holiday_min
-
+    time_query.choferil = time.choferil
     time_query.vacations_hours = time.vacations_hours
     time_query.vacations_min = time.vacations_min
     time_query.inability = time.inability
