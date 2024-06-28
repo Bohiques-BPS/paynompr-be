@@ -26,12 +26,12 @@ async def all_counterfoil(company_id: int, period_Id: int):
     }
 
 
-@report_router.get("/counterfoil/{company_id}/{period_id}/{employer_id}")
-async def counterfoil(company_id: int, employer_id: int, period_id: int):
+@report_router.get("/counterfoil/{company_id}/{employer_id}/{time_id}")
+async def counterfoil(company_id: int, employer_id: int, time_id: int):
     employer_time_query = (
         session.query(Time)
         .filter(Time.employer_id == employer_id)
-        .filter(Time.period_id == period_id)
+        .filter(Time.id == time_id)
         .one_or_none()
     )
 
@@ -43,7 +43,7 @@ async def counterfoil(company_id: int, employer_id: int, period_id: int):
 
     company = session.query(Companies).filter(Companies.id == company_id).first()
 
-    period = session.query(Period).filter(Period.id == period_id).first()
+   
 
     time = vars(employer_time_query)
 
@@ -51,7 +51,7 @@ async def counterfoil(company_id: int, employer_id: int, period_id: int):
         return {"ok": False, "msg": "time not found", "result": None}
 
     dir_path = pathlib.Path().resolve()
-    template_path = f"{dir_path}/utils/pdfkit/templates/counterfoil.html"
+    template_path = f"./utils/pdfkit/templates/counterfoil.html"
     print(f"Ruta del archivo de plantilla: {template_path}")
 
     # Verifica si el archivo existe
@@ -66,9 +66,9 @@ async def counterfoil(company_id: int, employer_id: int, period_id: int):
         "first_name": employers.first_name,
         "last_name": employers.last_name,
         "social_security_number": employers.social_security_number,
-        "periodo": period.period_number,
-        "start_date": datetime.strftime(period.period_start, "%b %d, %Y"),
-        "end_date": datetime.strftime(period.period_end, "%b %d, %Y"),
+        "periodo": "1",
+        "start_date": "2",
+        "end_date": "2",
         "company": company.name,
         "regular_pay": str("{0:.2f}".format(time["regular_pay"])),
         "overtime_pay": str("{0:.2f}".format(time["overtime_pay"])),

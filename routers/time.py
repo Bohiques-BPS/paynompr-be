@@ -5,7 +5,7 @@ from database.config import session
 from routers.auth import user_dependency
 
 from models.time import Time
-
+from models.employers import Employers
 from models.payments import Payments
 
 
@@ -49,9 +49,24 @@ async def create_time(time_data: TimeShema, employer_id: int):
         overtime_pay=time_data.overtime_pay,
         regular_pay=time_data.regular_pay,
     )
+
+    
     session.add(time_query)
     session.commit()
     session.refresh(time_query)
+
+    employers = (
+        session.query(Employers)
+        .filter(Employers.id == employer_id)
+        .one_or_none()
+    )
+
+    employers.sicks_hours = int(employers.sicks_hours)- int(time_data.sick_hours)
+    employers.vacation_hours = int(employers.vacation_hours) - int(time_data.vacations_hours)
+
+    session.add(employers)
+    session.commit()
+    session.refresh(employers)
 
     for item in time_data.payment:
         if item.requiered == 2:
@@ -111,6 +126,15 @@ async def update_time(time_id: int, time: TimeIDShema2):
     time_query = session.query(Time).filter_by(id=time_id).first()
     if not time_query:
         return {"ok": False, "msg": "Time was error updated", "result": time_query}
+    
+    employers = (
+        session.query(Employers)
+        .filter(Employers.id == time_query.employer_id)
+        .one_or_none()
+    )
+
+    employers.sicks_hours = int(employers.sicks_hours)+ int(time_query.sick_hours)
+    employers.vacation_hours = int(employers.vacation_hours) + int(time_query.vacations_hours)
 
     time_query.regular_hours = time.regular_hours
     time_query.regular_min = time.regular_min
@@ -144,6 +168,15 @@ async def update_time(time_id: int, time: TimeIDShema2):
     session.add(time_query)
     session.commit()
     session.refresh(time_query)
+
+    
+
+    employers.sicks_hours = int(employers.sicks_hours)- int(time.sick_hours)
+    employers.vacation_hours = int(employers.vacation_hours) - int(time.vacations_hours)
+
+    session.add(employers)
+    session.commit()
+    session.refresh(employers)
 
     for item in time.payment:
         payment_query = session.query(Payments).filter_by(id=item.id).first()
