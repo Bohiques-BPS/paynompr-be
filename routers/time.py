@@ -19,11 +19,20 @@ time_router = APIRouter()
 
 @time_router.post("/{employer_id}")
 async def create_time(time_data: TimeShema, employer_id: int):
+
+    employers = (
+        session.query(Employers)
+        .filter(Employers.id == employer_id)
+        .one_or_none()
+    )
     time_query = Time(
         regular_hours=time_data.regular_hours,
         regular_min=time_data.regular_min,
         over_hours=time_data.over_hours,
         over_min=time_data.over_min,
+        regular_amount= employers.regular_time,
+        over_amount= employers.overtime,
+        meal_amount = employers.mealtime,
         holyday_pay=time_data.holyday_pay,
         meal_hours=time_data.meal_hours,
         meal_min=time_data.meal_min,
@@ -55,11 +64,7 @@ async def create_time(time_data: TimeShema, employer_id: int):
     session.commit()
     session.refresh(time_query)
 
-    employers = (
-        session.query(Employers)
-        .filter(Employers.id == employer_id)
-        .one_or_none()
-    )
+    
 
     employers.sicks_hours = int(employers.sicks_hours)- int(time_data.sick_hours)
     employers.vacation_hours = int(employers.vacation_hours) - int(time_data.vacations_hours)
@@ -68,31 +73,19 @@ async def create_time(time_data: TimeShema, employer_id: int):
     session.commit()
     session.refresh(employers)
 
-    for item in time_data.payment:
-        if item.requiered == 2:
-            payment_query = Payments(
-                name=item.name,
-                amount=item.amount,
-                value=item.value,
-                time_id=time_query.id,
-                requiered=item.requiered,
-                type_taxe=item.type_taxe,
-                type_amount=item.type_amount,
-            )
-            session.add(payment_query)
-            session.commit()
-        if item.requiered == 1 and item.is_active:
-            payment_query = Payments(
-                name=item.name,
-                amount=item.amount,
-                value=item.value,
-                time_id=time_query.id,
-                requiered=item.requiered,
-                type_taxe=item.type_taxe,
-                type_amount=item.type_amount,
-            )
-            session.add(payment_query)
-            session.commit()
+    for item in time_data.payment:       
+        payment_query = Payments(
+            name=item.name,
+            amount=item.amount,
+            value=item.value,
+            time_id=time_query.id,
+            is_active=item.is_active,
+            requiered=item.requiered,
+            type_taxe=item.type_taxe,
+            type_amount=item.type_amount,
+        )
+        session.add(payment_query)
+        session.commit()
 
     return {"ok": True, "msg": "Time was successfully created", "result": time_query}
 

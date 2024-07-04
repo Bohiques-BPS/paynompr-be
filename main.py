@@ -41,12 +41,7 @@ PORT = os.environ.get("PORT")
 event.listen(Role.__table__, "after_create", initialize_table)
 event.listen(Code.__table__, "after_create", initialize_table)
 event.listen(User.__table__, "after_create", initialize_table)
-event.listen(Companies.__table__, "after_create", initialize_table)
-event.listen(Employers.__table__, "after_create", initialize_table)
 
-
-event.listen(Time.__table__, "after_create", initialize_table)
-event.listen(Period.__table__, "after_create", initialize_table)
 event.listen(UserCode.__table__, "after_create", initialize_table)
 
 

@@ -34,7 +34,7 @@ class Companies(Base):
     employers = relationship("Employers", back_populates="company")
     outemployers = relationship("OutEmployers", back_populates="company")
     taxes = relationship("Taxes", back_populates="company")
-
+    choferil_number: Mapped[str] = mapped_column(String(50))
     email: Mapped[str] = mapped_column(String(50))
     contact: Mapped[str] = mapped_column(String(50))
     contact_number: Mapped[str] = mapped_column(String(50))

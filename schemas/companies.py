@@ -16,6 +16,7 @@ class CompaniesSchema(BaseModel):
     vacation_hours: int | None = None
     vacation_date: int | None = None
     sicks_hours: int | None = None
+    choferil_number: str | None = None
     sicks_date: int | None = None
     postal_address: str | None = None
     zipcode_postal_address: str | None = None

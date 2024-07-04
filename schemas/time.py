@@ -5,7 +5,9 @@ from datetime import date
 class TimeShema(BaseModel):
     regular_hours: str 
     regular_min: str  
-
+    regular_amount: float
+    over_amount: float
+    meal_amount: float
     over_hours: str   
     over_min: str 
   

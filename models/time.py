@@ -12,8 +12,12 @@ class Time(Base):
     __tablename__ = "employers_time"
 
     id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True, index=True
-    )
+        Integer, primary_key=True, autoincrement=True, index=True)
+    regular_amount: Mapped[float] = mapped_column(nullable=True, default=0)
+    over_amount: Mapped[float] = mapped_column(nullable=True, default=0)
+
+    meal_amount: Mapped[float] = mapped_column(nullable=True, default=0)
+
     regular_hours: Mapped[str] = mapped_column(nullable=True, default=0)
     regular_min: Mapped[str] = mapped_column(nullable=True, default=0)
 

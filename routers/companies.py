@@ -33,6 +33,8 @@ async def create_company(companie_data: CompaniesSchema, user: user_dependency):
         email=companie_data.email,
         employed_contribution=companie_data.employed_contribution,
         contact=companie_data.contact,
+        choferil_number=companie_data.choferil_number,
+
         contact_number=companie_data.contact_number,
         website=companie_data.website,
         number_patronal=companie_data.number_patronal,
@@ -199,6 +201,7 @@ async def update_company(companies_id: int, company_data: CompaniesSchema):
     company_query.jurisdiction = company_data.jurisdiction
     company_query.accountant_id = company_data.accountant_id
     company_query.email = company_data.email
+    company_query.choferil_number = company_data.choferil_number
     company_query.contact = company_data.contact
     company_query.contact_number = company_data.contact_number
     company_query.website = company_data.website
