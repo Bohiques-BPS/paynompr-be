@@ -3,20 +3,15 @@ from schemas.payments import PaymentIDShema
 from datetime import date
 
 class TimeShema(BaseModel):
-    regular_hours: str 
-    regular_min: str  
+    regular_time: str
     regular_amount: float
     over_amount: float
     meal_amount: float
-    over_hours: str   
-    over_min: str 
-  
-    meal_hours: str     
-    meal_min: str   
-    holiday_hours: str
-    holiday_min: str
-    sick_hours: str
-    sick_min: str
+    over_time: str
+    
+    meal_time: str 
+    holiday_time:str
+    sick_time:str
     commissions :float
     concessions :float
     inability:float
@@ -27,12 +22,6 @@ class TimeShema(BaseModel):
     choferil:float
     vacations_hours: str  
     vacations_min: str  
-    sick_pay: float
-    regular_pay: float
-    holyday_pay: float
-    vacation_pay:float
-    meal_time_pay: float
-    overtime_pay:float 
     tips: float
     payment: list[PaymentIDShema]
      

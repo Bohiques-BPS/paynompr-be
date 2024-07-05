@@ -24,62 +24,53 @@ def create_time_controller(time_data, employer_id):
         .filter(Employers.id == employer_id)
         .one_or_none()
     )
+
+    if not employers:
+        return {"ok": False, "msg": "Employer not found"}
+
     time_query = Time(
-        regular_hours=time_data.regular_hours,
-        regular_min=time_data.regular_min,
-        over_hours=time_data.over_hours,
-        over_min=time_data.over_min,
-        regular_amount= employers.regular_time,
-        over_amount= employers.overtime,
-        meal_amount = employers.mealtime,
-        holyday_pay=time_data.holyday_pay,
-        meal_hours=time_data.meal_hours,
-        meal_min=time_data.meal_min,
-        holiday_min=time_data.holiday_min,
-        holiday_hours=time_data.holiday_hours,
-        sick_hours=time_data.sick_hours,
-        sick_min=time_data.sick_min,
-        concessions=time_data.concessions,
+        regular_time=time_data.regular_time,
+        over_time=time_data.over_time,
+        meal_time=time_data.meal_time,
+        regular_amount=time_data.regular_amount,
+        over_amount=time_data.over_amount,
+        meal_amount=time_data.meal_amount,
+        holiday_time=time_data.holiday_time,
+        sick_time=time_data.sick_time,
+        vacation_time=time_data.vacation_time,
         commissions=time_data.commissions,
-        choferil = time_data.choferil,
+        concessions=time_data.concessions,
+        choferil=time_data.choferil,
         inability=time_data.inability,
         medicare=time_data.medicare,
         secure_social=time_data.secure_social,
         social_tips=time_data.social_tips,
         tax_pr=time_data.tax_pr,
-        vacations_hours=time_data.vacations_hours,
-        vacations_min=time_data.vacations_min,
         employer_id=employer_id,
         tips=time_data.tips,
-        sick_pay=time_data.sick_pay,
-        vacation_pay=time_data.vacation_pay,
-        meal_time_pay=time_data.meal_time_pay,
-        overtime_pay=time_data.overtime_pay,
-        regular_pay=time_data.regular_pay,
+        is_deleted=False,  # Asegúrate de inicializar correctamente este campo
     )
 
-    
     session.add(time_query)
     session.commit()
     session.refresh(time_query)
 
-    
-
-    employers.sicks_hours = int(employers.sicks_hours)- int(time_data.sick_hours)
-    employers.vacation_hours = int(employers.vacation_hours) - int(time_data.vacations_hours)
+    # Actualización de las horas de enfermedad y vacaciones del empleador
+    employers.sick_hours = int(employers.sick_hours) - int(time_data.sick_time.split(":")[0])
+    employers.vacation_hours = int(employers.vacation_hours) - int(time_data.vacation_time.split(":")[0])
 
     session.add(employers)
     session.commit()
     session.refresh(employers)
 
-    for item in time_data.payment:       
+    for item in time_data.payment:
         payment_query = Payments(
             name=item.name,
             amount=item.amount,
             value=item.value,
             time_id=time_query.id,
             is_active=item.is_active,
-            requiered=item.requiered,
+            required=item.required,
             type_taxe=item.type_taxe,
             type_amount=item.type_amount,
         )
@@ -87,6 +78,7 @@ def create_time_controller(time_data, employer_id):
         session.commit()
 
     return {"ok": True, "msg": "Time was successfully created", "result": time_query}
+
 
 
 def get_time_by_employer_id_controller(employer_id):
@@ -111,10 +103,10 @@ def delete_employer_controller(time_id, user):
         return {"ok": False, "msg": "Empleado no encontrada.", "result": None}
     
 
-def udpdate_time_controller(time_id, time):
+def update_time_controller(time_id, time):
     time_query = session.query(Time).filter_by(id=time_id).first()
     if not time_query:
-        return {"ok": False, "msg": "Time was error updated", "result": time_query}
+        return {"ok": False, "msg": "Time update error", "result": time_query}
     
     employers = (
         session.query(Employers)
@@ -122,46 +114,40 @@ def udpdate_time_controller(time_id, time):
         .one_or_none()
     )
 
-    employers.sicks_hours = int(employers.sicks_hours)+ int(time_query.sick_hours)
-    employers.vacation_hours = int(employers.vacation_hours) + int(time_query.vacations_hours)
+    if not employers:
+        return {"ok": False, "msg": "Employer not found"}
 
-    time_query.regular_hours = time.regular_hours
-    time_query.regular_min = time.regular_min
-    time_query.holyday_pay = time.holyday_pay
-    time_query.over_hours = time.over_hours
-    time_query.over_min = time.over_min
-    time_query.concessions = time.concessions
+    # Sumar las horas anteriores a los empleadores antes de la actualización
+    employers.sick_hours = int(employers.sick_hours) + int(time_query.sick_time.split(":")[0])
+    employers.vacation_hours = int(employers.vacation_hours) + int(time_query.vacation_time.split(":")[0])
+
+    # Actualizar los campos del modelo Time
+    time_query.regular_time = time.regular_time
+    time_query.over_time = time.over_time
+    time_query.meal_time = time.meal_time
+    time_query.holiday_time = time.holiday_time
+    time_query.sick_time = time.sick_time
+    time_query.vacation_time = time.vacation_time
+    time_query.regular_amount = time.regular_amount
+    time_query.over_amount = time.over_amount
+    time_query.meal_amount = time.meal_amount
     time_query.commissions = time.commissions
-    time_query.meal_hours = time.meal_hours
-    time_query.meal_min = time.meal_min
-    time_query.holiday_hours = time.holiday_hours
-    time_query.holiday_min = time.holiday_min
     time_query.choferil = time.choferil
-    time_query.vacations_hours = time.vacations_hours
-    time_query.vacations_min = time.vacations_min
+    time_query.concessions = time.concessions
+    time_query.tips = time.tips
     time_query.inability = time.inability
     time_query.medicare = time.medicare
     time_query.secure_social = time.secure_social
     time_query.social_tips = time.social_tips
-    time_query.tax_pr = (time.tax_pr,)
-    time_query.sick_hours = time.sick_hours
-    time_query.sick_min = time.sick_min
-
-    time_query.regular_pay = time.regular_pay
-    time_query.sick_pay = time.sick_pay
-    time_query.vacation_pay = time.vacation_pay
-    time_query.meal_time_pay = time.meal_time_pay
-    time_query.overtime_pay = time.overtime_pay
-    time_query.tips = time.tips
+    time_query.tax_pr = time.tax_pr
 
     session.add(time_query)
     session.commit()
     session.refresh(time_query)
 
-    
-
-    employers.sicks_hours = int(employers.sicks_hours)- int(time.sick_hours)
-    employers.vacation_hours = int(employers.vacation_hours) - int(time.vacations_hours)
+    # Restar las nuevas horas de los empleadores después de la actualización
+    employers.sick_hours = int(employers.sick_hours) - int(time.sick_time.split(":")[0])
+    employers.vacation_hours = int(employers.vacation_hours) - int(time.vacation_time.split(":")[0])
 
     session.add(employers)
     session.commit()
@@ -170,34 +156,15 @@ def udpdate_time_controller(time_id, time):
     for item in time.payment:
         payment_query = session.query(Payments).filter_by(id=item.id).first()
         if payment_query:
-            if item.requiered == 2:
-                payment_query.name = (item.name,)
-                payment_query.amount = (item.amount,)
-                payment_query.value = (item.value,)
-                payment_query.requiered = (item.requiered,)
-                payment_query.type_taxe = (item.type_taxe,)
-                payment_query.type_amount = item.type_amount
-
-            if item.requiered == 1 and item.is_active:
-                payment_query.name = (item.name,)
-                payment_query.amount = (item.amount,)
-                payment_query.value = (item.value,)
-                payment_query.requiered = (item.requiered,)
-                payment_query.type_taxe = (item.type_taxe,)
+            if item.requiered == 2 or (item.requiered == 1 and item.is_active):
+                payment_query.name = item.name
+                payment_query.amount = item.amount
+                payment_query.value = item.value
+                payment_query.requiered = item.requiered
+                payment_query.type_taxe = item.type_taxe
                 payment_query.type_amount = item.type_amount
         else:
-            if item.requiered == 2:
-                payment_query = Payments(
-                    name=item.name,
-                    amount=item.amount,
-                    value=item.value,
-                    time_id=time_query.id,
-                    requiered=item.requiered,
-                    type_taxe=item.type_taxe,
-                    type_amount=item.type_amount,
-                )
-
-            if item.requiered == 1 and item.is_active:
+            if item.requiered == 2 or (item.requiered == 1 and item.is_active):
                 payment_query = Payments(
                     name=item.name,
                     amount=item.amount,
