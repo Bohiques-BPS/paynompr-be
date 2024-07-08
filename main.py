@@ -46,6 +46,8 @@ event.listen(UserCode.__table__, "after_create", initialize_table)
 
 
 app = FastAPI()
+app.title = "Paynompr - be"
+
 
 app.add_middleware(
     CORSMiddleware,

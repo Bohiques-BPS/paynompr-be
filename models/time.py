@@ -56,3 +56,4 @@ class Time(Base):
         nullable=True,
         onupdate=func.now(),
     )
+    memo:Mapped[str] = mapped_column(String, nullable=True)

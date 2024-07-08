@@ -1,59 +1,59 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import date
 from schemas.time import TimeIDShema
-
+from typing import Optional, List
 
 class EmployersSchema(BaseModel):
-    last_name: str | None = None
-    mother_last_name: str | None = None
-    first_name: str | None = None
-    middle_name: str | None = None
-    company_id: int | None = None
-    employee_type: str | None = None
-    social_security_number: str | None = None
-    marital_status: int | None = None
-    address: str | None = None
-    address_state: str | None = None
-    address_country: str | None = None
-    address_number: str | None = None
-    phone_number: str | None = None
-    smartphone_number: str | None = None
-    marbete: str | None = None
-    type: int | None = None
-    date_marb: date | None = None
-    clipboard: str | None = None
-    exec_personal: int | None = None
-    choferil: str | None = None
-    regular_time: float | None = None
-    period_norma: int | None = None
-    licence: str | None = None
-    category_cfse: str | None = None
-    gender: int | None = None
-    birthday: date | None = None
-    date_admission: date | None = None
-    date_egress: date | None = None
-    overtime: float | None = None
-    mealtime: float | None = None
-    vacation_hours: int | None = None
-    vacation_date: date | None = None
-    sicks_hours: int | None = None
-    sicks_date: date | None = None
-    number_dependents: int | None = None
-    shared_custody: bool | None = None
-    number_concessions: int | None = None
-    veteran: bool | None = None
-    type_payroll: int | None = None
-    schedule_type: int | None = None
-    payment_percentage: str | None = None
+    last_name: Optional[str] = Field(None, max_length=100)
+    mother_last_name: Optional[str] = Field(None, max_length=100)
+    first_name: Optional[str] = Field(None, max_length=100)
+    middle_name: Optional[str] = Field(None, max_length=100)
+    company_id: Optional[int] = Field(None, ge=0)
+    employee_type: Optional[str] = Field(None, max_length=50)
+    social_security_number: Optional[str] = Field(None, max_length=11)
+    marital_status: Optional[int] = Field(None, ge=0)
+    address: Optional[str] = Field(None, max_length=200)
+    address_state: Optional[str] = Field(None, max_length=100)
+    address_country: Optional[str] = Field(None, max_length=100)
+    address_number: Optional[str] = Field(None, max_length=20)
+    phone_number: Optional[str] = Field(None, max_length=20)
+    smartphone_number: Optional[str] = Field(None, max_length=20)
+    marbete: Optional[str] = Field(None, max_length=50)
+    type: Optional[int] = Field(None, ge=0)
+    date_marb: Optional[date] = None
+    clipboard: Optional[str] = Field(None, max_length=100)
+    exec_personal: Optional[int] = Field(None, ge=0)
+    choferil: Optional[str] = Field(None, max_length=50)
+    regular_time: Optional[float] = Field(None, ge=0.0)
+    period_norma: Optional[int] = Field(None, ge=0)
+    licence: Optional[str] = Field(None, max_length=50)
+    category_cfse: Optional[str] = Field(None, max_length=50)
+    gender: Optional[int] = Field(None, ge=0)
+    birthday: Optional[date] = None
+    date_admission: Optional[date] = None
+    date_egress: Optional[date] = None
+    overtime: Optional[float] = Field(None, ge=0.0)
+    mealtime: Optional[float] = Field(None, ge=0.0)
+    vacation_hours: Optional[int] = Field(None, ge=0)
+    vacation_date: Optional[date] = None
+    sicks_hours: Optional[int] = Field(None, ge=0)
+    sicks_date: Optional[date] = None
+    number_dependents: Optional[int] = Field(None, ge=0)
+    shared_custody: Optional[bool] = None
+    number_concessions: Optional[int] = Field(None, ge=0)
+    veteran: Optional[bool] = None
+    type_payroll: Optional[int] = Field(None, ge=0)
+    schedule_type: Optional[int] = Field(None, ge=0)
+    payment_percentage: Optional[str] = Field(None, max_length=10)
 
 
 class EmployerReturnIDShema(EmployersSchema):
-    is_deleted: bool | None = None
+    is_deleted: Optional[bool] = None
     id: int
 
 
 class EmployerTimeShema(EmployerReturnIDShema):
-    times: list[TimeIDShema] = []
+    times: List[TimeIDShema] = []
 
     class Config:
         from_attributes = True

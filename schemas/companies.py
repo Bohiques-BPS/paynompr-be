@@ -1,45 +1,49 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from datetime import date
 from schemas.employee import EmployerReturnIDShema
 from schemas.taxes import TaxeIDShema
-
+from typing import Optional, List
 
 class CompaniesSchema(BaseModel):
-    name: str | None = None
-    commercial_register: str | None = None
-    jurisdiction: str | None = None
-    accountant_id: int | None = None
-    email: str | None = None
-    contact: str | None = None
-    contact_number: str | None = None
-    website: str | None = None
-    vacation_hours: int | None = None
-    vacation_date: int | None = None
-    sicks_hours: int | None = None
-    choferil_number: str | None = None
-    sicks_date: int | None = None
-    postal_address: str | None = None
-    zipcode_postal_address: str | None = None
-    country_postal_address: str | None = None
-    state_postal_addess: str | None = None
-    physical_address: str | None = None
-    zipcode_physical_address: str | None = None
-    country_physical_address: str | None = None
-    state_physical_address: str | None = None
-    phone_number: str | None = None
-    fax_number: str | None = None
-    industrial_code: str | None = None
-    payer: str | None = None
-    desem: str | None = None
-    number_patronal: str | None = None
-    coml: date | None = None
-    employed_contribution: str | None = None
-    disabled_percent: str | None = None
-    unemployment_percentage: str | None = None
-    polize_number: str | None = None
-    driver_code: str | None = None
-    driver_rate: str | None = None
-    is_deleted: bool | None = None
+    name: Optional[str] = Field(None, max_length=100)
+    commercial_register: Optional[str] = Field(None, max_length=100)
+    jurisdiction: Optional[str] = Field(None, max_length=100)
+    accountant_id: Optional[int] = Field(None, ge=0)
+    email: Optional[EmailStr] = None  # Validación automática de email
+    contact: Optional[str] = Field(None, max_length=100)
+    contact_number: Optional[str] = Field(None, max_length=20)
+    website: Optional[str] = Field(None, max_length=100)
+    vacation_hours: Optional[int] = Field(None, ge=0)
+    vacation_date: Optional[int] = Field(None, ge=0)
+    sicks_hours: Optional[int] = Field(None, ge=0)
+    choferil_number: Optional[str] = Field(None, max_length=100)
+    sicks_date: Optional[int] = Field(None, ge=0)
+    postal_address: Optional[str] = Field(None, max_length=200)
+    zipcode_postal_address: Optional[str] = Field(None, max_length=20)
+    country_postal_address: Optional[str] = Field(None, max_length=100)
+    state_postal_addess: Optional[str] = Field(None, max_length=100)
+    physical_address: Optional[str] = Field(None, max_length=200)
+    zipcode_physical_address: Optional[str] = Field(None, max_length=20)
+    country_physical_address: Optional[str] = Field(None, max_length=100)
+    state_physical_address: Optional[str] = Field(None, max_length=100)
+    phone_number: Optional[str] = Field(None, max_length=20)
+    fax_number: Optional[str] = Field(None, max_length=20)
+    industrial_code: Optional[str] = Field(None, max_length=100)
+    payer: Optional[str] = Field(None, max_length=100)
+    desem: Optional[str] = Field(None, max_length=100)
+    number_patronal: Optional[str] = Field(None, max_length=100)
+    coml: Optional[date] = None
+    employed_contribution: Optional[str] = Field(None, max_length=100)
+    disabled_percent: Optional[str] = Field(None, max_length=10)
+    unemployment_percentage: Optional[str] = Field(None, max_length=10)
+    polize_number: Optional[str] = Field(None, max_length=100)
+    driver_code: Optional[str] = Field(None, max_length=100)
+    driver_rate: Optional[str] = Field(None, max_length=10)
+    is_deleted: Optional[bool] = None
+    tax_authority_first_control: Optional[int] = Field(None, ge=0)
+    tax_authority_second_control: Optional[int] = Field(None, ge=0)
+
+
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -48,8 +52,8 @@ class CompaniesIdSchema(CompaniesSchema):
 
 
 class CompaniesWithEmployersSchema(CompaniesIdSchema):
-    employers: list[EmployerReturnIDShema] = []
-    taxes: list[TaxeIDShema] = []
+    employers: List[EmployerReturnIDShema] = []
+    taxes: List[TaxeIDShema] = []
 
     class Config:
         from_attributes = True
