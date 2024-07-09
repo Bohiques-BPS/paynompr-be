@@ -1,24 +1,34 @@
-
-
-
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, Field, EmailStr, validator, ValidationError
+from typing import Optional
+import re
 
 
 class Accountants(BaseModel):
-    code_id: int | None = None
-    email: str | None = None
-    name: str | None = None
-    middle_name: str | None = None
-    first_last_name: str | None = None
-    second_last_name: str | None = None
-    company: str | None = None
-    phone: str | None = None
-    country: str | None = None
-    state: str | None = None
-    zip_code: str | None = None
-    identidad_ssa: str | None = None
-    identidad_bso: str | None = None
-    identidad_efile: str | None = None
-    address: str | None = None
-    employer_insurance_number : str | None = None
-    user_id: int | None = None
+    code_id: Optional[int] = None
+    email: Optional[EmailStr] = None  # Validación automática de email
+    name: Optional[str] = Field(None, max_length=100)
+    middle_name: Optional[str] = Field(None, max_length=100)
+    first_last_name: Optional[str] = Field(None, max_length=100)
+    second_last_name: Optional[str] = Field(None, max_length=100)
+    company: Optional[str] = Field(None, max_length=100)
+    phone: Optional[str] = None
+    country: Optional[str] = Field(None, max_length=100)
+    state: Optional[str] = Field(None, max_length=100)
+    zip_code: Optional[str] = Field(None, max_length=20)
+    identidad_ssa: Optional[str] = Field(None, max_length=100)
+    identidad_bso: Optional[str] = Field(None, max_length=100)
+    identidad_efile: Optional[str] = Field(None, max_length=100)
+    address: Optional[str] = Field(None, max_length=200)
+    employer_insurance_number: Optional[str] = Field(None, max_length=100)
+    user_id: Optional[int] = None
+
+    @validator('phone')
+    def validate_phone(cls, value):
+        if value and not cls.is_valid_phone(value):
+            raise ValueError('El número de teléfono no es válido')
+        return value
+
+    @staticmethod
+    def is_valid_phone(value: str) -> bool:
+        pattern = re.compile(r'^(?:\+1)?(?:\(\d{3}\)|\d{3})[-.\s]?\d{3}[-.\s]?\d{4}$')
+        return bool(pattern.match(value))

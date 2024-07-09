@@ -85,3 +85,5 @@ class Companies(Base):
         nullable=True,
         onupdate=func.now(),
     )
+    tax_authority_first_control:Mapped[int] = mapped_column( nullable=True)
+    tax_authority_second_control:Mapped[int] = mapped_column( nullable=True)
