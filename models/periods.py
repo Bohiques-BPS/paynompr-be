@@ -1,11 +1,16 @@
 from datetime import date
-from sqlalchemy import TIMESTAMP, Date, Integer, Boolean, func
+from sqlalchemy import TIMESTAMP, Date, Integer, Boolean, func, Enum
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import relationship
-
-
 from database.config import Base
+import enum
+
+
+class PeriodType(enum.Enum):
+    WEEKLY = "weekly"
+    BIWEEKLY = "biweekly"
+    MONTHLY = "monthly"
 
 
 class Period(Base):
@@ -19,9 +24,9 @@ class Period(Base):
         Integer,
         nullable=False,
     )
-
     period_start: Mapped[date] = mapped_column(Date(), nullable=False, index=True)
     period_end: Mapped[date] = mapped_column(Date(), nullable=False, index=True)
+    period_type: Mapped[PeriodType] = mapped_column(Enum(PeriodType), nullable=False)
 
     time = relationship("Time", back_populates="period")
 

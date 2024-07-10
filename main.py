@@ -21,6 +21,8 @@ from routers.time import time_router
 from routers.outemployers import outemployers_router
 from routers.time_outemployer import outtime_router
 from routers.reports import report_router
+from routers.period import period_routes
+
 
 from models.users import User, Role, Code, UserCode
 from models.companies import Companies
@@ -30,6 +32,7 @@ from models.employers import Employers
 from fastapi.middleware.cors import CORSMiddleware
 from database.config import init_db
 from database.seed.user import initialize_table
+from database.seed.period import initialize_periods
 
 load_dotenv()
 
@@ -58,7 +61,7 @@ app.add_middleware(
 )
 
 init_db()
-
+initialize_periods()
 
 app.include_router(auth_router, tags=["auth"], prefix="/api/auth")
 app.include_router(user_router, tags=["users"], prefix="/api/users")
@@ -74,7 +77,7 @@ app.include_router(
 )
 app.include_router(outtime_router, tags=["outtime_router"], prefix="/api/outtime")
 app.include_router(report_router, tags=["report_router"], prefix="/api/reports")
-
+app.include_router(period_routes, tags=["period_router"], prefix="/api/period")
 
 if __name__ == "__main__":
     uvicorn.run("main:app", port=int(PORT), host="0.0.0.0", reload=True)
