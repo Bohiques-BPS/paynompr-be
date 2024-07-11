@@ -2,6 +2,7 @@
 from fastapi import HTTPException, status
 from database.config import session
 from models.periods import Period, PeriodType
+from schemas.period import PeriodRead
 
 
 
@@ -78,3 +79,35 @@ def create_monthly_periods(year: int) -> list[Period]:
             "period_type": PeriodType.MONTHLY
         })
     return create_periods(periods)
+
+
+def get_all_periods_controller()-> list[PeriodRead]:
+    try:
+        periods = session.query(Period).all()
+        return [PeriodRead.from_orm(period) for period in periods]
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred: {str(e)}"
+        )
+    finally:
+        session.close()
+
+
+def get_periods_by_year_and_type_controller(year: int, period_type: PeriodType) -> list[PeriodRead]:
+    try:
+        periods = session.query(Period).filter(
+            Period.year == year,
+            Period.period_type == period_type,
+            Period.is_deleted == False  # Assuming is_deleted is a boolean column
+        ).all()
+        return [PeriodRead.from_orm(period) for period in periods]
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred while fetching periods: {str(e)}"
+        )
+    finally:
+        session.close()
