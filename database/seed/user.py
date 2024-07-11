@@ -410,44 +410,8 @@ INITIAL_DATA = {
             "period_id": 4,
             "company_id": 1,
         },
-    ],
-    "periods": [
-        {
-           
-            "year": 2024,
-            "period_number": 1,
-            "period_start": date.fromisoformat("2024-01-01"),
-            "period_end": date.fromisoformat("2024-01-07"),
-        },
-        {
-           
-            "year": 2024,
-            "period_number": 2,
-            "period_start": date.fromisoformat("2024-01-08"),
-            "period_end": date.fromisoformat("2024-01-14"),
-        },
-        {
-           
-            "year": 2024,
-            "period_number": 3,
-            "period_start": date.fromisoformat("2024-01-15"),
-            "period_end": date.fromisoformat("2024-01-21"),
-        },
-        {
-           
-            "year": 2024,
-            "period_number": 4,
-            "period_start": date.fromisoformat("2024-01-22"),
-            "period_end": date.fromisoformat("2024-01-28"),
-        },
-        {
-           
-            "year": 2024,
-            "period_number": 5,
-            "period_start": date.fromisoformat("2024-01-29"),
-            "period_end": date.fromisoformat("2024-02-04"),
-        },
-    ],
+    ]
+    
 }
 
 
