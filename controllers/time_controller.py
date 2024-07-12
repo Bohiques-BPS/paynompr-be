@@ -58,7 +58,6 @@ def create_time_controller(time_data, employer_id):
         session.refresh(time_query)
 
         # Actualización de las horas de enfermedad y vacaciones del empleador
-        employers.sick_hours = int(employers.sick_hours) - int(time_data.sick_time.split(":")[0])
         employers.vacation_hours = int(employers.vacation_hours) - int(time_data.vacation_time.split(":")[0])
 
         session.add(employers)
@@ -88,6 +87,7 @@ def create_time_controller(time_data, employer_id):
         )
     finally:
         session.close()
+
 
 
 def get_time_by_employer_id_controller(employer_id):

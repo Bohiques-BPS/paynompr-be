@@ -19,7 +19,7 @@ class Payments(Base):
     amount: Mapped[float] = mapped_column(nullable=True, default=0)
     value: Mapped[float] = mapped_column(nullable=True, default=0)
     is_active: Mapped[bool] = mapped_column(Boolean, default=False)
-    requiered: Mapped[float] = mapped_column(nullable=True, default=0)
+    required: Mapped[float] = mapped_column(nullable=True, default=0)
     type_taxe: Mapped[float] = mapped_column(nullable=True, default=0)
     type_amount: Mapped[float] = mapped_column(nullable=True, default=0)
 
