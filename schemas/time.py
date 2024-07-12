@@ -20,8 +20,7 @@ class TimeShema(BaseModel):
     social_tips: float = Field(ge=0, description="Debe ser un valor positivo")
     tax_pr: float = Field(ge=0, description="Debe ser un valor positivo")
     choferil: float = Field(ge=0, description="Debe ser un valor positivo")
-    vacations_hours: str  
-    vacations_min: str  
+    vacation_time: str   
     tips: float = Field(ge=0, description="Debe ser un valor positivo")
     payment: List[PaymentIDShema]
     memo: str = Field(max_length=150)

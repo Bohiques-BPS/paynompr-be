@@ -83,7 +83,8 @@ def create_employer_controller(employer_data, company_id):
 
 def get_all_employers_by_company_id_controller(company_id, user):
     try:
-        employer_query = session.query(Employers).join(Companies).filter(Employers.company_id == company_id, Companies.id == Employers.company_id,Companies.code_id == user["code"]).all()
+        employer_query = session.query(Employers).filter(Employers.company_id == company_id).all()
+
 
         return {
             "ok": True,
