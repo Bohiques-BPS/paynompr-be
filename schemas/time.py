@@ -26,7 +26,7 @@ class TimeShema(BaseModel):
     memo: str = Field(max_length=150)
     model_config: ConfigDict(from_attributes=True)
 
-    @validator('regular_time', 'over_time', 'meal_time', 'holiday_time', 'sick_time', 'vacations_hours', 'vacations_min')
+    @validator('regular_time', 'over_time', 'meal_time', 'holiday_time', 'sick_time', 'vacation_time')
     def check_time_format(cls, value):
         if not cls.valid_time_format(value):
             raise ValueError('El formato del tiempo es inválido')
