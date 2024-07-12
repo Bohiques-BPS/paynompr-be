@@ -1,7 +1,7 @@
-from pydantic import BaseModel, ConfigDict, Field, validator, ValidationError
+from pydantic import BaseModel, Field, ValidationError, validator
+from datetime import datetime
+from typing import List, Optional
 from schemas.payments import PaymentIDShema
-from datetime import date, datetime
-from typing import List
 
 class TimeShema(BaseModel):
     regular_time: str 
@@ -10,8 +10,8 @@ class TimeShema(BaseModel):
     meal_amount: float = Field(ge=0, description="Debe ser un valor positivo")
     over_time: str
     meal_time: str 
-    holiday_time: str
-    sick_time: str
+    holiday_time: Optional[str]
+    sick_time: Optional[str]
     commissions: float = Field(ge=0, description="Debe ser un valor positivo")
     concessions: float = Field(ge=0, description="Debe ser un valor positivo")
     inability: float = Field(ge=0, description="Debe ser un valor positivo")
@@ -24,18 +24,19 @@ class TimeShema(BaseModel):
     tips: float = Field(ge=0, description="Debe ser un valor positivo")
     payment: List[PaymentIDShema]
     memo: str = Field(max_length=150)
-    model_config: ConfigDict(from_attributes=True)
 
     @validator('regular_time', 'over_time', 'meal_time', 'holiday_time', 'sick_time', 'vacation_time')
     def check_time_format(cls, value):
-        if not cls.valid_time_format(value):
+        if value is not None and not cls.valid_time_format(value):
             raise ValueError('El formato del tiempo es inválido')
         return value
 
-    @validator('payment', pre=True)
+    @validator('payment', pre=True, each_item=True)
     def check_payment_list(cls, value):
-        if not isinstance(value, list) or not all(isinstance(item, PaymentIDShema) for item in value):
-            raise ValueError('La lista de pagos es inválida')
+        if isinstance(value, dict):
+            return PaymentIDShema(**value)
+        if not isinstance(value, PaymentIDShema):
+            raise TypeError(f'El item en la lista de pagos debe ser una instancia de PaymentIDShema o un diccionario válido: {value}')
         return value
 
     @staticmethod
@@ -48,7 +49,7 @@ class TimeShema(BaseModel):
 
 
 class TimeIDShema(TimeShema):
-    created_at: date
+    created_at: datetime
     id: int
 
 class TimeIDShema2(TimeShema):
