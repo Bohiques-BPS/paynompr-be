@@ -103,6 +103,7 @@ def get_all_companies_controller(user):
             detail=f"An error occurred: {str(e)}"
         )
    
+    
 
 def get_all_company_and_employer_controller(user, company_id, employers_id):
     try:    
