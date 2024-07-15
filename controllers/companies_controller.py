@@ -162,10 +162,14 @@ def get_talonario_controller(user, company_id, employers_id, period_id):
         employer, company = companies_query  # Desempaquetar la tupla
         time_query = (
             session.query(Time)
-            .filter(Time.employer_id == employers_id, Time.id == period_id)
+            .filter(Time.employer_id == employers_id, Time.period_id == period_id)
             .first()
         )
-        taxes_query = session.query(Payments).filter(Payments.time_id == period_id).all()
+        
+        if time_query:
+            taxes_query = session.query(Payments).filter(Payments.time_id == time_query.id).all()
+        else:
+            taxes_query = []
 
         return {
             "ok": True,

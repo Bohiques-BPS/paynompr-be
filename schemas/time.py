@@ -26,6 +26,7 @@ class TimeShema(BaseModel):
     tips: float = Field(ge=0, description="Debe ser un valor positivo")
     payment: List[PaymentIDShema]
     memo: str = Field(max_length=150)
+    period_id: int
 
     @validator('regular_time', 'over_time', 'meal_time', 'holiday_time', 'sick_time', 'vacation_time')
     def check_time_format(cls, value):
