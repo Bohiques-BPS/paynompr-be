@@ -12,6 +12,8 @@ from models.payments import Payments
 from schemas.time import TimeShema, TimeIDShema2
 from passlib.context import CryptContext
 
+from utils.time_func import minutes_to_time, time_to_minutes
+
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 time_router = APIRouter()
@@ -28,6 +30,9 @@ def create_time_controller(time_data, employer_id):
 
         if not employers:
             return {"ok": False, "msg": "Employer not found"}
+        
+
+        print(time_data)
 
         time_query = Time(
             regular_time=time_data.regular_time,
@@ -48,6 +53,7 @@ def create_time_controller(time_data, employer_id):
             social_tips=time_data.social_tips,
             tax_pr=time_data.tax_pr,
             employer_id=employer_id,
+            period_id=time_data.period_id,
             tips=time_data.tips,
             is_deleted=False,
             memo=time_data.memo
@@ -57,16 +63,17 @@ def create_time_controller(time_data, employer_id):
         session.commit()
         session.refresh(time_query)
 
-        # Actualización de las horas de enfermedad y vacaciones del empleador
-        def update_time(current_time, decrement):
-            hours, minutes = map(int, current_time.split(":"))
-            dec_hours, dec_minutes = map(int, decrement.split(":"))
-            total_minutes = hours * 60 + minutes - dec_hours * 60 - dec_minutes
-            new_hours, new_minutes = divmod(total_minutes, 60)
-            return f"{new_hours:02d}:{new_minutes:02d}"
+        #actualizar horas de vaciones y de enfermedad de el empleado
+        if time_data.vacation_time:
+            current_vacation_time = time_to_minutes(employers.vacation_time)
+            new_vacation_time = time_to_minutes(time_data.vacation_time)
+            employers.vacation_time = minutes_to_time(current_vacation_time + new_vacation_time)
 
-        employers.vacation_time = update_time(employers.vacation_time, time_data.vacation_time)
-        employers.sick_time = update_time(employers.sick_time, time_data.sick_time)
+        if time_data.sick_time:
+            current_sick_time = time_to_minutes(employers.sick_time)
+            new_sick_time = time_to_minutes(time_data.sick_time)
+            employers.sick_time = minutes_to_time(current_sick_time + new_sick_time)
+
 
         session.add(employers)
         session.commit()
@@ -95,9 +102,6 @@ def create_time_controller(time_data, employer_id):
         )
     finally:
         session.close()
-
-
-
 
 def get_time_by_employer_id_controller(employer_id):
     try:
