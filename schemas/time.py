@@ -2,6 +2,8 @@ from pydantic import BaseModel, Field, ValidationError, validator
 from datetime import datetime
 from typing import List, Optional
 from schemas.payments import PaymentIDShema
+import re
+
 
 class TimeShema(BaseModel):
     regular_time: str 
@@ -41,11 +43,7 @@ class TimeShema(BaseModel):
 
     @staticmethod
     def valid_time_format(value: str) -> bool:
-        try:
-            datetime.strptime(value, '%H:%M')
-            return True
-        except ValueError:
-            return False
+        return re.match(r"^(?:[0-9]+):[0-5][0-9]$", value) is not None
 
 
 class TimeIDShema(TimeShema):
