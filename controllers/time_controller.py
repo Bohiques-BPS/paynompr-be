@@ -58,7 +58,15 @@ def create_time_controller(time_data, employer_id):
         session.refresh(time_query)
 
         # Actualización de las horas de enfermedad y vacaciones del empleador
-        employers.vacation_hours = int(employers.vacation_hours) - int(time_data.vacation_time.split(":")[0])
+        def update_time(current_time, decrement):
+            hours, minutes = map(int, current_time.split(":"))
+            dec_hours, dec_minutes = map(int, decrement.split(":"))
+            total_minutes = hours * 60 + minutes - dec_hours * 60 - dec_minutes
+            new_hours, new_minutes = divmod(total_minutes, 60)
+            return f"{new_hours:02d}:{new_minutes:02d}"
+
+        employers.vacation_time = update_time(employers.vacation_time, time_data.vacation_time)
+        employers.sick_time = update_time(employers.sick_time, time_data.sick_time)
 
         session.add(employers)
         session.commit()
@@ -87,6 +95,7 @@ def create_time_controller(time_data, employer_id):
         )
     finally:
         session.close()
+
 
 
 
