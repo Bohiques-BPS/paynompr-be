@@ -102,8 +102,7 @@ def get_all_companies_controller(user):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An error occurred: {str(e)}"
         )
-    finally:
-        session.close()
+   
 
 def get_all_company_and_employer_controller(user, company_id, employers_id):
     try:    
