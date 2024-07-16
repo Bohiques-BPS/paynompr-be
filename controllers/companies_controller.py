@@ -7,12 +7,13 @@ from fastapi import APIRouter, HTTPException, status
 from database.config import session
 from schemas.companies import CompaniesSchema, CompaniesWithEmployersSchema
 from sqlalchemy.orm import Session
-
+from models.periods import Period
 from models.companies import Companies
 from models.employers import Employers
 from models.taxes import Taxes
 from sqlalchemy.orm import joinedload
 
+from models.periods import PeriodType
 
 from models.time import Time
 from models.payments import Payments
@@ -116,15 +117,24 @@ def get_all_company_and_employer_controller(user, company_id, employers_id):
         employers_query = session.query(Employers).filter(Employers.company_id == company_id).all()
         employer, company = companies_query  # Desempaquetar la tupla
         simple_query = (
-            session.query(Time)
-            .outerjoin(Payments)
-            .filter(Time.employer_id == employers_id)
-            .all()
+        session.query(Period, Time)
+        .join(Time, onclause=(Time.period_id == Period.id))
+        .filter(
+        Period.period_type == PeriodType.MONTHLY,
+        Period.year == 2024,
+        Period.is_deleted == False,
+        Time.employer_id == 2
         )
-        for time_obj in simple_query:
-            print(
-                time_obj.payment
-            )  # Acceder a la relación payment definida en el modelo Time
+        .all()
+        )
+        for period, time in simple_query:
+            print("Period:", period)
+            print("Time:", time)
+
+       
+            
+       
+       
         taxes_query = (
             session.query(Taxes)
             .filter(Taxes.company_id == company_id, Taxes.is_deleted == False)

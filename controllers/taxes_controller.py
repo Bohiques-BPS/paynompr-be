@@ -27,7 +27,7 @@ def create_taxe_controller(taxe_data, company_id):
             amount = taxe_data.amount,
             company_id = company_id, 
             is_deleted = False,  
-            requiered = taxe_data.requiered,  
+            required = taxe_data.required,  
             type_taxe = taxe_data.type_taxe,  
 
             type_amount = taxe_data.type_amount,  
@@ -107,7 +107,7 @@ def update_taxe_controller(taxe_id, taxe):
             
         taxes_query.name = taxe.name,
         taxes_query.amount = taxe.amount,   
-        taxes_query.requiered = taxe.requiered,  
+        taxes_query.required = taxe.required,  
         taxes_query.type_taxe = taxe.type_taxe,  
 
         taxes_query.type_amount = taxe.type_amount,  

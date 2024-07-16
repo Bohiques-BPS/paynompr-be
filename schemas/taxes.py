@@ -2,8 +2,8 @@ from pydantic import BaseModel, Field, ConfigDict
 
 class TaxeShema(BaseModel):
     name: str
-    amount: float = Field(..., ge=0.0)  
-    required: float = Field(..., ge=0.0) 
+    amount: float  
+    required: float 
     type_taxe: float
     type_amount: float
     model_config: ConfigDict
