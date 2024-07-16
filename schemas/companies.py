@@ -1,8 +1,11 @@
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from datetime import date
-from schemas.employee import EmployerReturnIDShema
+from schemas.employee import EmployerReturnIDShema, EmployerTimeShema
+from schemas.payments import PaymentIDShema
 from schemas.taxes import TaxeIDShema
 from typing import Optional, List
+from schemas.time import TimeIDShema
+
 
 class CompaniesSchema(BaseModel):
     name: Optional[str] = Field(None, max_length=100)
@@ -52,8 +55,9 @@ class CompaniesIdSchema(CompaniesSchema):
 
 
 class CompaniesWithEmployersSchema(CompaniesIdSchema):
-    employers: List[EmployerReturnIDShema] = []
+    employers: List[EmployerTimeShema] = []
     taxes: List[TaxeIDShema] = []
+    
 
     class Config:
         from_attributes = True

@@ -5,6 +5,7 @@ from sqlalchemy.orm import aliased
 
 from fastapi import APIRouter, HTTPException, status
 from database.config import session
+from models.periods import Period, PeriodType
 from schemas.companies import CompaniesSchema, CompaniesWithEmployersSchema
 from sqlalchemy.orm import Session
 
@@ -12,8 +13,6 @@ from models.companies import Companies
 from models.employers import Employers
 from models.taxes import Taxes
 from sqlalchemy.orm import joinedload
-
-
 from models.time import Time
 from models.payments import Payments
 
@@ -84,17 +83,15 @@ def get_all_companies_controller(user):
     try:
         companies_query = (
             session.query(Companies)
-            .options(joinedload(Companies.employers))
-            .filter(Companies.code_id == user["code"])
+            .options(joinedload(Companies.employers).joinedload(Employers.time))
+            .filter(Companies.code_id == user["id"])
             .all()
         )
-
+    
         # Filtrar manualmente los empleados con is_deleted false para cada compañía
         for company in companies_query:
-            company.employers = [
-                employer for employer in company.employers if not employer.is_deleted
-            ]
-
+            company.employers = [employer for employer in company.employers if not employer.is_deleted]
+            
         return companies_query
     except Exception as e:
         session.rollback()
@@ -103,52 +100,126 @@ def get_all_companies_controller(user):
             detail=f"An error occurred: {str(e)}"
         )
     
+        
 
-def get_all_company_and_employer_controller(user, company_id, employers_id):
-    try:    
-        companies_query = (
-            session.query(Employers, Companies)
-            .join(Companies, onclause=Companies.id == company_id)
-            .filter(Companies.code_id == user["code"], Employers.id == employers_id)
-            .first()
-        )
-        employers_query = session.query(Employers).filter(Employers.company_id == company_id).all()
-        employer, company = companies_query  # Desempaquetar la tupla
-        simple_query = (
-            session.query(Time)
-            .outerjoin(Payments)
-            .filter(Time.employer_id == employers_id)
-            .all()
-        )
-        for time_obj in simple_query:
-            print(
-                time_obj.payment
-            )  # Acceder a la relación payment definida en el modelo Time
-        taxes_query = (
-            session.query(Taxes)
-            .filter(Taxes.company_id == company_id, Taxes.is_deleted == False)
-            .all()
-        )
+
+
+
+
+def get_all_company_and_employer_controller(user, company_id, employers_id):    
+    try:
+        # Filtramos la compañía y el empleador
+        companie_query = session.query(Companies).filter(Companies.id == company_id).first()
+        if not companie_query:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Company not found")
+        
+        employer_query = session.query(Employers).filter(Employers.id == employers_id).first()
+        if not employer_query:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Employer not found")
+
+        # Consulta para obtener todos los periodos del año 2024
+        periods_query = session.query(Period).filter(
+            Period.year == 2024,
+            Period.is_deleted == False
+        ).all()
+
+        # Consulta con joins para obtener todos los datos necesarios
+        results = (session.query(Companies, Employers, Time, Taxes)
+            .select_from(Companies)
+            .join(Employers, Employers.company_id == Companies.id)
+            .join(Time, Time.employer_id == Employers.id, isouter=True)  # LEFT JOIN
+            .join(Taxes, Taxes.company_id == Companies.id)
+            .filter(Companies.id == company_id)
+            .filter(Employers.id == employers_id)
+            .all())
+
+        # Consulta para obtener todos los payments
+        payments_query = session.query(Payments).filter(
+            Payments.time_id.in_([t.id for row in results if row[2] for t in [row[2]]])
+        ).all()
+
+        if not results:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Data not found")
+
+        # Organizar los datos en un formato estructurado
+        times_data = []
+        taxes_data = []
+        payments_data = {}
+
+        for row in results:
+            companies, employers, time, taxes = row
+            
+            # Añadir tiempos
+            if time:
+                times_data.append(time)
+
+            # Añadir impuestos
+            taxes_data.append(taxes)
+
+        # Organizar payments por time_id
+        for payment in payments_query:
+            if payment.time_id not in payments_data:
+                payments_data[payment.time_id] = []
+            payments_data[payment.time_id].append({
+                "id": payment.id,
+                "name": payment.name,
+                "amount": payment.amount,
+                "value": payment.value,
+                "is_active": payment.is_active,
+                "required": payment.required,
+                "type_taxe": payment.type_taxe,
+                "type_amount": payment.type_amount,
+                "is_deleted": payment.is_deleted,
+                "deleted_at": payment.deleted_at,
+                "created_at": payment.created_at,
+                "update_at": payment.update_at
+            })
+
+        # Crear una lista de periodos, algunos podrían no tener datos de Time
+        periods_data = [
+            {
+                "year": period.year,
+                "period_number": period.period_number,
+                "period_start": period.period_start,
+                "period_end": period.period_end,
+                "period_type": period.period_type,
+                "is_deleted": period.is_deleted,
+                "id": period.id,
+                "created_at": period.created_at,
+                "deleted_at": period.deleted_at,
+                "update_at": period.update_at,
+                "times": [
+                    {
+                        **t.__dict__,
+                        "payments": payments_data.get(t.id, [])
+                    }
+                    for t in times_data if t.period_id == period.id
+                ]
+            }
+            for period in periods_query
+        ]
 
         return {
             "ok": True,
             "msg": "",
             "result": {
-                "company": company,
-                "employer": employer,
-                "employers": employers_query,
-                "time": simple_query,
-                "taxes": taxes_query,
+                "company": companie_query,
+                "employer": employer_query,
+                "periods": periods_data,
+                "taxes": taxes_data
             },
         }
+
     except Exception as e:
         session.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
-        )
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {str(e)}")
     finally:
         session.close()
+
+
+
+
+
 
 def get_talonario_controller(user, company_id, employers_id, period_id):
     try:
