@@ -64,7 +64,7 @@ def create_time_controller(time_data, employer_id):
         session.refresh(time_query)
 
         #actualizar horas de vaciones y de enfermedad de el empleado
-        if time_data.vacation_time:
+        """ if time_data.vacation_time:
             current_vacation_time = time_to_minutes(employers.vacation_time)
             new_vacation_time = time_to_minutes(time_data.vacation_time)
             employers.vacation_time = minutes_to_time(current_vacation_time + new_vacation_time)
@@ -73,7 +73,7 @@ def create_time_controller(time_data, employer_id):
             current_sick_time = time_to_minutes(employers.sick_time)
             new_sick_time = time_to_minutes(time_data.sick_time)
             employers.sick_time = minutes_to_time(current_sick_time + new_sick_time)
-
+        """
 
         session.add(employers)
         session.commit()
@@ -197,21 +197,21 @@ def update_time_controller(time_id, time):
         for item in time.payment:
             payment_query = session.query(Payments).filter_by(id=item.id).first()
             if payment_query:
-                if item.requiered == 2 or (item.requiered == 1 and item.is_active):
+                if item.required == 2 or (item.required == 1 and item.is_active):
                     payment_query.name = item.name
                     payment_query.amount = item.amount
                     payment_query.value = item.value
-                    payment_query.requiered = item.requiered
+                    payment_query.required = item.required
                     payment_query.type_taxe = item.type_taxe
                     payment_query.type_amount = item.type_amount
             else:
-                if item.requiered == 2 or (item.requiered == 1 and item.is_active):
+                if item.required == 2 or (item.required == 1 and item.is_active):
                     payment_query = Payments(
                         name=item.name,
                         amount=item.amount,
                         value=item.value,
                         time_id=time_query.id,
-                        requiered=item.requiered,
+                        required=item.required,
                         type_taxe=item.type_taxe,
                         type_amount=item.type_amount,
                     )

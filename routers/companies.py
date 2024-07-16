@@ -37,7 +37,7 @@ async def create_company(companie_data: CompaniesSchema, user: user_dependency):
     return create_company_controller(companie_data, user)
 
 # Obtener todas las compañías
-@companies_router.get("/all", response_model=list[CompaniesWithEmployersSchema])
+@companies_router.get("/")
 async def get_all_companies(user: user_dependency):
     return get_all_companies_controller(user)
 
