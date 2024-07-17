@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field, ConfigDict
 
 class TaxeShema(BaseModel):
     name: str
-    amount: float  
+    amount: float 
     required: float 
     type_taxe: float
     type_amount: float

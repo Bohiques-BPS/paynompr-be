@@ -29,7 +29,6 @@ def create_taxe_controller(taxe_data, company_id):
             is_deleted = False,  
             required = taxe_data.required,  
             type_taxe = taxe_data.type_taxe,  
-
             type_amount = taxe_data.type_amount,  
 
         )     
