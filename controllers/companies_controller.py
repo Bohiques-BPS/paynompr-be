@@ -127,6 +127,11 @@ def get_all_company_and_employer_controller(user, company_id, employers_id):
             Period.is_deleted == False,
             Period.period_type == employer_period_type
         ).all()
+        
+
+        # Consulta para obtener todos los empleados
+        employers_query = session.query(Employers).filter(Employers.company_id == company_id).all()
+
 
         # Consulta con joins para obtener todos los datos necesarios
         results = (session.query(Companies, Employers, Time, Taxes)
@@ -204,6 +209,8 @@ def get_all_company_and_employer_controller(user, company_id, employers_id):
             for period in periods_query
         ]
 
+
+
         return {
             "ok": True,
             "msg": "",
@@ -211,7 +218,8 @@ def get_all_company_and_employer_controller(user, company_id, employers_id):
                 "company": companie_query,
                 "employer": employer_query,
                 "periods": periods_data,
-                "taxes": taxes_data
+                "taxes": taxes_data,
+                "employers": employers_query
             },
         }
 
