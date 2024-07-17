@@ -118,11 +118,21 @@ def get_all_company_and_employer_controller(user, company_id, employers_id):
         if not employer_query:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Employer not found")
 
+        # Obtener el period_id del payment_type del modelo time
+        employer_period_id = session.query(Time).filter(Time.employer_id == employer_query.id).first().period_id
+        employer_period_type = session.query(Period).filter(Period.id == employer_period_id).first().period_type
+        
         # Consulta para obtener todos los periodos del año 2024
         periods_query = session.query(Period).filter(
             Period.year == 2024,
-            Period.is_deleted == False
+            Period.is_deleted == False,
+            Period.period_type == employer_period_type
         ).all()
+        
+
+        # Consulta para obtener todos los empleados
+        employers_query = session.query(Employers).filter(Employers.company_id == company_id).all()
+
 
         # Consulta con joins para obtener todos los datos necesarios
         results = (session.query(Companies, Employers, Time, Taxes)
@@ -200,6 +210,8 @@ def get_all_company_and_employer_controller(user, company_id, employers_id):
             for period in periods_query
         ]
 
+
+
         return {
             "ok": True,
             "msg": "",
@@ -207,7 +219,8 @@ def get_all_company_and_employer_controller(user, company_id, employers_id):
                 "company": companie_query,
                 "employer": employer_query,
                 "periods": periods_data,
-                "taxes": taxes_data
+                "taxes": taxes_data,
+                "employers": employers_query
             },
         }
 
