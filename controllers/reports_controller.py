@@ -34,7 +34,7 @@ def all_counterfoil_controller(company_id, period_Id):
         session.close()
 
 def counterfoil_controller(company_id, employer_id, time_id):
-    try:    
+    try:
         employer_time_query = (
             session.query(Time)
             .filter(Time.employer_id == employer_id)
@@ -50,25 +50,133 @@ def counterfoil_controller(company_id, employer_id, time_id):
 
         company = session.query(Companies).filter(Companies.id == company_id).first()
 
-    
+        if not employer_time_query or not employers or not company:
+            return {"ok": False, "msg": "time, employer, or company not found", "result": None}
 
         time = vars(employer_time_query)
 
-        if not employer_time_query:
-            return {"ok": False, "msg": "time not found", "result": None}
+        template_html = """
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <title>Voucher de Pago</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 0;
+                    padding: 20px;
+                }
+                .container {
+                    max-width: 800px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    background-color: #fff;
+                    border: 1px solid #ccc;
+                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                }
+                .header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 20px;
+                }
+                .employer-info, .employee-info {
+                    margin-bottom: 10px;
+                }
+                .period {
+                    text-align: right;
+                    margin-bottom: 20px;
+                }
+                .table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-bottom: 20px;
+                }
+                .table th, .table td {
+                    border: 1px solid #ccc;
+                    padding: 8px;
+                    text-align: left;
+                }
+                .table th {
+                    background-color: #f2f2f2;
+                }
+                .totals {
+                    margin-top: 20px;
+                }
+                .signature {
+                    margin-top: 40px;
+                    text-align: center;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <div class="employer-info">
+                        <p><strong>Empleador:</strong> {{ company }}</p>
+                    </div>
+                    <div class="period">
+                        <p><strong>Periodo de Pago:</strong> {{ start_date }} - {{ end_date }}</p>
+                        <p><strong>Tipo de Pago:</strong> Semanal</p>
+                    </div>
+                </div>
+                <div class="employee-info">
+                    <p><strong>Empleado:</strong> {{ first_name }} {{ last_name }}</p>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Concepto</th>
+                            <th>Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Salario Regular</td>
+                            <td>${{ regular_pay }}</td>
+                        </tr>
+                        <tr>
+                            <td>Horas Extra</td>
+                            <td>${{ overtime_pay }}</td>
+                        </tr>
+                        <tr>
+                            <td>Enfermedad</td>
+                            <td>${{ sick_pay }}</td>
+                        </tr>
+                        <tr>
+                            <td>Medicare</td>
+                            <td>${{ medicare }}</td>
+                        </tr>
+                        <tr>
+                            <td>Vacaciones</td>
+                            <td>${{ vacation_pay }}</td>
+                        </tr>
+                        <tr>
+                            <td>Seguro Social</td>
+                            <td>${{ secure_social }}</td>
+                        </tr>
+                        <tr>
+                            <td>Incapacidad</td>
+                            <td>${{ inability }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="totals">
+                    <p><strong>Total Ingresos:</strong> ${{ total_ingresos }}</p>
+                    <p><strong>Total Egresos:</strong> ${{ total_egresos }}</p>
+                    <hr>
+                    <p><strong>Total a Pagar:</strong> ${{ total_a_pagar }}</p>
+                </div>
+                <div class="signature">
+                    <p>Firma del Empleado: _________________________</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
 
-        dir_path = pathlib.Path().resolve()
-        template_path = f"./utils/pdfkit/templates/counterfoil.html"
-        print(f"Ruta del archivo de plantilla: {template_path}")
-
-        # Verifica si el archivo existe
-        if not pathlib.Path(template_path).is_file():
-            print("El archivo de plantilla no existe en la ruta especificada.")
-        else:
-            print("El archivo de plantilla existe y está listo para ser utilizado.")
-        
-    
-
+        # Datos para la plantilla
         info = {
             "first_name": employers.first_name,
             "last_name": employers.last_name,
@@ -85,15 +193,25 @@ def counterfoil_controller(company_id, employer_id, time_id):
             "secure_social": str("{0:.2f}".format(time["secure_social"])),
             "medicare": str("{0:.2f}".format(time["medicare"])),
             "inability": str("{0:.2f}".format(time["inability"])),
-            **time,
+            "total_ingresos": str("{0:.2f}".format(
+                time["regular_pay"] + time["overtime_pay"] + time["meal_time_pay"] + time["vacation_pay"])),
+            "total_egresos": str("{0:.2f}".format(time["sick_pay"] + time["secure_social"] + time["medicare"] + time["inability"])),
+            "total_a_pagar": str("{0:.2f}".format(
+                (time["regular_pay"] + time["overtime_pay"] + time["meal_time_pay"] + time["vacation_pay"]) - (
+                            time["sick_pay"] + time["secure_social"] + time["medicare"] + time["inability"])))
         }
 
-        output = create_pdf(template_path, info=info, filename="counterfoil")
+        template = Template(template_html)
+        rendered_html = template.render(info)
+
+        # Generar el PDF usando WeasyPrint
+        pdf_file = "voucher_pago.pdf"
+        HTML(string=rendered_html).write_pdf(pdf_file)
 
         return FileResponse(
-            output,
-            media_type="application/octet-stream",
-            filename=f"Talonario de Pagos de {employers.first_name} {employers.last_name}.pdf",
+            pdf_file,
+            media_type="application/pdf",
+            filename=f"Talonario de Pagos de {employers.first_name} {employers.last_name}.pdf"
         )
     except Exception as e:
         session.rollback()
