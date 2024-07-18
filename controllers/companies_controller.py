@@ -107,6 +107,32 @@ def get_all_companies_controller(user):
 
 
 
+from collections import defaultdict
+from datetime import datetime
+from typing import Dict, Any
+
+def calculate_total_times(periods_data) -> Dict[str, Any]:
+    total_times_by_employee = defaultdict(lambda: defaultdict(float))
+    
+    for period in periods_data:
+        for time in period["times"]:
+            employer_id = time["employer_id"]
+            total_times_by_employee[employer_id]["regular_time"] += time_to_hours(time["regular_time"])
+            total_times_by_employee[employer_id]["over_time"] += time_to_hours(time["over_time"])
+            total_times_by_employee[employer_id]["meal_time"] += time_to_hours(time["meal_time"])
+            total_times_by_employee[employer_id]["holiday_time"] += time_to_hours(time["holiday_time"])
+            total_times_by_employee[employer_id]["sick_time"] += time_to_hours(time["sick_time"])
+            total_times_by_employee[employer_id]["vacation_time"] += time_to_hours(time["vacation_time"])
+            # Añadir cualquier otro campo que necesites sumar
+
+    return {k: dict(v) for k, v in total_times_by_employee.items()}
+
+def time_to_hours(time_str: str) -> float:
+    if 'hours' in time_str:
+        return float(time_str.split()[0])
+    hours, minutes = map(int, time_str.split(':'))
+    return hours + minutes / 60
+
 def get_all_company_and_employer_controller(user, company_id, employers_id):    
     try:
         # Filtramos la compañía y el empleador
@@ -128,11 +154,9 @@ def get_all_company_and_employer_controller(user, company_id, employers_id):
             Period.is_deleted == False,
             Period.period_type == employer_period_type
         ).all()
-        
 
         # Consulta para obtener todos los empleados
         employers_query = session.query(Employers).filter(Employers.company_id == company_id).all()
-
 
         # Consulta con joins para obtener todos los datos necesarios
         results = (session.query(Companies, Employers, Time, Taxes)
@@ -210,7 +234,8 @@ def get_all_company_and_employer_controller(user, company_id, employers_id):
             for period in periods_query
         ]
 
-
+        # Calcular la sumatoria de tiempos por empleado
+        total_times_by_employee = calculate_total_times(periods_data)
 
         return {
             "ok": True,
@@ -220,7 +245,8 @@ def get_all_company_and_employer_controller(user, company_id, employers_id):
                 "employer": employer_query,
                 "periods": periods_data,
                 "taxes": taxes_data,
-                "employers": employers_query
+                "employers": employers_query,
+                "total_times_by_employee": total_times_by_employee
             },
         }
 
@@ -229,7 +255,6 @@ def get_all_company_and_employer_controller(user, company_id, employers_id):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {str(e)}")
     finally:
         session.close()
-
 
 
 
