@@ -4,6 +4,7 @@ import pathlib
 
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import FileResponse
+from jinja2 import Template
 
 from database.config import session
 from models.companies import Companies
@@ -12,7 +13,7 @@ from models.periods import Period
 from models.time import Time
 
 from utils.pdfkit.pdfhandled import create_pdf
-
+from weasyprint import HTML
 
 report_router = APIRouter()
 
@@ -35,26 +36,28 @@ def all_counterfoil_controller(company_id, period_Id):
 
 def counterfoil_controller(company_id, employer_id, time_id):
     try:
-        employer_time_query = (
-            session.query(Time)
-            .filter(Time.employer_id == employer_id)
-            .filter(Time.id == time_id)
-            .one_or_none()
-        )
+        # Datos ficticios para probar el HTML
+        info = {
+            "first_name": "John",
+            "last_name": "Doe",
+            "social_security_number": "123-45-6789",
+            "start_date": "2024-07-01",
+            "end_date": "2024-07-07",
+            "company": "Example Company",
+            "regular_pay": "500.00",
+            "overtime_pay": "100.00",
+            "meal_time_pay": "50.00",
+            "sick_pay": "30.00",
+            "vacation_pay": "40.00",
+            "secure_social": "20.00",
+            "medicare": "15.00",
+            "inability": "10.00",
+            "total_ingresos": "690.00",
+            "total_egresos": "75.00",
+            "total_a_pagar": "615.00"
+        }
 
-        employers = (
-            session.query(Employers)
-            .filter(Employers.id == employer_id, Employers.company_id == company_id)
-            .one_or_none()
-        )
-
-        company = session.query(Companies).filter(Companies.id == company_id).first()
-
-        if not employer_time_query or not employers or not company:
-            return {"ok": False, "msg": "time, employer, or company not found", "result": None}
-
-        time = vars(employer_time_query)
-
+        # Plantilla HTML
         template_html = """
         <!DOCTYPE html>
         <html lang="es">
@@ -176,31 +179,6 @@ def counterfoil_controller(company_id, employer_id, time_id):
         </html>
         """
 
-        # Datos para la plantilla
-        info = {
-            "first_name": employers.first_name,
-            "last_name": employers.last_name,
-            "social_security_number": employers.social_security_number,
-            "periodo": "1",
-            "start_date": "2",
-            "end_date": "2",
-            "company": company.name,
-            "regular_pay": str("{0:.2f}".format(time["regular_pay"])),
-            "overtime_pay": str("{0:.2f}".format(time["overtime_pay"])),
-            "meal_time_pay": str("{0:.2f}".format(time["meal_time_pay"])),
-            "sick_pay": str("{0:.2f}".format(time["sick_pay"])),
-            "vacation_pay": str("{0:.2f}".format(time["vacation_pay"])),
-            "secure_social": str("{0:.2f}".format(time["secure_social"])),
-            "medicare": str("{0:.2f}".format(time["medicare"])),
-            "inability": str("{0:.2f}".format(time["inability"])),
-            "total_ingresos": str("{0:.2f}".format(
-                time["regular_pay"] + time["overtime_pay"] + time["meal_time_pay"] + time["vacation_pay"])),
-            "total_egresos": str("{0:.2f}".format(time["sick_pay"] + time["secure_social"] + time["medicare"] + time["inability"])),
-            "total_a_pagar": str("{0:.2f}".format(
-                (time["regular_pay"] + time["overtime_pay"] + time["meal_time_pay"] + time["vacation_pay"]) - (
-                            time["sick_pay"] + time["secure_social"] + time["medicare"] + time["inability"])))
-        }
-
         template = Template(template_html)
         rendered_html = template.render(info)
 
@@ -211,13 +189,10 @@ def counterfoil_controller(company_id, employer_id, time_id):
         return FileResponse(
             pdf_file,
             media_type="application/pdf",
-            filename=f"Talonario de Pagos de {employers.first_name} {employers.last_name}.pdf"
+            filename="Talonario_de_Pagos.pdf"
         )
     except Exception as e:
-        session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An error occurred: {str(e)}"
         )
-    finally:
-        session.close()
