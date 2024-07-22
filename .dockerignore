@@ -9,6 +9,3 @@ python
 .git*
 
 env/
-*.env
-*.env.*
-env.*
