@@ -5,9 +5,9 @@ from starlette import status
 from datetime import  datetime
 
 from controllers.companies_controller import get_all_company_and_employer_controller
-from controllers.employers_controller import create_employer_controller, get_employer_by_id_controller, update_employer_controller
+from controllers.outemployers_controller import delete_outemployer_controller, create_employer_controller, get_employer_by_id_controller, update_employer_controller
 from controllers.outemployers_controller import get_all_outemployers_by_company_id_controller, outemployers_delete_controller
-from controllers.time_controller import delete_employer_controller
+
 from database.config import session
 from routers.auth import user_dependency
 
@@ -28,7 +28,7 @@ outemployers_router = APIRouter()
 async def create_employer(employer_data: OutEmployersSchema, company_id : int):    
     return create_employer_controller(employer_data, company_id)
 
-@outemployers_router.get("/{company_id}/{employers_id}")
+@outemployers_router.get("time/{company_id}/{employers_id}")
 async def get_all_company_and_employer(user: user_dependency,company_id: int,employers_id: int):    
    return get_all_company_and_employer_controller(user,company_id,employers_id)
    
@@ -54,6 +54,6 @@ async def outemployers(outemployers_id: int, user: user_dependency):
 
 @outemployers_router.delete("/delete/{employers_id}")
 async def delete_employer(employers_id: int, user: user_dependency):
-    return delete_employer_controller(employers_id, user)
+    return delete_outemployer_controller(employers_id, user)
     
    

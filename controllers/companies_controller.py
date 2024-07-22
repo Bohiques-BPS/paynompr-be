@@ -8,14 +8,16 @@ from database.config import session
 from models.periods import Period, PeriodType
 from schemas.companies import CompaniesSchema, CompaniesWithEmployersSchema
 from sqlalchemy.orm import Session
-
+from models.periods import Period
 from models.companies import Companies
 from models.employers import Employers
 from models.taxes import Taxes
 from sqlalchemy.orm import joinedload
 from models.time import Time
 from models.payments import Payments
-
+from collections import defaultdict
+from datetime import datetime
+from typing import Dict, Any
 from routers.auth import user_dependency
 
 companies_router = APIRouter()
@@ -99,6 +101,7 @@ def get_all_companies_controller(user):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An error occurred: {str(e)}"
         )
+   
     
         
 
@@ -106,9 +109,7 @@ def get_all_companies_controller(user):
 
 
 
-from collections import defaultdict
-from datetime import datetime
-from typing import Dict, Any
+
 
 def calculate_total_times(periods_data) -> Dict[str, Any]:
     total_times_by_employee = defaultdict(lambda: defaultdict(float))
@@ -147,29 +148,31 @@ def get_all_company_and_employer_controller(user, company_id, employers_id):
         employer_period_id = session.query(Time).filter(Time.employer_id == employer_query.id).first().period_id
         employer_period_type = session.query(Period).filter(Period.id == employer_period_id).first().period_type
         
-        # Consulta para obtener todos los periodos del año 2024
+        # Consulta para obtener todos los periodos del año 2024 y con period_start mayor que la fecha actual
         periods_query = session.query(Period).filter(
-            Period.year == 2024,
-            Period.is_deleted == False,
-            Period.period_type == employer_period_type
+        Period.year == 2024,
+        Period.is_deleted == False,
+        Period.period_type == employer_period_type,
+        datetime.now() >  Period.period_start
         ).all()
 
         # Consulta para obtener todos los empleados
         employers_query = session.query(Employers).filter(Employers.company_id == company_id).all()
+        taxes_query = session.query(Taxes).filter(Taxes.company_id == company_id).all()
 
         # Consulta con joins para obtener todos los datos necesarios
         results = (session.query(Companies, Employers, Time, Taxes)
-            .select_from(Companies)
-            .join(Employers, Employers.company_id == Companies.id)
-            .join(Time, Time.employer_id == Employers.id, isouter=True)  # LEFT JOIN
-            .join(Taxes, Taxes.company_id == Companies.id)
-            .filter(Companies.id == company_id)
-            .filter(Employers.id == employers_id)
-            .all())
+        .select_from(Companies)
+        .join(Employers, Employers.company_id == Companies.id)
+        .join(Time, Time.employer_id == Employers.id, isouter=True)  # LEFT JOIN
+        .join(Taxes, Taxes.company_id == Companies.id)
+        .filter(Companies.id == company_id)
+        .filter(Employers.id == employers_id)
+        .all())
 
         # Consulta para obtener todos los payments
         payments_query = session.query(Payments).filter(
-            Payments.time_id.in_([t.id for row in results if row[2] for t in [row[2]]])
+        Payments.time_id.in_([t.id for row in results if row[2] for t in [row[2]]])
         ).all()
 
         if not results:
@@ -225,13 +228,20 @@ def get_all_company_and_employer_controller(user, company_id, employers_id):
                 "times": [
                     {
                         **t.__dict__,
-                        "payments": payments_data.get(t.id, [])
+                        "payment": payments_data.get(t.id, [])
                     }
                     for t in times_data if t.period_id == period.id
                 ]
             }
             for period in periods_query
         ]
+        # Filtrar periodos para que solo contengan un único time por empleado
+        for period in periods_data:
+            unique_times = {}
+            for time in period["times"]:
+                if time["employer_id"] not in unique_times:
+                    unique_times[time["employer_id"]] = time
+                period["times"] = list(unique_times.values())
 
         # Calcular la sumatoria de tiempos por empleado
         total_times_by_employee = calculate_total_times(periods_data)
@@ -243,7 +253,7 @@ def get_all_company_and_employer_controller(user, company_id, employers_id):
                 "company": companie_query,
                 "employer": employer_query,
                 "periods": periods_data,
-                "taxes": taxes_data,
+                "taxes": taxes_query,
                 "employers": employers_query,
                 "total_times_by_employee": total_times_by_employee
             },

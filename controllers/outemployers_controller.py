@@ -170,7 +170,7 @@ def outemployers_delete_controller(outemployers_id, user):
         session.close()
 
 
-def delete_employer_controller(employers_id, user):
+def delete_outemployer_controller(employers_id, user):
     try:
         employer_query = session.query(OutEmployers).join(Companies).filter(OutEmployers.id == employers_id, Companies.id == OutEmployers.company_id,Companies.code_id == user["code"]).first()
         if employer_query:
