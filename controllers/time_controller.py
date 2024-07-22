@@ -38,9 +38,9 @@ def create_time_controller(time_data, employer_id):
             regular_time=time_data.regular_time,
             over_time=time_data.over_time,
             meal_time=time_data.meal_time,
-            regular_amount=time_data.regular_amount,
-            over_amount=time_data.over_amount,
-            meal_amount=time_data.meal_amount,
+            regular_amount=employers.regular_time,
+            over_amount=employers.overtime,
+            meal_amount=employers.mealtime,
             holiday_time=time_data.holiday_time,
             sick_time=time_data.sick_time,
             vacation_time=time_data.vacation_time,
@@ -121,7 +121,7 @@ def get_time_by_employer_id_controller(employer_id):
     finally:
         session.close()
 
-def delete_employer_controller(time_id, user):
+def delete_time_controller(time_id, user):
     try:
         # Verificar si la compañía tiene time asociados
         time_query = session.query(Time).filter(Time.id == time_id).first()
