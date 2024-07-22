@@ -24,7 +24,7 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-#COPY .env /app/.env
+COPY .env /app/.env
 
 EXPOSE 8080
 
