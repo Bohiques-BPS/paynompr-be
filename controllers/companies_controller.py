@@ -143,16 +143,22 @@ def get_all_company_and_employer_controller(user, company_id, employers_id):
         employer_query = session.query(Employers).filter(Employers.id == employers_id).first()
         if not employer_query:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Employer not found")
-
+        type_period = 0
         # Obtener el period_id del payment_type del modelo time
-        employer_period_id = session.query(Time).filter(Time.employer_id == employer_query.id).first().period_id
-        employer_period_type = session.query(Period).filter(Period.id == employer_period_id).first().period_type
+        if (employer_query.period_norma == 1):
+            type_period = PeriodType.WEEKLY
+        elif (employer_query.period_norma == 2):
+            type_period = PeriodType.BIWEEKLY
+        elif (employer_query.period_norma == 3):
+            type_period = PeriodType.MONTHLY
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Payment type not found")
         
         # Consulta para obtener todos los periodos del año 2024 y con period_start mayor que la fecha actual
         periods_query = session.query(Period).filter(
         Period.year == 2024,
         Period.is_deleted == False,
-        Period.period_type == employer_period_type,
+        Period.period_type == type_period,
         datetime.now() >  Period.period_start
         ).all()
 
