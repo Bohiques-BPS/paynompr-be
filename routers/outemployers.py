@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 from datetime import  datetime
 
-from controllers.companies_controller import get_all_company_and_employer_controller
-from controllers.outemployers_controller import delete_outemployer_controller, create_employer_controller, get_employer_by_id_controller, update_employer_controller
+
+from controllers.outemployers_controller import get_all_company_and_employer_controller, delete_outemployer_controller, create_employer_controller, get_employer_by_id_controller, update_employer_controller
 from controllers.outemployers_controller import get_all_outemployers_by_company_id_controller, outemployers_delete_controller
 
 from database.config import session
@@ -28,7 +28,7 @@ outemployers_router = APIRouter()
 async def create_employer(employer_data: OutEmployersSchema, company_id : int):    
     return create_employer_controller(employer_data, company_id)
 
-@outemployers_router.get("time/{company_id}/{employers_id}")
+@outemployers_router.get("/time/{company_id}/{employers_id}")
 async def get_all_company_and_employer(user: user_dependency,company_id: int,employers_id: int):    
    return get_all_company_and_employer_controller(user,company_id,employers_id)
    

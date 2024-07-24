@@ -117,8 +117,8 @@ def calculate_total_times(periods_data) -> Dict[str, Any]:
     for period in periods_data:
         for time in period["times"]:
             employer_id = time["employer_id"]
-            total_times_by_employee[employer_id]["regular_time"] += time_to_hours(time["regular_time"])
-            total_times_by_employee[employer_id]["over_time"] += time_to_hours(time["over_time"])
+            total_times_by_employee[employer_id]["medicare"] += time["medicare"]
+            total_times_by_employee[employer_id]["inability"] += time["inability"]
             total_times_by_employee[employer_id]["meal_time"] += time_to_hours(time["meal_time"])
             total_times_by_employee[employer_id]["holiday_time"] += time_to_hours(time["holiday_time"])
             total_times_by_employee[employer_id]["sick_time"] += time_to_hours(time["sick_time"])
