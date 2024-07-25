@@ -53,14 +53,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
                 detail="Employer not found"
             )
         
-        # Obtener la información del periodo
-        period = session.query(Period).filter(Period.id == time_id).first()
-        if not period:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Period not found"
-            )
-        
+
         # employer time 
         time_query = session.query(Time).filter(Time.id == time_id).first()
 
@@ -69,6 +62,16 @@ def counterfoil_controller(company_id, employer_id, time_id):
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Time not found"
             )
+
+        # Obtener la información del periodo
+        period = session.query(Period).filter(Period.id == time_query.period_id).first()
+        if not period:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Period not found"
+            )
+        
+        
 
 
         # calculo del overtime_pay
@@ -266,7 +269,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
                             <div class="column">
                                 <p>{{ first_name }} {{ last_name }}</p>
                                 <p>NUMERO CHEQUE: {{ company }} {{ actual_date }}</p>
-                                <p>MEMO: NÓMINA 27-31 DE MARZO DE 2023</p>
+                                <p>MEMO: NÓMINA {{ start_date }} - {{ end_date }}</p>
                             </div>
                         </div>
                     </div>
