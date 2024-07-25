@@ -81,17 +81,48 @@ def counterfoil_controller(company_id, employer_id, time_id):
             return regular_amount * time_hours
             
 
-        def calcular_overtime_pay(over_time_str, regular_amount):
-            over_time_hours = convertir_horas_decimales(over_time_str)
-            overtime_pay = over_time_hours * regular_amount
-            return Decimal(overtime_pay).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        def calculate_payment(payment_type, regular_amount):
+            payment_hours = convertir_horas_decimales(payment_type)
+            payment_pay = payment_hours * regular_amount
+            return Decimal(payment_pay).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        
 
-        def calcular_meal_time_pay(meal_time_str, regular_amount):
-            meal_time_hours = convertir_horas_decimales(meal_time_str)
-            meal_time_pay = meal_time_hours * regular_amount
-            return Decimal(meal_time_pay).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        def calculate_year_curr(period_type, regular_pay):
+            if period_type == "monthly":
+                return regular_pay * 12
+            elif period_type == "biweekly":
+                return regular_pay * 24
+            elif period_type == "weekly":
+                return regular_pay * 52
 
-    
+        def calculate_income():
+            regu_pay = regular_pay(time_query.regular_amount, time_query.regular_time)
+            overtime_pay = calculate_payment(time_query.over_time, time_query.over_amount)
+            meal_time_pay= calculate_payment(time_query.meal_time, time_query.meal_amount)
+            holiday_time_pay = calculate_payment(time_query.holiday_time, time_query.regular_amount)
+            sick_pay = calculate_payment(time_query.sick_time, time_query.regular_amount)
+            vacation_pay = calculate_payment(time_query.vacation_time, time_query.regular_amount)
+            tips_pay = time_query.tips
+            commission_pay = time_query.commissions
+            concessions = time_query.concessions
+
+            return float(regu_pay)+ float(overtime_pay) + float(meal_time_pay) + float(holiday_time_pay) + float(sick_pay) + float(vacation_pay) + float(tips_pay) + float(commission_pay) + float(concessions)
+
+        def calculate_egress():
+            secure_social = time_query.secure_social
+            ss_tips = time_query.social_tips
+            medicare = time_query.medicare
+            inability = time_query.inability
+            choferil = time_query.choferil
+            tax_pr = time_query.tax_pr    
+
+            return float(secure_social) + float(ss_tips) + float(medicare) + float(inability) + float(choferil) + float(tax_pr)
+        
+        def calculate_total():
+            income = calculate_income()
+            egress = calculate_egress()
+            return income - egress
+
         info = {
             # EMPLOYERS INFO
             "first_name": employer.first_name,
@@ -105,27 +136,43 @@ def counterfoil_controller(company_id, employer_id, time_id):
             "actual_date": datetime.now().strftime("%d-%m-%Y"),
             "start_date": period.period_start,
             "end_date": period.period_end,
-            "period_type": period.period_type,
+            "period_type": period.period_type.value,
             # COMPANY INFO
             "company": company.name,
             # TIME INFO
+            "regular_hours": time_query.regular_time,
+            "over_hours": time_query.over_time,
+            "meal_hours": time_query.meal_time,
+            "holiday_hours": time_query.holiday_time,
+            "sick_hours": time_query.sick_time,
+            "vacation_hours": time_query.vacation_time,
+            # PAY INFO
             "regular_pay": regular_pay(time_query.regular_amount, time_query.regular_time),
-            "overtime_pay": calcular_overtime_pay(time_query.over_time, time_query.regular_amount),
-            "meal_time_pay": calcular_meal_time_pay(time_query.meal_time, time_query.regular_amount),
-            "sick_pay": time_query.sick_time,
-            "vacation_pay": time_query.vacation_time,
+            "overtime_pay": calculate_payment(time_query.over_time, time_query.over_amount),
+            "meal_time_pay": calculate_payment(time_query.meal_time, time_query.meal_amount),
+            "sick_pay": calculate_payment(time_query.sick_time, time_query.regular_amount),
+            "vacation_pay": calculate_payment(time_query.vacation_time, time_query.regular_amount),
             "tips_pay": time_query.tips,
+            "comissions": time_query.commissions,
+            "income": calculate_income(),
+            "concessions" : time_query.concessions,
+            # YEAR INFO
+            "year_curr":calculate_year_curr(period.period_type.value, regular_pay(time_query.regular_amount, time_query.regular_time)),
+            #RATE
+            "regular_rate": time_query.regular_amount,
+            "over_rate": time_query.over_amount,
             # DESCUENTOS INFO
             "secure_social": time_query.secure_social,
             "ss_tips": time_query.social_tips,
             "medicare": time_query.medicare,
             "inability": time_query.inability,
             "choferil": time_query.choferil,
+            "egress": calculate_egress(),
+            "tax_pr": time_query.tax_pr, 
             # TOTAL INFO
-            "total_ingresos": "690.00",
-            "total_egresos": "75.00",
-            "total_a_pagar": "615.00"
+            "total": calculate_total()
         }
+    
 
         # Plantilla HTML
         template_html = """
@@ -208,6 +255,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
                     <div class="header">
                         <p>NUMERO DE CHEQUE {{ company }}</p>
                         <p>Fecha: {{ actual_date }}</p>
+                        <p>Tipo de periodo: {{ period_type }}</p>
                         <div class="flex-container">
                             <div class="column">
                                 <p>{{ regular_pay }}</p>
@@ -228,13 +276,14 @@ def counterfoil_controller(company_id, employer_id, time_id):
                             <h4>Desglose de Pago</h4>
                             <div class="grid-container">
                                 <p>REG. PAY:</p><p class="amount">${{ regular_pay }}</p>
-                                <p>VACATIONS:</p><p class="amount">$0.00</p>
-                                <p>SICK PAY:</p><p class="amount">$0.00</p>
+                                <p>VACATIONS:</p><p class="amount">${{ vacation_pay }}</p>
+                                <p>SICK PAY:</p><p class="amount">${{ sick_pay }}</p>
                                 <p>OVER TIME:</p><p class="amount">${{ overtime_pay }}</p>
                                 <p>MEAL TIME:</p><p class="amount">${{ meal_time_pay }}</p>
-                                <p>COMMI:</p><p class="amount">$0.00</p>
+                                <p>COMMI:</p><p class="amount">${{ comissions }}</p>
                                 <p>ALLOW:</p><p class="amount">$0.00</p>
                                 <p>TIPS:</p><p class="amount">${{ tips_pay }}</p>
+                                <p>CONCESSIONS:</p><p class="amount">${{ concessions }}</p>
                                 <p>OTHER 1:</p><p class="amount">$0.00</p>
                                 <p>OTHER 2:</p><p class="amount">$0.00</p>
                                 <p>TAX. INC. 1:</p><p class="amount">$0.00</p>
@@ -244,7 +293,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
                         </div>
                         <div class="middle-column">
                             <h4>YEAR CURR</h4>
-                            <p>$4800.00</p> <!-- Ejemplo de monto anual -->
+                            <p>${{ year_curr }}</p> <!-- Ejemplo de monto anual -->
                         </div>
                         <div class="year-column">
                             <h4>CURR YEAR</h4>
@@ -259,29 +308,29 @@ def counterfoil_controller(company_id, employer_id, time_id):
                                 <p>DUPLICA TU $:</p><p class="amount">$0.00</p>
                                 <p>CUBIE. SALUD:</p><p class="amount">$0.00</p>
                                 <p>DONATIVOS:</p><p class="amount">$0.00</p>
-                                <p>REG RATE:</p><p class="amount">$10.00</p>
-                                <p>OVER RATE:</p><p class="amount">$15.00</p>
+                                <p>REG RATE:</p><p class="amount">${{ regular_rate }}</p>
+                                <p>OVER RATE:</p><p class="amount">${{ over_rate }}</p>
                             </div>
                         </div>
                         <div class="column">
                             <h4>TAXES</h4>
                             <div class="grid-container">
-                                <p>INC TAX:</p><p class="amount">$11.21</p>
-                                <p>SS WITHHELD:</p><p class="amount">$24.80</p>
+                                <p>INC TAX:</p><p class="amount">${{ tax_pr }}</p>
+                                <p>SS WITHHELD:</p><p class="amount">$0.00</p>
                                 <p>SS TIPS:</p><p class="amount">$0.00</p>
                                 <p>MEDICARE:</p><p class="amount">${{ medicare }}</p>
                                 <p>DISABILITY:</p><p class="amount">${{ inability }}</p>
                                 <p>CHAUFFEUR W:</p><p class="amount">${{ choferil }}</p>
-                                <p>REG. HOURS:</p><p class="amount">40:00</p>
-                                <p>VAC HOURS:</p><p class="amount">0:00</p>
-                                <p>SICK HOURS:</p><p class="amount">0:00</p>
-                                <p>OVER. HOURS:</p><p class="amount">0:00</p>
+                                <p>REG. HOURS:</p><p class="amount">{{ regular_hours }}</p>
+                                <p>VAC HOURS:</p><p class="amount">{{ vacation_hours }}</p>
+                                <p>SICK HOURS:</p><p class="amount">{{ sick_hours }}</p>
+                                <p>OVER. HOURS:</p><p class="amount">{{ over_hours }}</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="totals">
-                        <p>Total: $356.99</p>
+                        <p>Total: ${{ total }}</p>
                     </div>
 
                     <div class="footer">
