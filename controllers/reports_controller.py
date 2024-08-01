@@ -15,6 +15,9 @@ from models.time import Time
 
 from utils.pdfkit.pdfhandled import create_pdf
 from weasyprint import HTML
+from utils.form_940 import form_940_pdf_generator
+
+
 
 report_router = APIRouter()
 
@@ -359,6 +362,25 @@ def counterfoil_controller(company_id, employer_id, time_id):
             media_type="application/pdf",
             filename="Talonario_de_Pagos.pdf"
         )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred: {str(e)}"
+        )
+    finally:
+        session.close()
+
+
+def form_940_pdf_controller():
+    try:
+        pdf = form_940_pdf_generator()
+        if pdf:
+            return FileResponse(
+                pdf,
+                media_type="application/pdf",
+                filename="form_940.pdf"
+            )
+        
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
