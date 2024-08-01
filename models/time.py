@@ -43,3 +43,5 @@ class Time(Base):
     created_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
     update_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP(timezone=True), nullable=True, onupdate=func.now())
     memo: Mapped[str] = mapped_column(String, nullable=True)
+
+    total_payment: Mapped[float] = mapped_column(nullable=True, default=0)    

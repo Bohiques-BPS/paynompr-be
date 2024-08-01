@@ -30,10 +30,34 @@ def create_time_controller(time_data, employer_id):
 
         if not employers:
             return {"ok": False, "msg": "Employer not found"}
-        
 
-        print(time_data)
 
+        #calculamos el total_payment
+        regular_time=time_data.regular_time,
+        over_time=time_data.over_time,
+        meal_time=time_data.meal_time,
+        regular_amount=employers.regular_time,
+        over_amount=employers.overtime,
+        meal_amount=employers.mealtime,
+        holiday_time=time_data.holiday_time,
+        sick_time=time_data.sick_time,
+        vacation_time=time_data.vacation_time,
+        commissions=time_data.commissions,
+        concessions=time_data.concessions,
+        choferil=time_data.choferil,
+        inability=time_data.inability,
+        medicare=time_data.medicare,
+        secure_social=time_data.secure_social,
+        social_tips=time_data.social_tips,
+        tax_pr=time_data.tax_pr,
+        employer_id=employer_id,
+        period_id=time_data.period_id,
+        tips=time_data.tips,
+        is_deleted=False,
+        memo=time_data.memo
+
+        total_payment = (regular_amount+over_amount+meal_amount+commissions+concessions+choferil+inability+medicare+secure_social+social_tips+tax_pr+tips)
+        print(total_payment)
         time_query = Time(
             regular_time=time_data.regular_time,
             over_time=time_data.over_time,
@@ -56,8 +80,9 @@ def create_time_controller(time_data, employer_id):
             period_id=time_data.period_id,
             tips=time_data.tips,
             is_deleted=False,
-            memo=time_data.memo
-        )
+            memo=time_data.memo,
+            #total_payment = total_payment
+            )
 
         session.add(time_query)
         session.commit()
