@@ -5,7 +5,7 @@ import pathlib
 from fastapi import APIRouter
 from fastapi.responses import FileResponse
 
-from controllers.reports_controller import all_counterfoil_controller, counterfoil_controller, form_940_pdf_controller
+from controllers.reports_controller import all_counterfoil_controller, counterfoil_controller, form_940_pdf_controller, form_sso_pdf_controller
 from database.config import session
 from models.companies import Companies
 from models.employers import Employers
@@ -30,3 +30,8 @@ async def counterfoil(company_id: int, employer_id: int, time_id: int):
 @report_router.get("/form_940_pdf")
 async def form_940_pdf():
     return form_940_pdf_controller()
+
+
+@report_router.get("/form_sso_pdf")
+async def form_sso_pdf():
+    return form_sso_pdf_controller()

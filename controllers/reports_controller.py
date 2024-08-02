@@ -16,7 +16,7 @@ from models.time import Time
 from utils.pdfkit.pdfhandled import create_pdf
 from weasyprint import HTML
 from utils.form_940 import form_940_pdf_generator
-
+from utils.form_sso import form_sso_pdf_generator
 
 
 report_router = APIRouter()
@@ -379,6 +379,25 @@ def form_940_pdf_controller():
                 pdf,
                 media_type="application/pdf",
                 filename="form_940.pdf"
+            )
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred: {str(e)}"
+        )
+    finally:
+        session.close()
+
+
+def form_sso_pdf_controller():
+    try:
+        pdf = form_sso_pdf_generator()
+        if pdf:
+            return FileResponse(
+                pdf,
+                media_type="application/pdf",
+                filename="form_sso.pdf"
             )
         
     except Exception as e:

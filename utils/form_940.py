@@ -4,6 +4,7 @@ from models.companies import Companies
 from database.config import session
 
 
+
 def form_940_pdf_generator():
     company = session.query(Companies).filter(Companies.id == 1).first()
     
