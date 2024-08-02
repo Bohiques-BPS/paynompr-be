@@ -29,7 +29,6 @@ class TimeShema(BaseModel):
     period_id: int
 
     
-    
 
 
     @validator('regular_time', 'over_time', 'meal_time', 'holiday_time', 'sick_time', 'vacation_time')
