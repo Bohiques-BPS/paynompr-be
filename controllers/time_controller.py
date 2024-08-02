@@ -13,7 +13,7 @@ from schemas.time import TimeShema, TimeIDShema2
 from passlib.context import CryptContext
 
 from utils.time_func import minutes_to_time, time_to_minutes
-
+from decimal import ROUND_HALF_UP, Decimal
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 time_router = APIRouter()
@@ -56,8 +56,41 @@ def create_time_controller(time_data, employer_id):
         is_deleted=False,
         memo=time_data.memo
 
-        total_payment = (regular_amount+over_amount+meal_amount+commissions+concessions+choferil+inability+medicare+secure_social+social_tips+tax_pr+tips)
-        print(total_payment)
+        regular_time_minutes = time_to_minutes(time_data.regular_time)
+        over_time_minutes = time_to_minutes(time_data.over_time)
+        meal_time_minutes = time_to_minutes(time_data.meal_time)
+        holiday_time_minutes = time_to_minutes(time_data.holiday_time)
+        sick_time_minutes = time_to_minutes(time_data.sick_time)
+        vacation_time_minutes = time_to_minutes(time_data.vacation_time)
+
+        # Convertir montos a números decimales si es necesario
+        regular_amount = employers.regular_time
+        over_amount = employers.overtime
+        meal_amount = employers.mealtime
+
+        # Calculamos el total_payment
+        total_income = (
+            (regular_time_minutes * regular_amount / 60) +
+            (over_time_minutes * over_amount / 60) +
+            (meal_time_minutes * meal_amount / 60) +
+            (holiday_time_minutes * regular_amount / 60) +
+            (sick_time_minutes * regular_amount / 60) +
+            (vacation_time_minutes * regular_amount / 60)+
+            time_data.commissions +
+            time_data.concessions +
+            time_data.tips)
+
+        total_egress =(
+            time_data.choferil +
+            time_data.inability +
+            time_data.medicare +
+            time_data.secure_social +
+            time_data.social_tips +
+            time_data.tax_pr
+        )
+
+        total_payment = total_income - total_egress
+
         time_query = Time(
             regular_time=time_data.regular_time,
             over_time=time_data.over_time,
@@ -81,7 +114,7 @@ def create_time_controller(time_data, employer_id):
             tips=time_data.tips,
             is_deleted=False,
             memo=time_data.memo,
-            #total_payment = total_payment
+            total_payment = total_payment
             )
 
         session.add(time_query)
