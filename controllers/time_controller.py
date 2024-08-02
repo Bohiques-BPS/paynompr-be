@@ -32,7 +32,7 @@ def create_time_controller(time_data, employer_id):
             return {"ok": False, "msg": "Employer not found"}
         
 
-        print(time_data)
+        
 
         time_query = Time(
             regular_time=time_data.regular_time,
@@ -92,8 +92,8 @@ def create_time_controller(time_data, employer_id):
             )
             session.add(payment_query)
             session.commit()
-
-        return {"ok": True, "msg": "Time was successfully created", "result": time_query}
+        
+        return {"ok": True, "msg": "Time was successfully created", "result": {"time": time_query} }
     except Exception as e:
         session.rollback()
         raise HTTPException(
