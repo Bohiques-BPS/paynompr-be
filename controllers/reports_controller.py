@@ -12,11 +12,16 @@ from models.companies import Companies
 from models.employers import Employers
 from models.periods import Period
 from models.time import Time
+from models.payments import Payments
 
+
+from utils.form_499 import form_withheld_499_pdf_generator
+from utils.from_choferil import form_choferil_pdf_generator
 from utils.pdfkit.pdfhandled import create_pdf
 from weasyprint import HTML
 from utils.form_940 import form_940_pdf_generator
 from utils.form_sso import form_sso_pdf_generator
+from utils.unemployment import form_unemployment_pdf_generator
 
 
 report_router = APIRouter()
@@ -66,6 +71,19 @@ def counterfoil_controller(company_id, employer_id, time_id):
                 detail="Time not found"
             )
 
+
+        # Obtener la información del pago
+        payments = session.query(Payments).filter(Payments.time_id == time_id).all()
+        print("estamos aca ")
+        for payment in payments:
+            print(f"ID: {payment.id}, Name: {payment.name}, Amount: {payment.amount}, Value: {payment.value}")              
+
+        if not payment:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Payment not found"
+            )
+
         # Obtener la información del periodo
         period = session.query(Period).filter(Period.id == time_query.period_id).first()
         if not period:
@@ -101,6 +119,8 @@ def counterfoil_controller(company_id, employer_id, time_id):
             elif period_type == "weekly":
                 return regular_pay * 52
 
+        
+
         def calculate_income():
             regu_pay = regular_pay(time_query.regular_amount, time_query.regular_time)
             overtime_pay = calculate_payment(time_query.over_time, time_query.over_amount)
@@ -111,8 +131,10 @@ def counterfoil_controller(company_id, employer_id, time_id):
             tips_pay = time_query.tips
             commission_pay = time_query.commissions
             concessions = time_query.concessions
+            gastos_reembolsados = next((payment.amount for payment in payments if payment.name == "Gastos Reembolsados"), 0)
 
-            return float(regu_pay)+ float(overtime_pay) + float(meal_time_pay) + float(holiday_time_pay) + float(sick_pay) + float(vacation_pay) + float(tips_pay) + float(commission_pay) + float(concessions)
+
+            return float(regu_pay)+ float(overtime_pay) + float(meal_time_pay) + float(holiday_time_pay) + float(sick_pay) + float(vacation_pay) + float(tips_pay) + float(commission_pay) + float(concessions) + float(gastos_reembolsados)
 
         def calculate_egress():
             secure_social = time_query.secure_social
@@ -121,8 +143,10 @@ def counterfoil_controller(company_id, employer_id, time_id):
             inability = time_query.inability
             choferil = time_query.choferil
             tax_pr = time_query.tax_pr    
+            plan_medico = next((payment.amount for payment in payments if payment.name == "Plan Médico"), 0)
+            aflac = next((payment.amount for payment in payments if payment.name == "Aflac"), 0)
 
-            return float(secure_social) + float(ss_tips) + float(medicare) + float(inability) + float(choferil) + float(tax_pr)
+            return float(secure_social) + float(ss_tips) + float(medicare) + float(inability) + float(choferil) + float(tax_pr) + float(plan_medico) + float(aflac)
         
         def calculate_total():
             income = calculate_income()
@@ -399,6 +423,209 @@ def form_sso_pdf_controller():
                 media_type="application/pdf",
                 filename="form_sso.pdf"
             )
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred: {str(e)}"
+        )
+    finally:
+        session.close()
+
+def form_unemployment_pdf_controller():
+    try:
+        pdf = form_unemployment_pdf_generator()
+        if pdf:
+            return FileResponse(
+                pdf,
+                media_type="application/pdf",
+                filename="form_unemployment.pdf"
+            )
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred: {str(e)}"
+        )
+    finally:
+        session.close()
+
+
+
+def form_choferil_pdf_controller():
+    try:
+        pdf = form_choferil_pdf_generator()
+        if pdf:
+            return FileResponse(
+                pdf,
+                media_type="application/pdf",
+                filename="form_choferil.pdf"
+            )
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred: {str(e)}"
+        )
+    finally:
+        session.close()
+
+def form_withheld_499_pdf_controller():
+    try:
+        pdf = form_withheld_499_pdf_generator()
+        if pdf:
+            return FileResponse(
+                pdf,
+                media_type="application/pdf",
+                filename="form_withheld_499.pdf"
+            )
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred: {str(e)}"
+        )
+    finally:
+        session.close()
+
+
+def get_report_cfse_pdf_controller(company_id):
+
+    company = session.query(Companies).filter(Companies.id == company_id).first()
+    employees = session.query(Employers).filter(Employers.company_id == company_id).all()
+
+    try:
+        info = {
+            "employer_name": company.name,
+            "commercial_register": company.commercial_register,
+            "telefono": company.contact_number,
+        }
+        #plantilla html
+        template_html = """
+
+            <!DOCTYPE html>
+            <html lang="es">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Reporte Planilla CFSE</title>
+                <style>
+                    @page {
+                        size: A4 landscape; /* Configura la página en orientación horizontal */
+                        margin: 20mm;
+                    }
+
+                    body {
+                        font-family: Arial, sans-serif;
+                        margin: 20px;
+                    }
+
+                    .header {
+                        text-align: center;
+                        margin-bottom: 40px;
+                    }
+
+                    .header h1, .header h2 {
+                        margin: 0;
+                    }
+
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 20px;
+                    }
+
+                    table, th, td {
+                        border: 1px solid black;
+                    }
+
+                    th, td {
+                        padding: 8px;
+                        text-align: left;
+                    }
+
+                    th {
+                        background-color: #f2f2f2;
+                        font-size: 10px;
+                    }
+
+                    .total-row {
+                        font-weight: bold;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h4>{{ employer_name }}</h4>
+                    <h4>Número de Registro: {{ commercial_register }}</h4>
+                    <h4>Teléfono: {{ telefono }}</h4>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Categoría</th>
+                            <th>Tercer Trimestre</th>
+                            <th>Cuarto Trimestre</th>
+                            <th>Primer Trimestre</th>
+                            <th>Segundo Trimestre</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Aquí puedes iterar sobre tus datos para generar las filas de la tabla -->
+                        <tr>
+                            <td>Juan</td>
+                            <td>Pérez</td>
+                            <td>A</td>
+                            <td>500</td>
+                            <td>600</td>
+                            <td>700</td>
+                            <td>800</td>
+                            <td>2600</td>
+                        </tr>
+                        <tr>
+                            <td>María</td>
+                            <td>González</td>
+                            <td>B</td>
+                            <td>400</td>
+                            <td>500</td>
+                            <td>600</td>
+                            <td>700</td>
+                            <td>2200</td>
+                        </tr>
+                        <!-- Agrega más filas según sea necesario -->
+                        <!-- Fila de totales -->
+                        <tr class="total-row">
+                            <td colspan="3">Total</td>
+                            <td>900</td> <!-- Suma del Tercer Trimestre -->
+                            <td>1100</td> <!-- Suma del Cuarto Trimestre -->
+                            <td>1300</td> <!-- Suma del Primer Trimestre -->
+                            <td>1500</td> <!-- Suma del Segundo Trimestre -->
+                            <td>4800</td> <!-- Total General -->
+                        </tr>
+                    </tbody>
+                </table>
+            </body>
+            </html>
+
+
+        """
+
+        template = Template(template_html)
+        rendered_html = template.render(info)
+
+        # Generar el PDF usando WeasyPrint
+        pdf_file = "pdf_cfse.pdf"
+        HTML(string=rendered_html).write_pdf(pdf_file)
+
+        return FileResponse(
+            pdf_file,
+            media_type="application/pdf",
+            filename="pdf_cfse.pdf"
+        )
         
     except Exception as e:
         raise HTTPException(

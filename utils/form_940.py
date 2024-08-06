@@ -75,7 +75,8 @@ def form_940_pdf_generator():
             'employer_diurn_number': '123459089789',
         }
 
-    document_dir = Path('.')
+    rute = Path(__file__).parent.absolute()
+    document_dir = rute.parent / 'output_files'
     source_file_name = 'f940sp.pdf'
     output_file_name = 'complete.pdf'
 
