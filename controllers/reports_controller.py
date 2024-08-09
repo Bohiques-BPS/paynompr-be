@@ -12,6 +12,7 @@ from models.companies import Companies
 from models.employers import Employers
 from models.periods import Period
 from models.time import Time
+from models.payments import Payments
 
 from utils.pdfkit.pdfhandled import create_pdf
 from weasyprint import HTML
@@ -59,6 +60,9 @@ def counterfoil_controller(company_id, employer_id, time_id):
 
         # employer time 
         time_query = session.query(Time).filter(Time.id == time_id).first()
+
+        payment_query = session.query(Payments).filter(Payments.time_id == time_id).all()
+
 
         if not time_query:
             raise HTTPException(
