@@ -25,6 +25,8 @@ class EmployersSchema(BaseModel):
     exec_personal: Optional[int] = Field(None, ge=0)
     choferil: Optional[str] = Field(None, max_length=50)
     regular_time: Optional[float] = Field(None, ge=0.0)
+    salary: Optional[float] = Field(None, ge=0.0)
+
     period_norma: Optional[int] = Field(None, ge=0)
     licence: Optional[str] = Field(None, max_length=50)
     category_cfse: Optional[str] = Field(None, max_length=50)

@@ -28,6 +28,8 @@ def create_employer_controller(employer_data, company_id):
             mother_last_name=employer_data.mother_last_name,
             first_name=employer_data.first_name,
             middle_name=employer_data.middle_name,
+            salary=employer_data.salary,
+
             company_id=company_id,
             employee_type=employer_data.employee_type,
             social_security_number=employer_data.social_security_number,
@@ -133,6 +135,8 @@ def update_employer_controller(employers_id, employer, user):
         employer_query.smartphone_number = employer.smartphone_number
         employer_query.marbete = employer.marbete
         employer_query.date_marb = employer.date_marb
+        employer_query.salary = employer.salary
+
         employer_query.type = employer.type
         employer_query.clipboard = employer.clipboard
         employer_query.exec_personal = employer.exec_personal

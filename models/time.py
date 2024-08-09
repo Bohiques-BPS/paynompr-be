@@ -14,6 +14,7 @@ class Time(Base):
     regular_amount: Mapped[float] = mapped_column(nullable=True, default=0)
     over_amount: Mapped[float] = mapped_column(nullable=True, default=0)
     meal_amount: Mapped[float] = mapped_column(nullable=True, default=0)
+    salary : Mapped[float] = mapped_column(nullable=True)
 
     regular_time: Mapped[str] = mapped_column(String, nullable=True, default="00:00")
     over_time: Mapped[str] = mapped_column(String, nullable=True, default="00:00")
@@ -28,6 +29,10 @@ class Time(Base):
     tips: Mapped[float] = mapped_column(nullable=True, default=0)
     inability: Mapped[float] = mapped_column(nullable=True, default=0)
     medicare: Mapped[float] = mapped_column(nullable=True, default=0)
+    others: Mapped[float] = mapped_column(nullable=True, default=0)
+
+    bonus: Mapped[float] = mapped_column(nullable=True, default=0)
+
     secure_social: Mapped[float] = mapped_column(nullable=True, default=0)
     social_tips: Mapped[float] = mapped_column(nullable=True, default=0)
     tax_pr: Mapped[float] = mapped_column(nullable=True, default=0)

@@ -82,9 +82,9 @@ def counterfoil_controller(company_id, employer_id, time_id):
             hours, minutes = map(int, hh_mm_str.split(':'))
             return hours + minutes / 60.0
         
-        def regular_pay(regular_amount , regular_time):
+        def regular_pay(regular_amount , regular_time, salary, others, bonus):
             time_hours = convertir_horas_decimales(regular_time)
-            return regular_amount * time_hours
+            return regular_amount * time_hours + salary + others +bonus
             
 
         def calculate_payment(payment_type, regular_amount):
@@ -102,7 +102,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
                 return regular_pay * 52
 
         def calculate_income():
-            regu_pay = regular_pay(time_query.regular_amount, time_query.regular_time)
+            regu_pay = regular_pay(time_query.regular_amount, time_query.regular_time,time_query.salary,time_query.others,time_query.bonus)
             overtime_pay = calculate_payment(time_query.over_time, time_query.over_amount)
             meal_time_pay= calculate_payment(time_query.meal_time, time_query.meal_amount)
             holiday_time_pay = calculate_payment(time_query.holiday_time, time_query.regular_amount)
@@ -132,6 +132,12 @@ def counterfoil_controller(company_id, employer_id, time_id):
         info = {
             # EMPLOYERS INFO
             "first_name": employer.first_name,
+            "salary": time_query.salary,
+            "others": time_query.others,
+
+            "bonus": time_query.bonus,
+
+
             "last_name": employer.last_name,
             "employer_address": employer.address,
             "employer_state": employer.address_state,
@@ -153,7 +159,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
             "sick_hours": time_query.sick_time,
             "vacation_hours": time_query.vacation_time,
             # PAY INFO
-            "regular_pay": regular_pay(time_query.regular_amount, time_query.regular_time),
+            "regular_pay": regular_pay(time_query.regular_amount, time_query.regular_time,time_query.salary,time_query.others,time_query.bonus),
             "overtime_pay": calculate_payment(time_query.over_time, time_query.over_amount),
             "meal_time_pay": calculate_payment(time_query.meal_time, time_query.meal_amount),
             "sick_pay": calculate_payment(time_query.sick_time, time_query.regular_amount),
@@ -163,7 +169,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
             "income": calculate_income(),
             "concessions" : time_query.concessions,
             # YEAR INFO
-            "year_curr":calculate_year_curr(period.period_type.value, regular_pay(time_query.regular_amount, time_query.regular_time)),
+            "year_curr":calculate_year_curr(period.period_type.value, regular_pay(time_query.regular_amount, time_query.regular_time,time_query.salary,time_query.others,time_query.bonus)),
             #RATE
             "regular_rate": time_query.regular_amount,
             "over_rate": time_query.over_amount,
@@ -290,7 +296,10 @@ def counterfoil_controller(company_id, employer_id, time_id):
                                 <p>ALLOW:</p><p class="amount">$0.00</p>
                                 <p>TIPS:</p><p class="amount">${{ tips_pay }}</p>
                                 <p>CONCESSIONS:</p><p class="amount">${{ concessions }}</p>
-                                <p>OTHER 1:</p><p class="amount">$0.00</p>
+                                
+                                <p>SALARY:</p><p class="amount">${{ salary }}</p>
+                                <p>BONUS:</p><p class="amount">${{ bonus }}</p>
+                                <p>OTHER 1:</p><p class="amount">${{ others }}</p>
                                 <p>OTHER 2:</p><p class="amount">$0.00</p>
                                 <p>TAX. INC. 1:</p><p class="amount">$0.00</p>
                                 <p>TAX. INC. 2:</p><p class="amount">$0.00</p>

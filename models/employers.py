@@ -41,6 +41,7 @@ class Employers(Base):
     gender: Mapped[int] = mapped_column(
         nullable=True,
     )
+    salary : Mapped[float] = mapped_column(nullable=True)
     birthday: Mapped[TIMESTAMP] = mapped_column(Date(), nullable=True)
     date_admission: Mapped[TIMESTAMP] = mapped_column(Date(), nullable=True)
     date_egress: Mapped[TIMESTAMP] = mapped_column(Date(), nullable=True)

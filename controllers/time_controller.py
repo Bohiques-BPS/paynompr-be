@@ -45,6 +45,12 @@ def create_time_controller(time_data, employer_id):
         commissions=time_data.commissions,
         concessions=time_data.concessions,
         choferil=time_data.choferil,
+        bonus=time_data.bonus,
+
+        others=time_data.others,
+        salary=time_data.salary,
+
+
         inability=time_data.inability,
         medicare=time_data.medicare,
         secure_social=time_data.secure_social,
@@ -103,6 +109,11 @@ def create_time_controller(time_data, employer_id):
             vacation_time=time_data.vacation_time,
             commissions=time_data.commissions,
             concessions=time_data.concessions,
+            salary=time_data.salary,
+
+            others=time_data.others,
+            bonus=time_data.bonus,
+
             choferil=time_data.choferil,
             inability=time_data.inability,
             medicare=time_data.medicare,
@@ -229,6 +240,8 @@ def update_time_controller(time_id, time):
         time_query.regular_amount = time.regular_amount
         time_query.over_amount = time.over_amount
         time_query.meal_amount = time.meal_amount
+        time_query.salary = time.salary
+
         time_query.commissions = time.commissions
         time_query.choferil = time.choferil
         time_query.concessions = time.concessions

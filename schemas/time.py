@@ -15,6 +15,11 @@ class TimeShema(BaseModel):
     holiday_time: Optional[str]
     sick_time: Optional[str]
     commissions: float = Field(ge=0, description="Debe ser un valor positivo")
+
+    salary: float = Field(ge=0, description="Debe ser un valor positivo")
+    
+    bonus: float = Field(ge=0, description="Debe ser un valor positivo")
+    others: float = Field(ge=0, description="Debe ser un valor positivo")
     concessions: float = Field(ge=0, description="Debe ser un valor positivo")
     inability: float = Field(ge=0, description="Debe ser un valor positivo")
     medicare: float = Field(ge=0, description="Debe ser un valor positivo")
