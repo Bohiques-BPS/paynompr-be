@@ -17,6 +17,8 @@ class TimeShema(BaseModel):
     commissions: float = Field(ge=0, description="Debe ser un valor positivo")
 
     salary: float = Field(ge=0, description="Debe ser un valor positivo")
+    refund: float = Field(ge=0, description="Debe ser un valor positivo")
+    donation: float = Field(ge=0, description="Debe ser un valor positivo")
     
     bonus: float = Field(ge=0, description="Debe ser un valor positivo")
     others: float = Field(ge=0, description="Debe ser un valor positivo")

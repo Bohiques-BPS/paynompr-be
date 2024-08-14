@@ -62,6 +62,11 @@ def counterfoil_controller(company_id, employer_id, time_id):
         time_query = session.query(Time).filter(Time.id == time_id).first()
 
         payment_query = session.query(Payments).filter(Payments.time_id == time_id).all()
+        payment_texts = ""
+        # Crear lista de textos de pagos
+       
+        for payment in payment_query:
+            payment_texts += f"<p>{payment.name}:</p><p class='amount'>{payment.amount}</p>"
 
 
         if not time_query:
@@ -172,6 +177,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
             "comissions": time_query.commissions,
             "income": calculate_income(),
             "concessions" : time_query.concessions,
+            "payment_texts" : payment_texts,
             # YEAR INFO
             "year_curr":calculate_year_curr(period.period_type.value, regular_pay(time_query.regular_amount, time_query.regular_time,time_query.salary,time_query.others,time_query.bonus)),
             #RATE
@@ -344,6 +350,8 @@ def counterfoil_controller(company_id, employer_id, time_id):
                                 <p>VAC HOURS:</p><p class="amount">{{ vacation_hours }}</p>
                                 <p>SICK HOURS:</p><p class="amount">{{ sick_hours }}</p>
                                 <p>OVER. HOURS:</p><p class="amount">{{ over_hours }}</p>
+
+                                {{payment_texts}}
                             </div>
                         </div>
                     </div>

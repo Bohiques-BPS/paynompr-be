@@ -7,6 +7,8 @@ from routers.auth import user_dependency
 from models.time import Time
 from models.employers import Employers
 from models.payments import Payments
+from models.companies import Companies
+
 
 
 from schemas.time import TimeShema, TimeIDShema2
@@ -46,6 +48,8 @@ def create_time_controller(time_data, employer_id):
         concessions=time_data.concessions,
         choferil=time_data.choferil,
         bonus=time_data.bonus,
+        
+
 
         others=time_data.others,
         salary=time_data.salary,
@@ -104,6 +108,8 @@ def create_time_controller(time_data, employer_id):
             regular_amount=employers.regular_time,
             over_amount=employers.overtime,
             meal_amount=employers.mealtime,
+            refund=time_data.refund,
+            donation=time_data.donation,
             holiday_time=time_data.holiday_time,
             sick_time=time_data.sick_time,
             vacation_time=time_data.vacation_time,
@@ -189,7 +195,25 @@ def get_time_by_employer_id_controller(employer_id):
         )
     finally:
         session.close()
+def get_time_by_employer_id_controller(company_id,employer_id,time_id):
+    try:
+        company_query = session.query(Companies).filter(Companies.id == company_id ).first()
+        employer_query = session.query(Employers).filter(Employers.id == employer_id ).first()
+        time_query = session.query(Time).filter(Time.id == time_id ).first()
 
+        return {
+            "ok": True,
+            "msg": "Employers were successfully retrieved",
+            "result": {'time': time_query,'company':company_query,'employer':employer_query},
+        }
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred: {str(e)}"
+        )
+    finally:
+        session.close()
 def delete_time_controller(time_id, user):
     try:
         # Verificar si la compañía tiene time asociados
@@ -227,8 +251,8 @@ def update_time_controller(time_id, time):
             return {"ok": False, "msg": "Employer not found"}
 
         # Sumar las horas anteriores a los empleadores antes de la actualización
-        employers.sick_hours = int(employers.sick_hours) + int(time_query.sick_time.split(":")[0])
-        employers.vacation_hours = int(employers.vacation_hours) + int(time_query.vacation_time.split(":")[0])
+        #employers.sick_hours = int(employers.sick_hours) + int(time_query.sick_time.split(":")[0])
+        #employers.vacation_hours = int(employers.vacation_hours) + int(time_query.vacation_time.split(":")[0])
 
         # Actualizar los campos del modelo Time
         time_query.regular_time = time.regular_time
@@ -241,6 +265,10 @@ def update_time_controller(time_id, time):
         time_query.over_amount = time.over_amount
         time_query.meal_amount = time.meal_amount
         time_query.salary = time.salary
+        time_query.refund = time.refund
+
+        time_query.donation = time.donation
+
 
         time_query.commissions = time.commissions
         time_query.choferil = time.choferil
@@ -258,8 +286,8 @@ def update_time_controller(time_id, time):
         session.refresh(time_query)
 
         # Restar las nuevas horas de los empleadores después de la actualización
-        employers.sick_hours = int(employers.sick_hours) - int(time.sick_time.split(":")[0])
-        employers.vacation_hours = int(employers.vacation_hours) - int(time.vacation_time.split(":")[0])
+        #employers.sick_hours = int(employers.sick_hours) - int(time.sick_time.split(":")[0])
+        #employers.vacation_hours = int(employers.vacation_hours) - int(time.vacation_time.split(":")[0])
 
         session.add(employers)
         session.commit()

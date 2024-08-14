@@ -22,6 +22,7 @@ class Time(Base):
     sick_time: Mapped[str] = mapped_column(String, nullable=True, default="00:00")
     holiday_time: Mapped[str] = mapped_column(String, nullable=True, default="00:00")
     vacation_time: Mapped[str] = mapped_column(String, nullable=True, default="00:00")
+    donation: Mapped[float] = mapped_column(nullable=True, default=0)
 
     commissions: Mapped[float] = mapped_column(nullable=True, default=0)
     choferil: Mapped[float] = mapped_column(nullable=True, default=0)
@@ -30,7 +31,7 @@ class Time(Base):
     inability: Mapped[float] = mapped_column(nullable=True, default=0)
     medicare: Mapped[float] = mapped_column(nullable=True, default=0)
     others: Mapped[float] = mapped_column(nullable=True, default=0)
-
+    refund: Mapped[float] = mapped_column(nullable=True, default=0)
     bonus: Mapped[float] = mapped_column(nullable=True, default=0)
 
     secure_social: Mapped[float] = mapped_column(nullable=True, default=0)
