@@ -13,6 +13,7 @@ from models.companies import Companies
 
 from schemas.time import TimeShema, TimeIDShema2
 from passlib.context import CryptContext
+from sqlalchemy import func
 
 from utils.time_func import minutes_to_time, time_to_minutes
 from decimal import ROUND_HALF_UP, Decimal
@@ -195,22 +196,47 @@ def get_time_by_employer_id_controller(employer_id):
         )
     finally:
         session.close()
-def get_all_data_time_employer_controller(company_id,employer_id,time_id):
+def get_all_data_time_employer_controller(company_id: int, employer_id: int, time_id: int):
     try:
-        company_query = session.query(Companies).filter(Companies.id == company_id ).first()
-        employer_query = session.query(Employers).filter(Employers.id == employer_id ).first()
-        time_query = session.query(Time).filter(Time.id == time_id ).first()
+        company_query = session.query(Companies).filter(Companies.id == company_id).first()
+    
+        time_query = session.query(Time).filter(Time.id == time_id).first()
+        total_amounts_by_employer = session.query(
+        Employers.id,
+        func.sum(Time.total_payment).label('total_amount')
+        ).join(Time).filter(
+        Employers.company_id == company_id
+        ).group_by(Employers.id).all()
+
+        # Convert the result to a list of dictionaries
+        total_amounts_by_employer_dict = [
+        {"employer_id": employer_id, "total_amount": total_amount}
+        for employer_id, total_amount in total_amounts_by_employer
+        ]
+
+        if not company_query  or not time_query:
+            raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Company, Employer, or Time not found"
+            )
+
+        total_amount = session.query(func.sum(Time.total_payment)).join(Employers).filter(Employers.company_id == company_id).scalar()
 
         return {
-            "ok": True,
-            "msg": "Employers were successfully retrieved",
-            "result": {'time': time_query,'company':company_query,'employer':employer_query},
+        "ok": True,
+        "msg": "Data successfully retrieved",
+        "result": {
+        'time': time_query,
+        'company': company_query,
+        'total_amounts_by_employer': total_amounts_by_employer_dict,
+        'total_amount': total_amount
+        },
         }
     except Exception as e:
         session.rollback()
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        detail=f"An error occurred: {str(e)}"
         )
     finally:
         session.close()
