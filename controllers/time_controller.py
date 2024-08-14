@@ -195,7 +195,7 @@ def get_time_by_employer_id_controller(employer_id):
         )
     finally:
         session.close()
-def get_time_by_employer_id_controller(company_id,employer_id,time_id):
+def get_all_data_time_employer_controller(company_id,employer_id,time_id):
     try:
         company_query = session.query(Companies).filter(Companies.id == company_id ).first()
         employer_query = session.query(Employers).filter(Employers.id == employer_id ).first()

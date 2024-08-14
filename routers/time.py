@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 
-from controllers.time_controller import create_time_controller, delete_time_controller, get_time_by_employer_id_controller, update_time_controller
+from controllers.time_controller import  create_time_controller, delete_time_controller, get_time_by_employer_id_controller, update_time_controller
 from database.config import session
 from routers.auth import user_dependency
 
@@ -26,6 +26,9 @@ async def create_time(time_data: TimeShema, employer_id: int):
 @time_router.get("/{employer_id}")
 async def get_time_by_employer_id(employer_id: int):
     return get_time_by_employer_id_controller(employer_id)
+
+
+
 
 @time_router.delete("/{time_id}")
 async def delete_time(time_id: int, user: user_dependency):

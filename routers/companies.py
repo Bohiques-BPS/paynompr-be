@@ -14,7 +14,9 @@ from controllers.companies_controller import (
     get_company_controller,
     get_talonario_controller,
     update_company_controller
+    
 )
+from controllers.time_controller import get_all_data_time_employer_controller
 from database.config import session
 from schemas.companies import CompaniesSchema, CompaniesWithEmployersSchema
 from sqlalchemy.orm import Session
@@ -51,6 +53,10 @@ async def get_all_company_and_employer(user: user_dependency, company_id: int, e
 async def get_talonario(user: user_dependency, company_id: int, employers_id: int, period_id: int):
     return get_talonario_controller(user, company_id, employers_id, period_id)
 
+
+@companies_router.get("/{company_id}/employer/{employer_id}/time/{time_id}")
+async def get_all_data_time_employer(company_id: int,employer_id: int,time_id: int):
+    return get_all_data_time_employer_controller(company_id,employer_id,time_id)
 # Obtener una compañía específica por su ID
 @companies_router.get("/{companies_id}")
 async def get_companies_by_id(companies_id: int):

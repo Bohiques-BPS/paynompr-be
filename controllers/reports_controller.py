@@ -169,7 +169,9 @@ def counterfoil_controller(company_id, employer_id, time_id):
 
             "bonus": time_query.bonus,
 
-
+            "refund": time_query.refund,
+            "donation": time_query.donation,
+            
             "last_name": employer.last_name,
             "employer_address": employer.address,
             "employer_state": employer.address_state,
@@ -189,6 +191,8 @@ def counterfoil_controller(company_id, employer_id, time_id):
             "meal_hours": time_query.meal_time,
             "holiday_hours": time_query.holiday_time,
             "sick_hours": time_query.sick_time,
+         
+
             "vacation_hours": time_query.vacation_time,
             # PAY INFO
             "regular_pay": regular_pay(time_query.regular_amount, time_query.regular_time,time_query.salary,time_query.others,time_query.bonus),
@@ -326,17 +330,15 @@ def counterfoil_controller(company_id, employer_id, time_id):
                                 <p>OVER TIME:</p><p class="amount">${{ overtime_pay }}</p>
                                 <p>MEAL TIME:</p><p class="amount">${{ meal_time_pay }}</p>
                                 <p>COMMI:</p><p class="amount">${{ comissions }}</p>
-                                <p>ALLOW:</p><p class="amount">$0.00</p>
+                               
                                 <p>TIPS:</p><p class="amount">${{ tips_pay }}</p>
                                 <p>CONCESSIONS:</p><p class="amount">${{ concessions }}</p>
                                 
                                 <p>SALARY:</p><p class="amount">${{ salary }}</p>
                                 <p>BONUS:</p><p class="amount">${{ bonus }}</p>
                                 <p>OTHER 1:</p><p class="amount">${{ others }}</p>
-                                <p>OTHER 2:</p><p class="amount">$0.00</p>
-                                <p>TAX. INC. 1:</p><p class="amount">$0.00</p>
-                                <p>TAX. INC. 2:</p><p class="amount">$0.00</p>
-                                <p>TAX. INC. 3:</p><p class="amount">$0.00</p>
+                              
+                               
                             </div>
                         </div>
                         <div class="middle-column">
@@ -346,16 +348,11 @@ def counterfoil_controller(company_id, employer_id, time_id):
                         <div class="year-column">
                             <h4>CURR YEAR</h4>
                             <div class="grid-container">
-                                <p>PENS. COST:</p><p class="amount">$0.00</p>
-                                <p>CODA:</p><p class="amount">$0.00</p>
-                                <p>REIMBURSE:</p><p class="amount">$0.00</p>
-                                <p>RETIRE FUND:</p><p class="amount">$0.00</p>
+                              
+                                <p>RETIRE FUND:</p><p class="amount">${{ refund }}</p>
                                 <p>ASUME:</p><p class="amount">$0.00</p>
-                                <p>NON TAX INC 1:</p><p class="amount">$0.00</p>
-                                <p>NON TAX INC 2:</p><p class="amount">$0.00</p>
-                                <p>DUPLICA TU $:</p><p class="amount">$0.00</p>
-                                <p>CUBIE. SALUD:</p><p class="amount">$0.00</p>
-                                <p>DONATIVOS:</p><p class="amount">$0.00</p>
+                               
+                                <p>DONATIVOS:</p><p class="amount">${{ donation }}</p>
                                 <p>REG RATE:</p><p class="amount">${{ regular_rate }}</p>
                                 <p>OVER RATE:</p><p class="amount">${{ over_rate }}</p>
                             </div>
@@ -365,7 +362,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
                             <div class="grid-container">
                                 <p>INC TAX:</p><p class="amount">${{ tax_pr }}</p>
                                 <p>SS WITHHELD:</p><p class="amount">$0.00</p>
-                                <p>SS TIPS:</p><p class="amount">$0.00</p>
+                                <p>SS TIPS:</p><p class="amount">${{ ss_tips }}</p>
                                 <p>MEDICARE:</p><p class="amount">${{ medicare }}</p>
                                 <p>DISABILITY:</p><p class="amount">${{ inability }}</p>
                                 <p>CHAUFFEUR W:</p><p class="amount">${{ choferil }}</p>
