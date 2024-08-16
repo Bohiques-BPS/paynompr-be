@@ -139,10 +139,10 @@ def counterfoil_controller(company_id, employer_id, time_id):
             tips_pay = time_query.tips
             commission_pay = time_query.commissions
             concessions = time_query.concessions
-            gastos_reembolsados = next((payment.amount for payment in payments if payment.name == "Gastos Reembolsados"), 0)
+           
 
 
-            return float(regu_pay)+ float(overtime_pay) + float(meal_time_pay) + float(holiday_time_pay) + float(sick_pay) + float(vacation_pay) + float(tips_pay) + float(commission_pay) + float(concessions) + float(gastos_reembolsados)
+            return float(regu_pay)+ float(overtime_pay) + float(meal_time_pay) + float(holiday_time_pay) + float(sick_pay) + float(vacation_pay) + float(tips_pay) + float(commission_pay) + float(concessions) + float(time_query.refund)
 
         def calculate_egress():
             secure_social = time_query.secure_social
@@ -151,15 +151,23 @@ def counterfoil_controller(company_id, employer_id, time_id):
             inability = time_query.inability
             choferil = time_query.choferil
             tax_pr = time_query.tax_pr    
-            plan_medico = next((payment.amount for payment in payments if payment.name == "Plan Médico"), 0)
-            aflac = next((payment.amount for payment in payments if payment.name == "Aflac"), 0)
+            
+            aflac = time_query.aflac
 
-            return float(secure_social) + float(ss_tips) + float(medicare) + float(inability) + float(choferil) + float(tax_pr) + float(plan_medico) + float(aflac)
+            return float(secure_social) + float(ss_tips) + float(medicare) + float(inability) + float(choferil) + float(tax_pr)  + float(aflac) + float(time_query.asume) + float(time_query.donation)
+
+        def calculate_payments():
+            amount = 0
+            for payment in payments:
+                amount += payment.amount
+
+            return float(amount) 
         
         def calculate_total():
             income = calculate_income()
             egress = calculate_egress()
-            return income - egress
+            adicional_amount = calculate_payments()
+            return income - egress + adicional_amount
 
         info = {
             # EMPLOYERS INFO
@@ -168,6 +176,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
             "others": time_query.others,
 
             "bonus": time_query.bonus,
+            "aflac": time_query.aflac,
 
             "refund": time_query.refund,
             "donation": time_query.donation,
@@ -370,6 +379,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
                                 <p>VAC HOURS:</p><p class="amount">{{ vacation_hours }}</p>
                                 <p>SICK HOURS:</p><p class="amount">{{ sick_hours }}</p>
                                 <p>OVER. HOURS:</p><p class="amount">{{ over_hours }}</p>
+                                <p>AFLAC:</p><p class="amount">{{ aflac }}</p>
 
                                 {{payment_texts}}
                             </div>

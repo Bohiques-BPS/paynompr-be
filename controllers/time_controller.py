@@ -111,6 +111,8 @@ def create_time_controller(time_data, employer_id):
             meal_amount=employers.mealtime,
             refund=time_data.refund,
             donation=time_data.donation,
+            asume=time_data.asume,
+            aflac=time_data.aflac,
             holiday_time=time_data.holiday_time,
             sick_time=time_data.sick_time,
             vacation_time=time_data.vacation_time,
@@ -294,12 +296,14 @@ def update_time_controller(time_id, time):
         time_query.refund = time.refund
 
         time_query.donation = time.donation
+        time_query.asume = time.asume
 
 
         time_query.commissions = time.commissions
         time_query.choferil = time.choferil
         time_query.concessions = time.concessions
         time_query.tips = time.tips
+        time_query.aflac = time.aflac
         time_query.inability = time.inability
         time_query.medicare = time.medicare
         time_query.secure_social = time.secure_social

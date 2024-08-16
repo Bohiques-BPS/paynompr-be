@@ -44,7 +44,7 @@ def create_accountant_controller(accountants_data, user):
 
             # Devolvemos el resultado como un diccionario
             raise HTTPException(status_code=status.HTTP_409_CONFLICT,
-                                detail="Usuario o contraseña no son validos.")
+                                detail="El Email y Telefono ya estan registrados.")
 
         hashed_password = bcrypt_context.hash("123456")
 

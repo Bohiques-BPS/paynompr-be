@@ -23,11 +23,13 @@ class Time(Base):
     holiday_time: Mapped[str] = mapped_column(String, nullable=True, default="00:00")
     vacation_time: Mapped[str] = mapped_column(String, nullable=True, default="00:00")
     donation: Mapped[float] = mapped_column(nullable=True, default=0)
-
+    aflac: Mapped[float] = mapped_column(nullable=True, default=0)
     commissions: Mapped[float] = mapped_column(nullable=True, default=0)
     choferil: Mapped[float] = mapped_column(nullable=True, default=0)
     concessions: Mapped[float] = mapped_column(nullable=True, default=0)
     tips: Mapped[float] = mapped_column(nullable=True, default=0)
+    asume: Mapped[float] = mapped_column(nullable=True, default=0)
+
     inability: Mapped[float] = mapped_column(nullable=True, default=0)
     medicare: Mapped[float] = mapped_column(nullable=True, default=0)
     others: Mapped[float] = mapped_column(nullable=True, default=0)
