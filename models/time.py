@@ -39,6 +39,7 @@ class Time(Base):
     secure_social: Mapped[float] = mapped_column(nullable=True, default=0)
     social_tips: Mapped[float] = mapped_column(nullable=True, default=0)
     tax_pr: Mapped[float] = mapped_column(nullable=True, default=0)
+    accountant_id: Mapped[int] = mapped_column(Integer, ForeignKey("accountants.id"), nullable=True, index=True)
 
     employer_id: Mapped[int] = mapped_column(Integer, ForeignKey("employers.id"), nullable=True, index=True)
     period_id: Mapped[int] = mapped_column(Integer, ForeignKey("periods.id"), nullable=True, index=True)

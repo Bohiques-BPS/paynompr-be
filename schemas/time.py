@@ -35,6 +35,7 @@ class TimeShema(BaseModel):
     payment: List[PaymentIDShema]
     memo: str = Field(max_length=150)
     period_id: int
+    accountant_id: int
 
     
 

@@ -113,6 +113,8 @@ def create_time_controller(time_data, employer_id):
             donation=time_data.donation,
             asume=time_data.asume,
             aflac=time_data.aflac,
+            accountant_id=time_data.accountant_id,
+
             holiday_time=time_data.holiday_time,
             sick_time=time_data.sick_time,
             vacation_time=time_data.vacation_time,
@@ -297,6 +299,7 @@ def update_time_controller(time_id, time):
 
         time_query.donation = time.donation
         time_query.asume = time.asume
+        time_query.accountant_id=time.accountant_id,
 
 
         time_query.commissions = time.commissions
