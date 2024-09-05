@@ -27,9 +27,9 @@ async def counterfoil(company_id: int, employer_id: int, time_id: int):
     return counterfoil_controller(company_id, employer_id, time_id)
 
 
-@report_router.get("/form_940_pdf")
-async def form_940_pdf():
-    return form_940_pdf_controller()
+@report_router.get("/form_940_pdf/{company_id}")
+async def form_940_pdf(company_id: int):
+    return form_940_pdf_controller(company_id)
 
 @report_router.get("/form_w2pr_pdf/{employer_id}/{date_start}/{date_end}")
 async def form_w2pr_pdf(employer_id: int, date_start: str, date_end: str):

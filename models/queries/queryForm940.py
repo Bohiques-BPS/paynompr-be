@@ -24,7 +24,7 @@ def getTotalAmount(company_id):
     return session.query(func.sum(Time.total_payment)).join(Employers).filter(Employers.company_id == company_id).scalar()
 
 def getEmployers7000(company_id):
-    arrayTotal = session.query(func.sum(Time.total_payment).label('total')).join(Employers).filter(Employers.company_id == company_id).group_by(Time.employer_id).having(func.sum(Time.total_payment) >= 5000).all()
+    arrayTotal = session.query(func.sum(Time.total_payment).label('total')).join(Employers).filter(Employers.company_id == company_id).group_by(Time.employer_id).having(func.sum(Time.total_payment) >= 7000).all()
     result = 0
     for value in arrayTotal:
         result += value.total
@@ -34,16 +34,17 @@ def getEmployers7000(company_id):
 def roundedAmount(amount, decimal = 2):
     return round(amount, decimal)
 
-def queryForm940():
+def queryForm940(company_id):
     # Data Active
-    company = session.query(Companies).filter(Companies.id == 1).first()
-    employer = session.query(Employers).filter(Companies.id == 1).first()
-    account = session.query(Accountant).filter(Companies.id == 1).first()
+    print('Query')
+    print(company_id)
+    company = session.query(Companies).filter(Companies.id == company_id).first()
+    account = session.query(Accountant).filter(Companies.id == company.id).first()
     # Total amount employees
     total_amount_employers_number = roundedAmount(getTotalAmount(company.id))
     total_amount_employers = addDecimal(total_amount_employers_number)
     # total Futa
-    futa_tax_number = roundedAmount(((total_amount_employers_number / 100) * 0.06, 2))
+    futa_tax_number = roundedAmount(((total_amount_employers_number / 100) * 0.06))
     futa_tax = addDecimal(futa_tax_number)
     # total exceeded 7000
     payment_exceeded_7000_number = roundedAmount(getEmployers7000(company.id))
@@ -150,8 +151,8 @@ def queryForm940():
       'total_tax_obligation_1': subtotalLinea17[0],
       'total_tax_obligation_2': subtotalLinea17[1],
       ## part 6
-      'autorizated_person': f'{employer.first_name} {employer.last_name}',
-      'authorized_person_phone': employer.phone_number,
+      'autorizated_person': company.contact,
+      'authorized_person_phone': company.contact_number,
       'personal_number_id_1': personal_number_id[0],
       'personal_number_id_2': personal_number_id[1],
       'personal_number_id_3': personal_number_id[2],

@@ -439,9 +439,9 @@ def form_w2pr_pdf_controller(employer_id, date_start, date_end):
         session.close()
 
 
-def form_940_pdf_controller():
+def form_940_pdf_controller(company_id):
     try:
-        pdf = form_940_pdf_generator()
+        pdf = form_940_pdf_generator(company_id)
         if pdf:
             return FileResponse(
                 pdf,
