@@ -37,7 +37,7 @@ db_dependency = Annotated[Session, Depends(get_db)]
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependency
 ):
-    print({"form_data": form_data, "db": db})
+    # print({"form_data": form_data, "db": db})
 
     user = authenticate_user(form_data.username, form_data.password, db)
 

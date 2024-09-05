@@ -1,6 +1,5 @@
 from datetime import datetime
 from decimal import ROUND_HALF_UP, Decimal
-import pathlib
 
 
 from fastapi import APIRouter, HTTPException, status
@@ -13,6 +12,7 @@ from models.employers import Employers
 from models.periods import Period
 from models.time import Time
 from models.payments import Payments
+from models.queries.queryFormW2pr import queryFormW2pr
 
 
 from utils.form_499 import form_withheld_499_pdf_generator
@@ -22,6 +22,7 @@ from weasyprint import HTML
 from utils.form_940 import form_940_pdf_generator
 from utils.form_sso import form_sso_pdf_generator
 from utils.unemployment import form_unemployment_pdf_generator
+from utils.form_w2pr import form_w2pr_pdf_generate
 
 
 report_router = APIRouter()
@@ -52,7 +53,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Company not found"
             )
-        
+
         # Obtener la información del empleado
         employer = session.query(Employers).filter(Employers.id == employer_id).first()
         if not employer:
@@ -60,15 +61,15 @@ def counterfoil_controller(company_id, employer_id, time_id):
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Employer not found"
             )
-        
 
-        # employer time 
+
+        # employer time
         time_query = session.query(Time).filter(Time.id == time_id).first()
 
         payment_query = session.query(Payments).filter(Payments.time_id == time_id).all()
         payment_texts = ""
         # Crear lista de textos de pagos
-       
+
         for payment in payment_query:
             payment_texts += f"<p>{payment.name}:</p><p class='amount'>{payment.amount}</p>"
 
@@ -83,8 +84,8 @@ def counterfoil_controller(company_id, employer_id, time_id):
         # Obtener la información del pago
         payments = session.query(Payments).filter(Payments.time_id == time_id).all()
         print("estamos aca ")
-        for payment in payments:
-            print(f"ID: {payment.id}, Name: {payment.name}, Amount: {payment.amount}, Value: {payment.value}")              
+        # for payment in payments:
+            # print(f"ID: {payment.id}, Name: {payment.name}, Amount: {payment.amount}, Value: {payment.value}")
 
         if not payment:
             raise HTTPException(
@@ -99,25 +100,23 @@ def counterfoil_controller(company_id, employer_id, time_id):
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Period not found"
             )
-        
-        
 
 
         # calculo del overtime_pay
         def convertir_horas_decimales(hh_mm_str):
             hours, minutes = map(int, hh_mm_str.split(':'))
             return hours + minutes / 60.0
-        
+
         def regular_pay(regular_amount , regular_time, salary, others, bonus):
             time_hours = convertir_horas_decimales(regular_time)
             return regular_amount * time_hours + salary + others +bonus
-            
+
 
         def calculate_payment(payment_type, regular_amount):
             payment_hours = convertir_horas_decimales(payment_type)
             payment_pay = payment_hours * regular_amount
             return Decimal(payment_pay).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-        
+
 
         def calculate_year_curr(period_type, regular_pay):
             if period_type == "monthly":
@@ -126,8 +125,6 @@ def counterfoil_controller(company_id, employer_id, time_id):
                 return regular_pay * 24
             elif period_type == "weekly":
                 return regular_pay * 52
-
-        
 
         def calculate_income():
             regu_pay = regular_pay(time_query.regular_amount, time_query.regular_time,time_query.salary,time_query.others,time_query.bonus)
@@ -139,7 +136,6 @@ def counterfoil_controller(company_id, employer_id, time_id):
             tips_pay = time_query.tips
             commission_pay = time_query.commissions
             concessions = time_query.concessions
-           
 
 
             return float(regu_pay)+ float(overtime_pay) + float(meal_time_pay) + float(holiday_time_pay) + float(sick_pay) + float(vacation_pay) + float(tips_pay) + float(commission_pay) + float(concessions) + float(time_query.refund)
@@ -150,8 +146,8 @@ def counterfoil_controller(company_id, employer_id, time_id):
             medicare = time_query.medicare
             inability = time_query.inability
             choferil = time_query.choferil
-            tax_pr = time_query.tax_pr    
-            
+            tax_pr = time_query.tax_pr
+
             aflac = time_query.aflac
 
             return float(secure_social) + float(ss_tips) + float(medicare) + float(inability) + float(choferil) + float(tax_pr)  + float(aflac) + float(time_query.asume) + float(time_query.donation)
@@ -161,8 +157,8 @@ def counterfoil_controller(company_id, employer_id, time_id):
             for payment in payments:
                 amount += payment.amount
 
-            return float(amount) 
-        
+            return float(amount)
+
         def calculate_total():
             income = calculate_income()
             egress = calculate_egress()
@@ -180,7 +176,6 @@ def counterfoil_controller(company_id, employer_id, time_id):
 
             "refund": time_query.refund,
             "donation": time_query.donation,
-            
             "last_name": employer.last_name,
             "employer_address": employer.address,
             "employer_state": employer.address_state,
@@ -200,7 +195,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
             "meal_hours": time_query.meal_time,
             "holiday_hours": time_query.holiday_time,
             "sick_hours": time_query.sick_time,
-         
+
 
             "vacation_hours": time_query.vacation_time,
             # PAY INFO
@@ -226,11 +221,11 @@ def counterfoil_controller(company_id, employer_id, time_id):
             "inability": time_query.inability,
             "choferil": time_query.choferil,
             "egress": calculate_egress(),
-            "tax_pr": time_query.tax_pr, 
+            "tax_pr": time_query.tax_pr,
             # TOTAL INFO
             "total": calculate_total()
         }
-    
+
 
         # Plantilla HTML
         template_html = """
@@ -339,15 +334,15 @@ def counterfoil_controller(company_id, employer_id, time_id):
                                 <p>OVER TIME:</p><p class="amount">${{ overtime_pay }}</p>
                                 <p>MEAL TIME:</p><p class="amount">${{ meal_time_pay }}</p>
                                 <p>COMMI:</p><p class="amount">${{ comissions }}</p>
-                               
+
                                 <p>TIPS:</p><p class="amount">${{ tips_pay }}</p>
                                 <p>CONCESSIONS:</p><p class="amount">${{ concessions }}</p>
-                                
+
                                 <p>SALARY:</p><p class="amount">${{ salary }}</p>
                                 <p>BONUS:</p><p class="amount">${{ bonus }}</p>
                                 <p>OTHER 1:</p><p class="amount">${{ others }}</p>
-                              
-                               
+
+
                             </div>
                         </div>
                         <div class="middle-column">
@@ -357,10 +352,10 @@ def counterfoil_controller(company_id, employer_id, time_id):
                         <div class="year-column">
                             <h4>CURR YEAR</h4>
                             <div class="grid-container">
-                              
+
                                 <p>RETIRE FUND:</p><p class="amount">${{ refund }}</p>
                                 <p>ASUME:</p><p class="amount">$0.00</p>
-                               
+
                                 <p>DONATIVOS:</p><p class="amount">${{ donation }}</p>
                                 <p>REG RATE:</p><p class="amount">${{ regular_rate }}</p>
                                 <p>OVER RATE:</p><p class="amount">${{ over_rate }}</p>
@@ -398,7 +393,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
             </html>
 
 
-        
+
         """
 
         template = Template(template_html)
@@ -421,17 +416,39 @@ def counterfoil_controller(company_id, employer_id, time_id):
     finally:
         session.close()
 
-
-def form_940_pdf_controller():
+def form_w2pr_pdf_controller(employer_id, date_start, date_end):
     try:
-        pdf = form_940_pdf_generator()
+        info = queryFormW2pr(employer_id, date_start, date_end)
+        template = Template(form_w2pr_pdf_generate())
+        rendered_html = template.render(info)
+
+        pdf_file = "./output_files/form_w2pr.pdf"
+        HTML(string=rendered_html).write_pdf(pdf_file)
+
+        return FileResponse(
+            pdf_file,
+            media_type="application/pdf",
+            filename="Formulario_W2PR.pdf"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred: {str(e)}"
+        )
+    finally:
+        session.close()
+
+
+def form_940_pdf_controller(company_id):
+    try:
+        pdf = form_940_pdf_generator(company_id)
         if pdf:
             return FileResponse(
                 pdf,
                 media_type="application/pdf",
                 filename="form_940.pdf"
             )
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -450,7 +467,7 @@ def form_sso_pdf_controller():
                 media_type="application/pdf",
                 filename="form_sso.pdf"
             )
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -468,7 +485,7 @@ def form_unemployment_pdf_controller():
                 media_type="application/pdf",
                 filename="form_unemployment.pdf"
             )
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -488,7 +505,7 @@ def form_choferil_pdf_controller():
                 media_type="application/pdf",
                 filename="form_choferil.pdf"
             )
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -506,7 +523,7 @@ def form_withheld_499_pdf_controller():
                 media_type="application/pdf",
                 filename="form_withheld_499.pdf"
             )
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -653,7 +670,7 @@ def get_report_cfse_pdf_controller(company_id):
             media_type="application/pdf",
             filename="pdf_cfse.pdf"
         )
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

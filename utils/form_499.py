@@ -12,7 +12,7 @@ def form_withheld_499_pdf_generator():
             'ein_second_part': '1237056',
             'company_name': company.name,
         }
-    
+
     rute = Path(__file__).parent.absolute()
     document_dir = rute.parent / 'output_files'
     source_file_name = 'form_499_plantilla.pdf'
