@@ -6,6 +6,7 @@ from datetime import  datetime
 from database.config import session
 from models.users import Role, User , Code , UserCode
 from models.accountant import Accountant
+from models.time import Time
 
 from schemas.accountant import Accountants
 from passlib.context import CryptContext
@@ -138,8 +139,8 @@ def update_accountant_controller(accountants_data, user, id):
         accountant_query = session.query(Accountant).join(User).filter(Accountant.id == id, User.id == Accountant.user_id ).first() 
         accountant_query.name = accountants_data.name,
         accountant_query.code_id=user["code"],
-        email=accountants_data.email,
-        middle_name=accountants_data.middle_name,
+        accountant_query.email=accountants_data.email,
+        accountant_query.middle_name=accountants_data.middle_name,
         accountant_query.first_last_name = accountants_data.first_last_name,
         accountant_query.second_last_name = accountants_data.second_last_name,
         accountant_query.company = accountants_data.company,
@@ -175,6 +176,30 @@ def disable_accountant_controller(id):
         session.commit()  
         session.refresh(accountant_query)   
         return {"ok": True, "msg": "user was successfully created", "result": accountant_query}
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred: {str(e)}"
+        )
+    finally:
+        session.close()
+
+def delete_accountant_controller(accountant_id):
+    try: 
+        # Verificar si el contador tiene time asociados
+        time_count = session.query(Time).filter(Time.accountant_id == accountant_id).count()
+
+        if time_count > 0:   
+            return {"ok": False, "msg": "El Contador tiene horas cargadas y no puede ser eliminada.", "result": None}
+        # Si no hay empleados, proceder con la eliminación
+        accountant_query = session.query(Accountant).filter(Accountant.id == accountant_id).first()
+        if accountant_query:
+            session.delete(accountant_query)
+            session.commit()
+            return {"ok": True, "msg": "Empleado eliminada con éxito.", "result": accountant_query}
+        else:
+            return {"ok": False, "msg": "Empleado no encontrada.", "result": None}
     except Exception as e:
         session.rollback()
         raise HTTPException(

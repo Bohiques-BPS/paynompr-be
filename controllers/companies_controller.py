@@ -171,7 +171,7 @@ def get_all_company_and_employer_controller(user, company_id, employers_id):
         .select_from(Companies)
         .join(Employers, Employers.company_id == Companies.id)
         .join(Time, Time.employer_id == Employers.id, isouter=True)  # LEFT JOIN
-        .join(Taxes, Taxes.company_id == Companies.id)
+        .join(Taxes, Taxes.company_id == Companies.id , isouter=True)
         .filter(Companies.id == company_id)
         .filter(Employers.id == employers_id)
         .all())
@@ -241,13 +241,7 @@ def get_all_company_and_employer_controller(user, company_id, employers_id):
             }
             for period in periods_query
         ]
-        # Filtrar periodos para que solo contengan un único time por empleado
-        for period in periods_data:
-            unique_times = {}
-            for time in period["times"]:
-                if time["employer_id"] not in unique_times:
-                    unique_times[time["employer_id"]] = time
-                period["times"] = list(unique_times.values())
+       
 
         # Calcular la sumatoria de tiempos por empleado
         total_times_by_employee = calculate_total_times(periods_data)
