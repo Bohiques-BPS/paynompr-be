@@ -2,85 +2,17 @@ from pathlib import Path
 import fitz  # PyMuPDF
 from models.companies import Companies
 from database.config import session
+from models.queries.queryForm940 import queryForm940
 
 
 
 def form_940_pdf_generator():
-    company = session.query(Companies).filter(Companies.id == 1).first()
-    
-
-    def data_entry():
-        return {
-            'ein_first_part': '38',    
-            'ein_second_part': '1237056',
-            'legal_name': company.name,
-            'comercial_name': '',
-            'address': company.postal_address,
-            'city': company.state_postal_addess,
-            'state': company.state_physical_address,
-            'zip': company.zipcode_physical_address,
-            'foering_country_name': 'United States of America',
-            'province_name': 'PR',
-            'postal_code': company.zipcode_postal_address,
-            'abreviation_state_1': 'P',
-            'abreviation_state_2': 'R',
-            'total_payments_for_all_employees_1': '12345',    
-            'total_payments_for_all_employees_2': '12', 
-            'Futa_tax_1': '12345', 
-            'Futa_tax_2': '12',
-            'payments_exceeded_7000_1': '12345',
-            'payments_exceeded_7000_2': '12',
-            'total_payments_1': '12345',
-            'total_payments_2': '12',
-            'total_futa_salary_1': '12345',
-            'total_futa_salary_2': '12',
-            'futa_tax_before_adjustment_1': '12345',
-            'futa_tax_before_adjustment_2': '12',
-            ## part 3
-            'futa_field_9_1': '12345',
-            'futa_field_9_2': '12',
-            'futa_field_10_1': '12345',
-            'futa_field_10_2': '12',
-            'futa_field_11_1': '12345',
-            'futa_field_11_2': '12',
-            ## part 4
-            'total_futa_after_adjustment_1': '12345',
-            'total_futa_after_adjustment_2': '12',
-            'futa_deposit_per_year_1': '12345',
-            'futa_deposit_per_year_2': '12',
-            'futa_due_balance_1': '12345',
-            'futa_due_balance_2': '12',
-            'futa_ovepayments_1': '12345',
-            'futa_ovepayments_2': '12',
-            ## part 5
-            'futa_trimest_1_1': '12345',
-            'futa_trimest_1_2': '12',
-            'futa_trimest_2_1': '12345',
-            'futa_trimest_2_2': '12',
-            'futa_trimest_3_1': '12345',
-            'futa_trimest_3_2': '12',
-            'futa_trimest_4_1': '12345',
-            'futa_trimest_4_2': '12',
-            'total_tax_obligation_1': '12345',
-            'total_tax_obligation_2': '12',
-            'autorizated_person': 'Jose Ortiz',
-            'authorized_person_phone': '1234567890',
-            'personal_number_id_1':'1',
-            'personal_number_id_2':'2',
-            'personal_number_id_3':'3',
-            'personal_number_id_4':'4',
-            'personal_number_id_5':'5',
-            'employer_personal_name': 'Herbert Kruse',
-            'employer_position': 'Manager',
-            'employer_diurn_number': '123459089789',
-        }
-
     rute = Path(__file__).parent.absolute()
     document_dir = rute.parent / 'output_files'
     source_file_name = 'f940sp.pdf'
     output_file_name = 'complete.pdf'
 
-    data_entry_data = data_entry()
+    data_entry_data = queryForm940()
 
     with fitz.open(document_dir / source_file_name) as doc:
         for page_number in range(len(doc)):
@@ -139,7 +71,7 @@ def form_940_pdf_generator():
                         field.field_value = data_entry_data['Futa_tax_2']
                         field.update()
                     elif field.field_name == 'topmostSubform[0].Page1[0].f1_18[0]':
-                        field.field_value = data_entry_data['payments_exceeded_7000_1'] 
+                        field.field_value = data_entry_data['payments_exceeded_7000_1']
                         field.update()
                     elif field.field_name == 'topmostSubform[0].Page1[0].f1_19[0]':
                         field.field_value = data_entry_data['payments_exceeded_7000_2']

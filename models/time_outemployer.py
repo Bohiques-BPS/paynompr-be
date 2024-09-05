@@ -14,16 +14,16 @@ class  TimeOutEmployer(Base):
     id: Mapped[int] = mapped_column(
         Integer, primary_key=True, autoincrement=True, index=True
     )
-    regular_hours: Mapped[str] = mapped_column(nullable=True,default=0) 
-    regular_min: Mapped[str] = mapped_column(nullable=True,default=0)  
-    regular_pay: Mapped[float] = mapped_column(nullable=True,default=0)  
-    detained: Mapped[float] = mapped_column(nullable=True,default=0)  
+    regular_hours: Mapped[str] = mapped_column(nullable=True,default=0)
+    regular_min: Mapped[str] = mapped_column(nullable=True,default=0)
+    regular_pay: Mapped[float] = mapped_column(nullable=True,default=0)
+    detained: Mapped[float] = mapped_column(nullable=True,default=0)
 
     employer_id: Mapped[int] = mapped_column(
         Integer(), ForeignKey("outemployers.id"), nullable=True, index=True
-    )    
+    )
     employer = relationship("OutEmployers", back_populates="time")
-   
+
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=True)
     deleted_at: Mapped[TIMESTAMP] = mapped_column(
         TIMESTAMP(timezone=True), nullable=True
@@ -36,8 +36,3 @@ class  TimeOutEmployer(Base):
         nullable=True,
         onupdate=func.now(),
     )
-
-  
-  
-  
-  
