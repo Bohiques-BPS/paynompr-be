@@ -1,24 +1,17 @@
 from pathlib import Path
 import fitz  # PyMuPDF
 from models.companies import Companies
-from database.config import session
+from models.queries.queryFormChoferil import queryFormChoferil
 
-def form_choferil_pdf_generator():
-    company = session.query(Companies).filter(Companies.id == 1).first()
+def form_choferil_pdf_generator(company_id, year, period):
 
-    def data_entry():
-        return {
-            'ein_first_part': '38',
-            'ein_second_part': '1237056',
-            'company_name': company.name,
-        }
-    
+
     rute = Path(__file__).parent.absolute()
     document_dir = rute.parent / 'output_files'
     source_file_name = 'choferil_plantilla.pdf'
     output_file_name = 'choferil.pdf'
 
-    data_entry = data_entry()
+    data_entry = queryFormChoferil(company_id, year, period)
 
 
     try:
@@ -33,8 +26,8 @@ def form_choferil_pdf_generator():
             page = doc[page_number]
             for field in page.widgets():
                 if field.field_type == fitz.PDF_WIDGET_TYPE_TEXT:
-                    if field.field_name == 'txtNombrePatrono':
-                        field.field_value = data_entry['company_name']
+                    if field.field_name in data_entry:
+                        field.field_value = data_entry[field.field_name]
                         field.update()
         # Save the updated PDF
         doc.save(document_dir / output_file_name, incremental=False, encryption=fitz.PDF_ENCRYPT_KEEP)

@@ -4,7 +4,8 @@ from models.time import Time
 from database.config import session
 from random import randint
 from models.accountant import Accountant
-from sqlalchemy import func
+from sqlalchemy import func, and_
+from datetime import date
 
 
 def addZeroNumber(value):
@@ -20,37 +21,54 @@ def addDecimal(number):
   return array
 
 
-def getTotalAmount(company_id):
-    return session.query(func.sum(Time.total_payment)).join(Employers).filter(Employers.company_id == company_id).scalar()
+def getTotalAmount(company_id, date_period):
+    result = session.query(func.sum(Time.total_payment)).join(Employers).filter(
+      and_(
+        Employers.company_id == company_id,
+        Time.created_at.between(date_period['start'], date_period['end'])
+      )
+    ).scalar()
 
-def getEmployers7000(company_id):
-    arrayTotal = session.query(func.sum(Time.total_payment).label('total')).join(Employers).filter(Employers.company_id == company_id).group_by(Time.employer_id).having(func.sum(Time.total_payment) >= 7000).all()
+    return result if result is not None else 0
+
+def getEmployers7000(company_id, date_period):
+    arrayTotal = session.query(func.sum(Time.total_payment).label('total')).join(Employers).filter(
+      and_(
+        Employers.company_id == company_id,
+        Time.created_at.between(date_period['start'], date_period['end'])
+      )
+    ).group_by(Time.employer_id).all()
     result = 0
     for value in arrayTotal:
-        result += value.total
+        max_7000 = (value.total - 7000) if value.total > 7000 else value.total
+        result += max_7000
 
     return result
 
 def roundedAmount(amount, decimal = 2):
     return round(amount, decimal)
 
-def queryForm940(company_id):
+def queryForm940(company_id, year = None):
     # Data Active
-    print('Query')
-    print(company_id)
+    if year is None:
+      year = date.today().year
+
+    # date
+    date_period = {
+      'start': date(year, 1, 1),
+      'end': date(year, 12, 31)
+    }
+
     company = session.query(Companies).filter(Companies.id == company_id).first()
     account = session.query(Accountant).filter(Companies.id == company.id).first()
     # Total amount employees
-    total_amount_employers_number = roundedAmount(getTotalAmount(company.id))
+    total_amount_employers_number = roundedAmount(getTotalAmount(company.id, date_period))
     total_amount_employers = addDecimal(total_amount_employers_number)
-    # total Futa
-    futa_tax_number = roundedAmount(((total_amount_employers_number / 100) * 0.06))
-    futa_tax = addDecimal(futa_tax_number)
     # total exceeded 7000
-    payment_exceeded_7000_number = roundedAmount(getEmployers7000(company.id))
+    payment_exceeded_7000_number = roundedAmount(getEmployers7000(company.id, date_period))
     payment_exceeded_7000 = addDecimal(payment_exceeded_7000_number)
     # Linea 6
-    subTotalLinea6_number = roundedAmount((payment_exceeded_7000_number + futa_tax_number))
+    subTotalLinea6_number = roundedAmount((payment_exceeded_7000_number))
     subTotalLinea6 = addDecimal(subTotalLinea6_number)
     # Linea 7
     salaryFuta_number = roundedAmount((total_amount_employers_number - subTotalLinea6_number))
@@ -113,8 +131,8 @@ def queryForm940(company_id):
       ## part 2
       'total_payments_for_all_employees_1': total_amount_employers[0],
       'total_payments_for_all_employees_2': total_amount_employers[1],
-      'Futa_tax_1': futa_tax[0],
-      'Futa_tax_2': futa_tax[1],
+      'Futa_tax_1': '0',
+      'Futa_tax_2': '00',
       'payments_exceeded_7000_1': payment_exceeded_7000[0],
       'payments_exceeded_7000_2': payment_exceeded_7000[1],
       'total_payments_1': subTotalLinea6[0],

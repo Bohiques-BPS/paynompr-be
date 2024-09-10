@@ -20,7 +20,6 @@ from utils.from_choferil import form_choferil_pdf_generator
 from utils.pdfkit.pdfhandled import create_pdf
 from weasyprint import HTML
 from utils.form_940 import form_940_pdf_generator
-from utils.form_sso import form_sso_pdf_generator
 from utils.unemployment import form_unemployment_pdf_generator
 from utils.form_w2pr import form_w2pr_pdf_generate
 
@@ -416,9 +415,9 @@ def counterfoil_controller(company_id, employer_id, time_id):
     finally:
         session.close()
 
-def form_w2pr_pdf_controller(employer_id, date_start, date_end):
+def form_w2pr_pdf_controller(employer_id, year):
     try:
-        info = queryFormW2pr(employer_id, date_start, date_end)
+        info = queryFormW2pr(employer_id, year)
         template = Template(form_w2pr_pdf_generate())
         rendered_html = template.render(info)
 
@@ -439,9 +438,9 @@ def form_w2pr_pdf_controller(employer_id, date_start, date_end):
         session.close()
 
 
-def form_940_pdf_controller(company_id):
+def form_940_pdf_controller(company_id, year):
     try:
-        pdf = form_940_pdf_generator(company_id)
+        pdf = form_940_pdf_generator(company_id, year)
         if pdf:
             return FileResponse(
                 pdf,
@@ -457,24 +456,6 @@ def form_940_pdf_controller(company_id):
     finally:
         session.close()
 
-
-def form_sso_pdf_controller():
-    try:
-        pdf = form_sso_pdf_generator()
-        if pdf:
-            return FileResponse(
-                pdf,
-                media_type="application/pdf",
-                filename="form_sso.pdf"
-            )
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
-        )
-    finally:
-        session.close()
 
 def form_unemployment_pdf_controller():
     try:
@@ -496,9 +477,9 @@ def form_unemployment_pdf_controller():
 
 
 
-def form_choferil_pdf_controller():
+def form_choferil_pdf_controller(company_id, year, period):
     try:
-        pdf = form_choferil_pdf_generator()
+        pdf = form_choferil_pdf_generator(company_id, year, period)
         if pdf:
             return FileResponse(
                 pdf,

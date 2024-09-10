@@ -3,9 +3,13 @@ from models.employers import Employers
 from models.time import Time
 from database.config import session
 from sqlalchemy import func, and_
+from datetime import datetime
 
 
-def getAmountVarios(employer_id, date_start=None, date_end=None):
+def getAmountVarios(employer_id, year):
+    date_start = datetime(year, 1, 1)
+    date_end = datetime(year, 12, 31)
+
     result = session.query(
       func.sum(Time.total_payment).label('wages'),
       func.sum(Time.commissions).label('commissions'),
@@ -34,29 +38,36 @@ def roundedAmount(amount, decimal = 2):
     else:
       return 0.00
 
-def queryFormW2pr(employer_id, date_start, date_end):
-  # Initializing variables
-  yearActive = date_start.split('-')[0]
+def queryFormW2pr(employer_id, year = None):
+  if year is None:
+    year = datetime.now().year
+
   # Data Active
   employer = session.query(Employers).filter(Employers.id == employer_id).first()
   company = session.query(Companies).filter(Companies.id == employer.company_id).first()
-  amountVarios = getAmountVarios(1, date_start, date_end)
+  amountVarios = getAmountVarios(1, year)
+
+  # Date of birth (format: YYYY-MM-DD)
+  birthday = str(employer.birthday).split('-') if employer.birthday is not None else '0000-00-00'.split('-')
+  dateBirthday = datetime(int(birthday[0]), int(birthday[1]), int(birthday[2]))
+  dateToday = datetime.now()
+  age = dateToday.year - dateBirthday.year - ((dateToday.month, dateToday.day) < (dateBirthday.month, dateBirthday.day))
+  age = 25
 
   # Rounding amount to 2 decimal places
   rounded_amount_medicares = roundedAmount(amountVarios.medicares)
   rounded_amount_commissions = roundedAmount(amountVarios.commissions)
-  rounded_amount_wages = roundedAmount(amountVarios.wages)
+  rounded_amount_bonus = roundedAmount(amountVarios.bonus)
+  rounded_amount_wages = roundedAmount(amountVarios.wages + rounded_amount_bonus) if age > 26 else 0
+  rounded_amount_wages_26 = roundedAmount(amountVarios.wages + rounded_amount_bonus) if age <= 26 else 0.00
   rounded_amount_concessions = roundedAmount(amountVarios.concessions)
   rounded_amount_tips = roundedAmount(amountVarios.tips)
   rounded_amount_donation = roundedAmount(amountVarios.donation)
-  rounded_amount_11 = rounded_amount_commissions + rounded_amount_wages + rounded_amount_concessions + rounded_amount_tips
-  rounded_amount_refunds = roundedAmount(amountVarios.refunds) + roundedAmount(amountVarios.bonus)
+  rounded_amount_11 = roundedAmount(rounded_amount_commissions + rounded_amount_wages + rounded_amount_concessions + rounded_amount_tips)
+  rounded_amount_refunds = roundedAmount(amountVarios.refunds)
   rounded_amount_secures_social = roundedAmount(amountVarios.secure_social)
   rounded_amount_social_tips = roundedAmount(amountVarios.social_tips)
   rounded_amount_taxes_pr = roundedAmount(amountVarios.taxes_pr)
-
-  # Date of birth (format: YYYY-MM-DD)
-  birthday = str(employer.birthday).split('-') if employer.birthday is not None else '0000-00-00'.split('-')
 
   # Address Company
   physicalAddressCompany = company.physical_address if company.physical_address is not None else ''
@@ -74,21 +85,25 @@ def queryFormW2pr(employer_id, date_start, date_end):
     'address_company': f'{physicalAddressCompany}, {statePhysicalAddressCompany}, {countryPhysicalAddressCompany}',
     'phone_company': company.phone_number if company.phone_number is not None else '',
     'email_company': company.email if company.email is not None else '',
-    'social_security_no': company.number_patronal if company.number_patronal is not None else '',
+    'social_security_no': employer.social_security_number if employer.social_security_number is not None else '',
     'ein': company.number_patronal if company.number_patronal is not None else '',
     'total_medicares': rounded_amount_medicares,
     'total_commissions': rounded_amount_commissions,
     'total_wages': rounded_amount_wages,
+    'total_wages_26': rounded_amount_wages_26,
+    'code_26': 'E' if rounded_amount_wages_26 > 0 else '',
     'total_concessions': rounded_amount_concessions,
     'total_tips': rounded_amount_tips,
     'total_donation': rounded_amount_donation,
     'total_11': rounded_amount_11,
+    'total_20': rounded_amount_wages_26 if rounded_amount_wages_26 > 0 else rounded_amount_wages,
+    'total_22': (rounded_amount_11 + rounded_amount_wages_26),
     'total_refunds': rounded_amount_refunds,
     'total_secures_social' : rounded_amount_secures_social,
     'total_social_tips': rounded_amount_social_tips,
     'total_taxes_pr': rounded_amount_taxes_pr,
     'total_time_worker': 0,
-    'year_active': yearActive,
+    'year_active': year,
   }
 
   return data

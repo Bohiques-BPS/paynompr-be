@@ -2,23 +2,20 @@ from pathlib import Path
 import fitz  # PyMuPDF
 from models.companies import Companies
 from database.config import session
+from models.queries.queryFormUnemployment import queryFormUnemployment
+
 
 def form_unemployment_pdf_generator():
     company = session.query(Companies).filter(Companies.id == 1).first()
 
-    def data_entry():
-        return {
-            'ein_first_part': '38',
-            'ein_second_part': '1237056',
-            'company_name': company.name,
-        }
-    
     rute = Path(__file__).parent.absolute()
     document_dir = rute.parent / 'output_files'
-    source_file_name = 'unemployment_plantilla.pdf'
-    output_file_name = 'unemployment.pdf'
+    source_file_name = 'SSO_PLANTILLA.pdf'
+    output_file_name = 'SSO.pdf'
 
-    data_entry = data_entry()
+    # data_entry = data_entry()
+
+    data_entry = queryFormUnemployment(company.id)
 
 
     try:
@@ -33,9 +30,13 @@ def form_unemployment_pdf_generator():
             page = doc[page_number]
             for field in page.widgets():
                 if field.field_type == fitz.PDF_WIDGET_TYPE_TEXT:
-                    if field.field_name == 'txtNombrePatrono':
-                        field.field_value = data_entry['company_name']
+                    if field.field_name in data_entry:
+                        # print(field.field_name, '-', data_entry[field.field_name])
+                        field.field_value = data_entry[field.field_name]
                         field.update()
+                    # if field.field_name == '4155960009':
+                    #     field.field_value = data_entry['ein_first_part']
+                    #     field.update()
         # Save the updated PDF
         doc.save(document_dir / output_file_name, incremental=False, encryption=fitz.PDF_ENCRYPT_KEEP)
     except Exception as e:
