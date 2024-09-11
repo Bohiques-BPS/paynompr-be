@@ -10,7 +10,7 @@ role_router = APIRouter()
 
 @role_router.post("/")
 async def create_role(role: RoleSchema):
-    print("role:", role)
+    # print("role:", role)
     is_role = session.query(Role).where(Role.role == role.role).one_or_none()
 
     if is_role:
