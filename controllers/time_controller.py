@@ -118,6 +118,14 @@ def create_time_controller(time_data, employer_id):
         total_payment = total_income - total_egress
 
         time_query = Time(
+
+            regular_pay=time_data.regular_pay,
+            over_pay=time_data.overtime_pay,
+            meal_pay=time_data.meal_time_pay,
+            sick_pay=time_data.sick_pay,
+            holyday_pay=time_data.holyday_pay,  
+            vacation_pay = time_data.vacation_pay,          
+            
             regular_time=time_data.regular_time,
             over_time=time_data.over_time,
             meal_time=time_data.meal_time,
@@ -328,6 +336,14 @@ def update_time_controller(time_id, time):
         time_query.meal_amount = time.meal_amount
         time_query.salary = time.salary
         time_query.refund = time.refund
+
+        time_query.regular_pay=time.regular_pay,
+        time_query.over_pay=time.overtime_pay,
+        time_query.meal_pay=time.meal_time_pay,
+        time_query.sick_pay=time.sick_pay,
+        time_query.vacation_pay=time.vacation_pay,
+
+        time_query.holyday_pay=time.holyday_pay, 
 
         time_query.donation = time.donation
         time_query.asume = time.asume

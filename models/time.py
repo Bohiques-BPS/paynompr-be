@@ -36,6 +36,14 @@ class Time(Base):
     refund: Mapped[float] = mapped_column(nullable=True, default=0)
     bonus: Mapped[float] = mapped_column(nullable=True, default=0)
 
+    regular_pay: Mapped[float] = mapped_column(nullable=True, default=0)
+    over_pay: Mapped[float] = mapped_column(nullable=True, default=0)
+    vacation_pay: Mapped[float] = mapped_column(nullable=True, default=0)
+
+    meal_pay: Mapped[float] = mapped_column(nullable=True, default=0)
+    sick_pay: Mapped[float] = mapped_column(nullable=True, default=0)
+    holyday_pay: Mapped[float] = mapped_column(nullable=True, default=0)
+
     secure_social: Mapped[float] = mapped_column(nullable=True, default=0)
     social_tips: Mapped[float] = mapped_column(nullable=True, default=0)
     tax_pr: Mapped[float] = mapped_column(nullable=True, default=0)
