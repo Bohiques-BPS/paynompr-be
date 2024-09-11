@@ -4,5 +4,4 @@ __pycache__/
 venv/
 python/
 .env
-.envcopy
 env
