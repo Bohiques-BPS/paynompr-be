@@ -23,6 +23,10 @@ employers_router = APIRouter()
 
 def create_employer_controller(employer_data, company_id):
     try: 
+        company = session.query(Companies).filter(Companies.id == company_id).first()
+        if not company:
+            return {"ok": False, "msg": "Company not found", "result": None}
+
         employer_query = Employers(
             last_name=employer_data.last_name,
             mother_last_name=employer_data.mother_last_name,
@@ -59,6 +63,15 @@ def create_employer_controller(employer_data, company_id):
             mealtime=employer_data.mealtime,
             vacation_time=employer_data.vacation_time,
             sick_time=employer_data.sick_time,
+            vacation_hours=company.vacation_hours,            
+            vacation_hours_monthly=company.vacation_date,
+            vacation_date = employer_data.vacation_date,
+            sicks_hours=company.sicks_hours,
+            sicks_hours_monthly=company.sicks_date,
+            sicks_date=employer_data.sicks_date,
+
+
+
             number_dependents=employer_data.number_dependents,
             shared_custody=employer_data.shared_custody,
             number_concessions=employer_data.number_concessions,
@@ -149,13 +162,17 @@ def update_employer_controller(employers_id, employer, user):
         employer_query.birthday = employer.birthday
         employer_query.date_admission = employer.date_admission
         employer_query.date_egress = employer.date_egress
-        
+      
         employer_query.sick_time = employer.sick_time,
-        
+        employer_query.vacation_hours = employer.vacation_hours,
+        employer_query.vacation_hours_monthly = employer.vacation_hours_monthly,
+        employer_query.sicks_hours = employer.sicks_hours,
+        employer_query.sicks_date =  employer.sicks_date
+        employer_query.sicks_hours_monthly = employer.sicks_hours_monthly,        
+        employer_query.vacation_time = employer.vacation_time        
         employer_query.overtime = employer.overtime
-        employer_query.mealtime = employer.mealtime
-        
-        employer_query.vacation_time = employer.vacation_time
+        employer_query.mealtime = employer.mealtime        
+
 
         employer_query.number_dependents = employer.number_dependents
         employer_query.shared_custody = employer.shared_custody

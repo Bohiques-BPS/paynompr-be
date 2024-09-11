@@ -8,8 +8,8 @@ from models.time import Time
 from models.employers import Employers
 from models.payments import Payments
 from models.companies import Companies
-
-
+from models.periods import Period
+from models.accountant import Accountant
 
 from schemas.time import TimeShema, TimeIDShema2
 from passlib.context import CryptContext
@@ -27,14 +27,29 @@ def create_time_controller(time_data, employer_id):
     try:
         employers = (
             session.query(Employers)
-            .filter(Employers.id == employer_id)
+            .filter(Employers.id == employer_id, is_deleted=False)
             .one_or_none()
         )
 
         if not employers:
-            return {"ok": False, "msg": "Employer not found"}
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Usuario no encontrado"
+            )
 
-
+        accountant = (
+            session.query(Accountant)
+            .filter(Accountant.id == time_data.accountant_id)
+            .one_or_none()
+        )
+        
+        if not accountant:
+            if not employers:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Cuenta no encontrada"
+                )        
+            
         #calculamos el total_payment
         regular_time=time_data.regular_time,
         over_time=time_data.over_time,
@@ -244,6 +259,7 @@ def get_all_data_time_employer_controller(company_id: int, employer_id: int, tim
         )
     finally:
         session.close()
+        
 def delete_time_controller(time_id, user):
     try:
         # Verificar si la compañía tiene time asociados
@@ -273,13 +289,29 @@ def update_time_controller(time_id, time):
         
         employers = (
             session.query(Employers)
-            .filter(Employers.id == time_query.employer_id)
+            .filter(Employers.id == time_query.employer_id, is_deleted=False)
             .one_or_none()
         )
 
         if not employers:
-            return {"ok": False, "msg": "Employer not found"}
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Usuario no encontrado"
+            )
 
+        accountant = (
+            session.query(Accountant)
+            .filter(Accountant.id == time_query.accountant_id)
+            .one_or_none()
+        )
+        
+        if not accountant:
+            if not employers:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Cuenta no encontrada"
+                )        
+        
         # Sumar las horas anteriores a los empleadores antes de la actualización
         #employers.sick_hours = int(employers.sick_hours) + int(time_query.sick_time.split(":")[0])
         #employers.vacation_hours = int(employers.vacation_hours) + int(time_query.vacation_time.split(":")[0])
@@ -361,3 +393,31 @@ def update_time_controller(time_id, time):
         )
     finally:
         session.close()
+
+
+
+#updatear las vaciones
+def update_vaction_time_controller(employer_id,id_period):
+
+    #verificar el calculo del mes por periodo para el registro actual
+    #si vacatation_time en times > 0
+    #sumaro restar o empleados
+    try:
+        #datetime
+        year = 2024
+        times = session.query(Time).filter(Time.employer_id == employer_id).join(Period).filter(Period.id==Time.period_id,Period.year== year)
+        print('times prueba',times)
+        if not times:
+            return HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"An error occurred: {str(e)}"
+            )
+        
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred: {str(e)}"
+        )
+    finally:
+        session.close()        

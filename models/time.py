@@ -21,7 +21,7 @@ class Time(Base):
     meal_time: Mapped[str] = mapped_column(String, nullable=True, default="00:00")
     sick_time: Mapped[str] = mapped_column(String, nullable=True, default="00:00")
     holiday_time: Mapped[str] = mapped_column(String, nullable=True, default="00:00")
-    vacation_time: Mapped[str] = mapped_column(String, nullable=True, default="00:00")
+    vacation_time: Mapped[str] = mapped_column(String, nullable=True, default="00:00")    
     donation: Mapped[float] = mapped_column(nullable=True, default=0)
     aflac: Mapped[float] = mapped_column(nullable=True, default=0)
     commissions: Mapped[float] = mapped_column(nullable=True, default=0)
