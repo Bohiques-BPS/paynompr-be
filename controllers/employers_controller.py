@@ -70,8 +70,6 @@ def create_employer_controller(employer_data, company_id):
             sicks_hours_monthly=company.sicks_date,
             sicks_date=employer_data.sicks_date,
 
-
-
             number_dependents=employer_data.number_dependents,
             shared_custody=employer_data.shared_custody,
             number_concessions=employer_data.number_concessions,
