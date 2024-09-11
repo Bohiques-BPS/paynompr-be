@@ -27,7 +27,7 @@ def create_time_controller(time_data, employer_id):
     try:
         employers = (
             session.query(Employers)
-            .filter(Employers.id == employer_id, is_deleted=False)
+            .filter(Employers.id == employer_id)
             .one_or_none()
         )
 
@@ -64,8 +64,6 @@ def create_time_controller(time_data, employer_id):
         concessions=time_data.concessions,
         choferil=time_data.choferil,
         bonus=time_data.bonus,
-        
-
 
         others=time_data.others,
         salary=time_data.salary,
@@ -297,7 +295,7 @@ def update_time_controller(time_id, time):
         
         employers = (
             session.query(Employers)
-            .filter(Employers.id == time_query.employer_id, is_deleted=False)
+            .filter(Employers.id == time_query.employer_id)
             .one_or_none()
         )
 
