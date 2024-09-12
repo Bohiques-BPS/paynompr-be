@@ -8,7 +8,7 @@ def form_choferil_pdf_generator(company_id, year, period):
 
     rute = Path(__file__).parent.absolute()
     document_dir = rute.parent / 'output_files'
-    source_file_name = 'choferil_plantilla.pdf'
+    source_file_name = 'template/choferil_plantilla.pdf'
     output_file_name = 'choferil.pdf'
 
     data_entry = queryFormChoferil(company_id, year, period)

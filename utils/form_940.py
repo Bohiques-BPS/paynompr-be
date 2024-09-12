@@ -9,7 +9,7 @@ from models.queries.queryForm940 import queryForm940
 def form_940_pdf_generator(company_id, year):
     rute = Path(__file__).parent.absolute()
     document_dir = rute.parent / 'output_files'
-    source_file_name = 'f940sp.pdf'
+    source_file_name = 'template/f940sp.pdf'
     output_file_name = 'complete.pdf'
 
     data_entry_data = queryForm940(company_id, year)

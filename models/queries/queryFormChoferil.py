@@ -1,33 +1,8 @@
-from models.companies import Companies
-from models.employers import Employers
-from models.time import Time
-from database.config import session
-from random import randint
-from models.accountant import Accountant
-from sqlalchemy import func, and_
-from utils.time_func import getPeriodTime
-
-
-def getTotalAmountAndWeeks(company_id, year, periodo):
-    period = getPeriodTime(periodo, year)
-    diferent = period['end_date'] - period['start_date']
-    weeks = diferent.days // 7
-
-    result = session.query(func.sum(Time.total_payment)).join(Employers).filter(
-      and_(
-        Employers.company_id == company_id,
-        Time.created_at.between(period['start_date'], period['end_date'])
-      )
-    ).scalar()
-
-    return {
-      'total_amount': result,
-      'weeks': weeks
-    }
-
+from models.queries.queryUtils import getCompany, getTotalAmountAndWeeks
 
 def queryFormChoferil (company_id, year, periodo):
-    company = session.query(Companies).filter(Companies.id == company_id).first()
+
+    company = getCompany(company_id)['company']
 
     # Address Company
     physicalAddressCompany = company.physical_address if company.physical_address is not None else ''

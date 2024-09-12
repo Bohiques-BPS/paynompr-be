@@ -1,50 +1,17 @@
-from models.companies import Companies
-from models.employers import Employers
-from models.time import Time
-from database.config import session
-from sqlalchemy import func, and_
 from datetime import datetime
+from models.queries.queryUtils import roundedAmount, getAmountVarios, getEmployer
 
-
-def getAmountVarios(employer_id, year):
-    date_start = datetime(year, 1, 1)
-    date_end = datetime(year, 12, 31)
-
-    result = session.query(
-      func.sum(Time.total_payment).label('wages'),
-      func.sum(Time.commissions).label('commissions'),
-      func.sum(Time.concessions).label('concessions'),
-      func.sum(Time.tips).label('tips'),
-      func.sum(Time.donation).label('donation'),
-      func.sum(Time.refund).label('refunds'),
-      func.sum(Time.medicare).label('medicares'),
-      func.sum(Time.bonus).label('bonus'),
-      func.sum(Time.social_tips).label('social_tips'),
-      func.sum(Time.secure_social).label('secure_social'),
-      func.sum(Time.tax_pr).label('taxes_pr')
-      ).filter(
-        and_(
-          Employers.id == employer_id,
-          Time.created_at.between(date_start, date_end)
-        )
-      ).all()
-
-    return result[0]
-
-def roundedAmount(amount, decimal = 2):
-    # Rounding amount to 2 decimal places
-    if amount is not None:
-      return round(amount, decimal)
-    else:
-      return 0.00
 
 def queryFormW2pr(employer_id, year = None):
   if year is None:
     year = datetime.now().year
 
   # Data Active
-  employer = session.query(Employers).filter(Employers.id == employer_id).first()
-  company = session.query(Companies).filter(Companies.id == employer.company_id).first()
+  resultEmployer = getEmployer(employer_id)
+  employer = resultEmployer['employer']
+  company = resultEmployer['company']
+
+  # Total amount for the employer
   amountVarios = getAmountVarios(1, year)
 
   # Date of birth (format: YYYY-MM-DD)

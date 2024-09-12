@@ -5,7 +5,7 @@ import pathlib
 from fastapi import APIRouter
 from fastapi.responses import FileResponse
 
-from controllers.reports_controller import all_counterfoil_controller, counterfoil_controller, form_940_pdf_controller, form_choferil_pdf_controller, form_unemployment_pdf_controller, form_withheld_499_pdf_controller, get_report_cfse_pdf_controller, form_w2pr_pdf_controller
+from controllers.reports_controller import all_counterfoil_controller, counterfoil_controller, form_940_pdf_controller, form_choferil_pdf_controller, form_unemployment_pdf_controller, form_withheld_499_pdf_controller, get_report_cfse_pdf_controller, form_w2pr_pdf_controller, form_941_pdf_controller
 from database.config import session
 from models.companies import Companies
 from models.employers import Employers
@@ -30,6 +30,10 @@ async def counterfoil(company_id: int, employer_id: int, time_id: int):
 @report_router.get("/form_940_pdf/{company_id}/{year}")
 async def form_940_pdf(company_id: int, year: int):
     return form_940_pdf_controller(company_id, year)
+
+@report_router.get("/form_941_pdf/{company_id}/{year}/{period}")
+async def form_940_pdf(company_id: int, year: int, period: int):
+    return form_941_pdf_controller(company_id, year, period)
 
 @report_router.get("/form_w2pr_pdf/{employer_id}/{year}")
 async def form_w2pr_pdf(employer_id: int, year: int):

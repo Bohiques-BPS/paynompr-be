@@ -16,20 +16,20 @@ def minutes_to_time(minutes: int) -> str:
 def getPeriodTime(periodo: int, year: int):
     period = {
         1: {
-            'start_date': date(year, 1, 1),
-            'end_date': date(year, 3, 31)
+            'start': date(year, 1, 1),
+            'end': date(year, 3, 31)
         },
         2: {
-            'start_date': date(year, 4, 1),
-            'end_date': date(year, 6, 30)
+            'start': date(year, 4, 1),
+            'end': date(year, 6, 30)
         },
         3: {
-            'start_date': date(year, 7, 1),
-            'end_date': date(year, 9, 30)
+            'start': date(year, 7, 1),
+            'end': date(year, 9, 30)
         },
         4: {
-            'start_date': date(year, 10, 1),
-            'end_date': date(year, 12, 31)
+            'start': date(year, 10, 1),
+            'end': date(year, 12, 31)
         }
     }
 

@@ -1,52 +1,6 @@
-from models.companies import Companies
-from models.employers import Employers
-from models.time import Time
-from database.config import session
-from random import randint
-from models.accountant import Accountant
-from sqlalchemy import func, and_
 from datetime import date
+from models.queries.queryUtils import addDecimal, roundedAmount, getTotalAmount, getEmployers7000, getCompany, getRandomIrs
 
-
-def addZeroNumber(value):
-    return f'{value}0' if len(value) == 1 else value
-
-def addDecimal(number):
-  array = str(number).split('.') if number != 0 else '0.0'.split('.')
-  if len(array) == 1:
-    array.append('00')
-  else:
-    array[1] = addZeroNumber(array[1])
-
-  return array
-
-
-def getTotalAmount(company_id, date_period):
-    result = session.query(func.sum(Time.total_payment)).join(Employers).filter(
-      and_(
-        Employers.company_id == company_id,
-        Time.created_at.between(date_period['start'], date_period['end'])
-      )
-    ).scalar()
-
-    return result if result is not None else 0
-
-def getEmployers7000(company_id, date_period):
-    arrayTotal = session.query(func.sum(Time.total_payment).label('total')).join(Employers).filter(
-      and_(
-        Employers.company_id == company_id,
-        Time.created_at.between(date_period['start'], date_period['end'])
-      )
-    ).group_by(Time.employer_id).all()
-    result = 0
-    for value in arrayTotal:
-        max_7000 = (value.total - 7000) if value.total > 7000 else value.total
-        result += max_7000
-
-    return result
-
-def roundedAmount(amount, decimal = 2):
-    return round(amount, decimal)
 
 def queryForm940(company_id, year = None):
     # Data Active
@@ -59,8 +13,11 @@ def queryForm940(company_id, year = None):
       'end': date(year, 12, 31)
     }
 
-    company = session.query(Companies).filter(Companies.id == company_id).first()
-    account = session.query(Accountant).filter(Companies.id == company.id).first()
+    resultCompany = getCompany(company_id)
+    company = resultCompany['company']
+    account = resultCompany['account']
+
+
     # Total amount employees
     total_amount_employers_number = roundedAmount(getTotalAmount(company.id, date_period))
     total_amount_employers = addDecimal(total_amount_employers_number)
@@ -110,7 +67,7 @@ def queryForm940(company_id, year = None):
     subtotalLinea17_number = roundedAmount((trimestre1_number + trimestre2_number + trimestre3_number + trimestre4_number))
     subtotalLinea17 = addDecimal(subtotalLinea17_number)
     # Personal number id
-    personal_number_id = str(randint(10000, 99999))
+    personal_number_id = getRandomIrs()
     # Number Identifier Employer
     ein = company.number_patronal.split('-')
     data = {

@@ -10,8 +10,8 @@ def form_unemployment_pdf_generator():
 
     rute = Path(__file__).parent.absolute()
     document_dir = rute.parent / 'output_files'
-    source_file_name = 'SSO_PLANTILLA.pdf'
-    output_file_name = 'SSO.pdf'
+    source_file_name = 'template/unemployment_plantilla.pdf'
+    output_file_name = 'unemployment.pdf'
 
     # data_entry = data_entry()
 
