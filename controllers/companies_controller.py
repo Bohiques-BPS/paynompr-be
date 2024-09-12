@@ -149,7 +149,7 @@ def get_all_company_and_employer_controller(user, company_id, employers_id):
             type_period = PeriodType.WEEKLY
         elif (employer_query.period_norma == 2):
             type_period = PeriodType.BIWEEKLY
-        elif (employer_query.period_norma == 3):
+        elif (employer_query.period_norma == 4):
             type_period = PeriodType.MONTHLY
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Payment type not found")
