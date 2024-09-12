@@ -1,16 +1,18 @@
 from fastapi import APIRouter, HTTPException, status
+from sqlalchemy import extract
 
 
 from database.config import session
 from routers.auth import user_dependency
 
 from models.time import Time
+from models.vacation_times import VacationTimes
 from models.employers import Employers
 from models.payments import Payments
 from models.companies import Companies
 from models.periods import Period
 from models.accountant import Accountant
-
+from datetime import datetime
 from schemas.time import TimeShema, TimeIDShema2
 from passlib.context import CryptContext
 from sqlalchemy import func
@@ -25,6 +27,10 @@ time_router = APIRouter()
 
 def create_time_controller(time_data, employer_id):
     try:
+        #mounth actuality
+        nounth = datetime.now().month
+        year = datetime.now().year
+
         employers = (
             session.query(Employers)
             .filter(Employers.id == employer_id)
@@ -290,6 +296,7 @@ def delete_time_controller(time_id, user):
 def update_time_controller(time_id, time):
     try:
         time_query = session.query(Time).filter_by(id=time_id).first()
+        update_vaction_time_controller(time_query.employer_id,time_query.period.period_start)
         if not time_query:
             return {"ok": False, "msg": "Time update error", "result": time_query}
         
@@ -411,27 +418,47 @@ def update_time_controller(time_id, time):
 
 
 #updatear las vaciones
-def update_vaction_time_controller(employer_id,id_period):
+def update_vaction_time_controller(employer_id, date_period):
 
     #verificar el calculo del mes por periodo para el registro actual
     #si vacatation_time en times > 0
     #sumaro restar o empleados
-    try:
-        #datetime
-        year = 2024
-        times = session.query(Time).filter(Time.employer_id == employer_id).join(Period).filter(Period.id==Time.period_id,Period.year== year)
-        print('times prueba',times)
-        if not times:
-            return HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"An error occurred: {str(e)}"
-            )
+    year = date_period.year
+    month = date_period.month
+    employer = (
+                    session.query(Employers)
+                    .filter(Employers.id == employer_id)
+                    .one_or_none()
+                )
+    #times = session.query(Time).filter(Time.employer_id == employer_id).join(Period).filter(Period.id==Time.period_id,Period.year== year)
+    times = session.query(Time).filter(Time.employer_id == employer_id).join(Period).filter(
+            Period.id == Time.period_id,
+            Period.year == year,
+            extract('month', Period.period_start) == month
+        ).all()
+    
+    if times:
+        hours_worked = 0
+        for time in times:
+            hours_worked += time_to_minutes(time.regular_time) / 60
+    
+        if employer.vacation_hours_monthly <= hours_worked:
+            vacation_time = session.query(VacationTimes).where(employer_id == employer_id, year == year, month == month).first()
+            if not vacation_time:
+                vacation_query = VacationTimes(
+                    employer_id = employer_id,
+                    vacation_hours = employer.vacation_hours,
+                    year = year,
+                    month = month
+
+                )
+                session.add(vacation_query)
+                session.commit()
+                session.refresh(vacation_query)
+                
+
+    
+        print("work", hours_worked)
+   
         
-    except Exception as e:
-        session.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
-        )
-    finally:
-        session.close()        
+    
