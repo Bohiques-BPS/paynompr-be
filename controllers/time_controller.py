@@ -28,7 +28,7 @@ time_router = APIRouter()
 def create_time_controller(time_data, employer_id):
     try:
         #mounth actuality
-        nounth = datetime.now().month
+        month = datetime.now().month
         year = datetime.now().year
 
         employers = (
@@ -36,6 +36,9 @@ def create_time_controller(time_data, employer_id):
             .filter(Employers.id == employer_id)
             .one_or_none()
         )
+
+        old_vacation_time = 0
+        old_sick_time = 0
 
         if not employers:
             raise HTTPException(
@@ -186,6 +189,31 @@ def create_time_controller(time_data, employer_id):
         session.commit()
         session.refresh(employers)
 
+
+        year = time_query.period.period_start.year
+        month = time_query.period.period_start.month
+
+        vacation_time = session.query(VacationTimes).where(
+            VacationTimes.employer_id == Time.employer_id,
+            VacationTimes.year == str(year),
+            VacationTimes.month == str(month)
+            ).first()
+        
+        times = session.query(Time).filter(Time.employer_id == time_query.employer_id).join(Period).filter(
+                Period.id == Time.period_id,
+                Period.year == year,
+                extract('month', Period.period_start) == month
+            ).all()
+
+        subtract_vacation_time(employers, old_vacation_time, time_data.vacation_time)
+        subtract_sick_time(employers, old_sick_time, time_data.sick_time)
+
+        update_vaction_time_controller(time_query.employer_id,times, employers, vacation_time, year,month)
+        update_sicks_time_controller(time_query.employer_id,times,employers,vacation_time, year, month)
+
+
+
+
         for item in time_data.payment:
             payment_query = Payments(
                 name=item.name,
@@ -296,17 +324,20 @@ def delete_time_controller(time_id, user):
 def update_time_controller(time_id, time):
     try:
         time_query = session.query(Time).filter_by(id=time_id).first()
-        update_vaction_time_controller(time_query.employer_id,time_query.period.period_start)
+
         if not time_query:
             return {"ok": False, "msg": "Time update error", "result": time_query}
         
-        employers = (
+        old_vacation_time = time_query.vacation_time
+        old_sick_time = time_query.sick_time
+
+        employer = (
             session.query(Employers)
             .filter(Employers.id == time_query.employer_id)
             .one_or_none()
         )
 
-        if not employers:
+        if not employer:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Usuario no encontrado"
@@ -319,7 +350,7 @@ def update_time_controller(time_id, time):
         )
         
         if not accountant:
-            if not employers:
+            if not employer:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail=f"Cuenta no encontrada"
@@ -375,9 +406,31 @@ def update_time_controller(time_id, time):
         #employers.sick_hours = int(employers.sick_hours) - int(time.sick_time.split(":")[0])
         #employers.vacation_hours = int(employers.vacation_hours) - int(time.vacation_time.split(":")[0])
 
-        session.add(employers)
+        session.add(employer)
         session.commit()
-        session.refresh(employers)
+        session.refresh(employer)
+
+
+        year = time_query.period.period_start.year
+        month = time_query.period.period_start.month
+
+        vacation_time = session.query(VacationTimes).where(
+            VacationTimes.employer_id == Time.employer_id,
+            VacationTimes.year == str(year),
+            VacationTimes.month == str(month)
+            ).first()
+        
+        times = session.query(Time).filter(Time.employer_id == time_query.employer_id).join(Period).filter(
+                Period.id == Time.period_id,
+                Period.year == year,
+                extract('month', Period.period_start) == month
+            ).all()
+
+        subtract_vacation_time(employer, old_vacation_time, time.vacation_time)
+        subtract_sick_time(employer, old_sick_time, time.sick_time)
+
+        update_vaction_time_controller(time_query.employer_id,times, employer, vacation_time, year,month)
+        update_sicks_time_controller(time_query.employer_id,times,employer,vacation_time, year, month)
 
         for item in time.payment:
             payment_query = session.query(Payments).filter_by(id=item.id).first()
@@ -417,48 +470,143 @@ def update_time_controller(time_id, time):
 
 
 
-#updatear las vaciones
-def update_vaction_time_controller(employer_id, date_period):
 
-    #verificar el calculo del mes por periodo para el registro actual
-    #si vacatation_time en times > 0
-    #sumaro restar o empleados
-    year = date_period.year
-    month = date_period.month
-    employer = (
-                    session.query(Employers)
-                    .filter(Employers.id == employer_id)
-                    .one_or_none()
-                )
-    #times = session.query(Time).filter(Time.employer_id == employer_id).join(Period).filter(Period.id==Time.period_id,Period.year== year)
-    times = session.query(Time).filter(Time.employer_id == employer_id).join(Period).filter(
-            Period.id == Time.period_id,
-            Period.year == year,
-            extract('month', Period.period_start) == month
-        ).all()
-    
+def update_vaction_time_controller(employer_id, times, employer,vacation_time, year, month):
+
     if times:
         hours_worked = 0
         for time in times:
             hours_worked += time_to_minutes(time.regular_time) / 60
-    
-        if employer.vacation_hours_monthly <= hours_worked:
-            vacation_time = session.query(VacationTimes).where(employer_id == employer_id, year == year, month == month).first()
+            print("icks", time.sick_time)
+        
+        hours_worked = int(hours_worked // 1)
+          
+
+        if employer.vacation_hours_monthly <= hours_worked:            
+
             if not vacation_time:
                 vacation_query = VacationTimes(
                     employer_id = employer_id,
                     vacation_hours = employer.vacation_hours,
+                    paid_vacation = True,
                     year = year,
                     month = month
 
                 )
+                employer_vacation = time_to_minutes(employer.vacation_time) 
+                minutes_employer = employer.vacation_hours * 60
+                employer.vacation_time = minutes_to_time(employer_vacation + minutes_employer)
                 session.add(vacation_query)
                 session.commit()
                 session.refresh(vacation_query)
-                
+            
+            elif not vacation_time.paid_vacation:     
+                employer_vacation = time_to_minutes(employer.vacation_time) 
+                minutes_employer = employer.vacation_hours * 60
+                vacation_time.paid_vacation = True
+                employer.vacation_time = minutes_to_time(employer_vacation+minutes_employer)
+                session.commit()
+       
+        else:
+            if vacation_time and vacation_time.paid_vacation:
+                employer_vacation = time_to_minutes(employer.vacation_time) 
+                minutes_employer = employer.vacation_hours * 60
+                employer.vacation_time = minutes_to_time(employer_vacation - minutes_employer)
+                vacation_time.paid_vacation = False
+                session.commit()
 
-    
-        print("work", hours_worked)
-   
+
+
+
+def update_sicks_time_controller(employer_id, times, employer,vacation_time, year, month):
+
+    if times:
+        hours_worked = 0
+        for time in times:
+            hours_worked += time_to_minutes(time.sick_time) / 60
         
+        hours_worked = int(hours_worked // 1)
+          
+        if employer.sicks_hours_monthly <= hours_worked:            
+
+            if not vacation_time:
+                vacation_query = VacationTimes(
+                    employer_id = employer_id,
+                    vacation_hours = employer.sicks_hours,
+                    paid_sick = True,
+                    year = year,
+                    month = month
+
+                )
+                employer_sick = time_to_minutes(employer.sick_time) 
+                minutes_employer = employer.sicks_hours * 60
+                employer.sick_time = minutes_to_time(employer_sick + minutes_employer)
+                session.add(vacation_query)
+                session.commit()
+                session.refresh(vacation_query)                
+
+            elif not vacation_time.paid_sick:     
+                employer_sick = time_to_minutes(employer.sick_time) 
+                minutes_employer = employer.sicks_hours * 60
+                vacation_time.paid_sick = True
+                employer.sick_time = minutes_to_time(employer_sick+minutes_employer)
+                session.commit()
+       
+        else:
+            if vacation_time and vacation_time.paid_sick:
+                employer_vacation = time_to_minutes(employer.sick_time) 
+                minutes_employer = employer.sicks_hours * 60
+                employer.sick_time = minutes_to_time(employer_vacation - minutes_employer)
+                vacation_time.paod_sicks = False
+                session.commit()
+
+
+def subtract_vacation_time(employer, time_vacation_time, new_vacation_time):
+
+    minutes_new_vacation_time = time_to_minutes(new_vacation_time)
+    minutes_employer = time_to_minutes(employer.vacation_time)
+
+    # Convert the old vacation time to minutes if it exists
+    minutes_vacation_time = time_to_minutes(time_vacation_time) if time_vacation_time else 0
+
+    # Calculate the difference in minutes
+    difference_in_minutes = minutes_new_vacation_time - minutes_vacation_time
+
+    # Update the employer's vacation time based on the difference
+    employer.vacation_time = minutes_to_time(minutes_employer - difference_in_minutes)
+    session.commit()
+
+
+def subtract_sick_time(employer, time_sick_time, new_sick_time):
     
+    minutes_new_sick_time = time_to_minutes(new_sick_time)
+    minutes_employer = time_to_minutes(employer.sick_time)
+
+    # Convert the old vacation time to minutes if it exists
+    minutes_sick_time = time_to_minutes(time_sick_time) if time_sick_time else 0
+
+    # Calculate the difference in minutes
+    difference_in_minutes = minutes_new_sick_time - minutes_sick_time
+
+    # Update the employer's vacation time based on the difference
+    employer.sick_time = minutes_to_time(minutes_employer - difference_in_minutes)
+    session.commit()
+
+
+"""def subtract_vacation_time(employer, time_vacation_time, new_vacation_time):
+    
+    minutes_new_vacation_time = time_to_minutes(new_vacation_time)
+    minutes_employer = time_to_minutes(employer.vacation_time)
+
+    if time_vacation_time:
+        minutes_vacation_time = time_to_minutes(time_vacation_time) 
+        if minutes_vacation_time != minutes_new_vacation_time:
+            employer.vacation_time =  minutes_to_time( minutes_employer    - (minutes_vacation_time - minutes_new_vacation_time)*-1)
+            session.commit()
+    
+    else:
+        employer.vacation_time = minutes_to_time(minutes_employer - minutes_new_vacation_time)
+        session.commit()
+
+"""
+       
