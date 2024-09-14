@@ -208,8 +208,8 @@ def create_time_controller(time_data, employer_id):
         subtract_vacation_time(employers, old_vacation_time, time_data.vacation_time)
         subtract_sick_time(employers, old_sick_time, time_data.sick_time)
 
-        update_vaction_time_controller(time_query.employer_id,times, employers, vacation_time, year,month)
-        update_sicks_time_controller(time_query.employer_id,times,employers,vacation_time, year, month)
+        update_vaction_time(time_query.employer_id,times, employers, vacation_time, year,month)
+        update_sicks_time(time_query.employer_id,times,employers,vacation_time, year, month)
 
 
 
@@ -429,8 +429,8 @@ def update_time_controller(time_id, time):
         subtract_vacation_time(employer, old_vacation_time, time.vacation_time)
         subtract_sick_time(employer, old_sick_time, time.sick_time)
 
-        update_vaction_time_controller(time_query.employer_id,times, employer, vacation_time, year,month)
-        update_sicks_time_controller(time_query.employer_id,times,employer,vacation_time, year, month)
+        update_vaction_time(time_query.employer_id,times, employer, vacation_time, year,month)
+        update_sicks_time(time_query.employer_id,times,employer,vacation_time, year, month)
 
         for item in time.payment:
             payment_query = session.query(Payments).filter_by(id=item.id).first()
@@ -471,14 +471,13 @@ def update_time_controller(time_id, time):
 
 
 
-def update_vaction_time_controller(employer_id, times, employer,vacation_time, year, month):
+def update_vaction_time(employer_id, times, employer,vacation_time, year, month):
 
     if times:
         hours_worked = 0
         for time in times:
             hours_worked += time_to_minutes(time.regular_time) / 60
-            print("icks", time.sick_time)
-        
+       
         hours_worked = int(hours_worked // 1)
           
 
@@ -518,7 +517,7 @@ def update_vaction_time_controller(employer_id, times, employer,vacation_time, y
 
 
 
-def update_sicks_time_controller(employer_id, times, employer,vacation_time, year, month):
+def update_sicks_time(employer_id, times, employer,vacation_time, year, month):
 
     if times:
         hours_worked = 0
@@ -591,22 +590,3 @@ def subtract_sick_time(employer, time_sick_time, new_sick_time):
     # Update the employer's vacation time based on the difference
     employer.sick_time = minutes_to_time(minutes_employer - difference_in_minutes)
     session.commit()
-
-
-"""def subtract_vacation_time(employer, time_vacation_time, new_vacation_time):
-    
-    minutes_new_vacation_time = time_to_minutes(new_vacation_time)
-    minutes_employer = time_to_minutes(employer.vacation_time)
-
-    if time_vacation_time:
-        minutes_vacation_time = time_to_minutes(time_vacation_time) 
-        if minutes_vacation_time != minutes_new_vacation_time:
-            employer.vacation_time =  minutes_to_time( minutes_employer    - (minutes_vacation_time - minutes_new_vacation_time)*-1)
-            session.commit()
-    
-    else:
-        employer.vacation_time = minutes_to_time(minutes_employer - minutes_new_vacation_time)
-        session.commit()
-
-"""
-       
