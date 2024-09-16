@@ -32,7 +32,7 @@ async def form_940_pdf(company_id: int, year: int):
     return form_940_pdf_controller(company_id, year)
 
 @report_router.get("/form_941_pdf/{company_id}/{year}/{period}")
-async def form_940_pdf(company_id: int, year: int, period: int):
+async def form_941_pdf(company_id: int, year: int, period: int):
     return form_941_pdf_controller(company_id, year, period)
 
 @report_router.get("/form_w2pr_pdf/{employer_id}/{year}")
@@ -41,14 +41,14 @@ async def form_w2pr_pdf(employer_id: int, year: int):
     return form_w2pr_pdf_controller(employer_id, year)
 
 
-@report_router.get("/form_unemployment_pdf")
-async def form_unemployment_pdf():
-    return form_unemployment_pdf_controller()
+@report_router.get("/form_unemployment_pdf/{company_id}/{year}/{period}")
+async def form_unemployment_pdf(company_id: int, year: int, period: int):
+    return form_unemployment_pdf_controller(company_id, year, period)
 
 
-@report_router.get("/form_withheld_499_pdf")
-async def form_withheld_499_pdf():
-    return form_withheld_499_pdf_controller()
+@report_router.get("/form_withheld_499_pdf/{company_id}/{year}/{period}")
+async def form_withheld_499_pdf(company_id: int, year: int, period: int):
+    return form_withheld_499_pdf_controller(company_id, year, period)
 
 
 

@@ -1,5 +1,6 @@
 from datetime import datetime
 from models.queries.queryUtils import roundedAmount, getAmountVarios, getEmployer
+from utils.time_func import getAgeEmployer
 
 
 def queryFormW2pr(employer_id, year = None):
@@ -16,10 +17,7 @@ def queryFormW2pr(employer_id, year = None):
 
   # Date of birth (format: YYYY-MM-DD)
   birthday = str(employer.birthday).split('-') if employer.birthday is not None else '0000-00-00'.split('-')
-  dateBirthday = datetime(int(birthday[0]), int(birthday[1]), int(birthday[2]))
-  dateToday = datetime.now()
-  age = dateToday.year - dateBirthday.year - ((dateToday.month, dateToday.day) < (dateBirthday.month, dateBirthday.day))
-  age = 25
+  age = getAgeEmployer(birthday)
 
   # Rounding amount to 2 decimal places
   rounded_amount_medicares = roundedAmount(amountVarios.medicares)

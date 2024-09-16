@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 
 def time_to_minutes(time_str: str) -> int:
     """Convierte una cadena de tiempo en formato HH:MM a minutos."""
@@ -34,3 +34,9 @@ def getPeriodTime(periodo: int, year: int):
     }
 
     return period[periodo]
+
+def getAgeEmployer(birthday):
+    dateBirthday = datetime(int(birthday[0]), int(birthday[1]), int(birthday[2]))
+    dateToday = datetime.now()
+    age = dateToday.year - dateBirthday.year - ((dateToday.month, dateToday.day) < (dateBirthday.month, dateBirthday.day))
+    return age
