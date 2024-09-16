@@ -188,7 +188,7 @@ def getEmployers7000(company_id, date_period):
 
 def getEmployersAmount(company_id, date_period):
     arrayTotal = session.query(
-      func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay).label('total'),
+      func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay + Time.bonus + Time.commissions + Time.concessions).label('total'),
       Employers.id,
       Employers.first_name,
       Employers.last_name,

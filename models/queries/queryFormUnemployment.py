@@ -39,9 +39,9 @@ def queryFormUnemployment (company_id, year, period):
     # Calculate Total
     unemployment_percentage = company.unemployment_percentage.split('%')[0] if company.unemployment_percentage is not None else 0
     employed_contribution = company.employed_contribution if company.employed_contribution is not None else 0
-    compensation_pay_a = roundedAmount(totalAmount * (float(unemployment_percentage) / 100))
+    compensation_pay_a = roundedAmount(totalAmount * (float(employed_contribution) / 100))
     compensation_pay_b = roundedAmount(totalAmount * (1 / 100))
-    total_special = roundedAmount((totalAmount / 100) * float(employed_contribution))
+    total_special = roundedAmount((totalAmount / 100) * float(unemployment_percentage))
     total_cheque_a = roundedAmount(total_special + compensation_pay_a)
 
     # Employers
@@ -63,9 +63,9 @@ def queryFormUnemployment (company_id, year, period):
         'text_total_wages_b': str(totalAmount),
         'text_wages_contributions_a': str(totalAmount),
         'text_wages_contributions_b': str(totalAmount),
-        'text_value_porcentage_a': unemployment_percentage if unemployment_percentage != 0 else '',
+        'text_value_porcentage_a': employed_contribution if employed_contribution != 0 else '',
         'text_value_porcentage_b': '1.00',
-        'text_value_porcentage_special': employed_contribution if employed_contribution != 0 else '',
+        'text_value_porcentage_special': unemployment_percentage if unemployment_percentage != 0 else '',
         'text_compensation_pay_a': str(compensation_pay_a),
         'text_compensation_pay_b': str(compensation_pay_b),
         'text_total_special': str(total_special),
