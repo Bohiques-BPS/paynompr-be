@@ -33,7 +33,7 @@ def create_company_controller(companie_data, user):
             employed_contribution=companie_data.employed_contribution,
             contact=companie_data.contact,
             choferil_number=companie_data.choferil_number,
-
+            special_contribution=companie_data.special_contribution,
             contact_number=companie_data.contact_number,
             website=companie_data.website,
             number_patronal=companie_data.number_patronal,
@@ -366,6 +366,7 @@ def update_company_controller(companies_id, company_data):
         company_query.email = company_data.email
         company_query.choferil_number = company_data.choferil_number
         company_query.contact = company_data.contact
+        company_query.special_contribution = company_data.special_contribution
         company_query.contact_number = company_data.contact_number
         company_query.website = company_data.website
         company_query.employed_contribution = company_data.employed_contribution
