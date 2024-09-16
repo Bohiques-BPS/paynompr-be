@@ -115,6 +115,7 @@ def getAmountVariosCompany(company_id, year, period = None):
       func.sum(Time.commissions).label('commissions'),
       func.sum(Time.concessions).label('concessions'),
       func.sum(Time.tips).label('tips'),
+      func.sum(Time.aflac).label('aflac'),
       func.sum(Time.donation).label('donation'),
       func.sum(Time.refund).label('refunds'),
       func.sum(Time.medicare).label('medicares'),
