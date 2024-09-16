@@ -26,7 +26,7 @@ def addDecimal(number):
 
 
 def getTotalAmountAndExemptAmount(company_id, date_period):
-    result = session.query(func.sum(Time.total_payment).label('total'), Employers.id, Employers.birthday).join(Employers, Period).filter(
+    result = session.query(func.sum(Time.total_payment).label('total'), Employers.id, Employers.birthday).join(Employers).join(Period).filter(
       and_(
         Employers.company_id == company_id,
         Period.period_start >= date_period['start'],
@@ -172,7 +172,7 @@ def getAmountVariosCompanyGroupByMonth(company_id, year, period = None):
     return result
 
 def getEmployers7000(company_id, date_period):
-    arrayTotal = session.query(func.sum(Time.total_payment).label('total')).join(Employers, Period).filter(
+    arrayTotal = session.query(func.sum(Time.total_payment).label('total')).join(Employers).join(Period).filter(
       and_(
         Employers.company_id == company_id,
         Period.period_start >= date_period['start'],
@@ -194,7 +194,7 @@ def getEmployersAmount(company_id, date_period):
       Employers.last_name,
       Employers.social_security_number,
       func.date_trunc('month', Period.period_end).label('month')
-    ).join(Employers, Period).filter(
+    ).join(Employers).join(Period).filter(
       and_(
         Employers.company_id == company_id,
         Period.period_start >= date_period['start'],
