@@ -26,7 +26,7 @@ def addDecimal(number):
 
 
 def getTotalAmountAndExemptAmount(company_id, date_period):
-    result = session.query(func.sum(Time.total_payment).label('total'), Employers.id, Employers.birthday).join(Employers).join(Period).filter(
+    result = session.query(func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay).label('total'), Employers.id, Employers.birthday).join(Employers).join(Period).filter(
       and_(
         Employers.company_id == company_id,
         Period.period_start >= date_period['start'],
@@ -52,7 +52,7 @@ def getTotalAmountAndExemptAmount(company_id, date_period):
 
 
 def getTotalAmount(company_id, date_period):
-    result = session.query(func.sum(Time.total_payment)).join(Employers, Period).filter(
+    result = session.query(func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay)).join(Employers, Period).filter(
       and_(
         Employers.company_id == company_id,
         Period.period_start >= date_period['start'],
@@ -67,7 +67,7 @@ def getTotalAmountAndWeeks(company_id, year, periodo):
     diferent = period['end'] - period['start']
     weeks = diferent.days // 7
 
-    result = session.query(func.sum(Time.total_payment)).join(Employers, Period).filter(
+    result = session.query(func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay)).join(Employers, Period).filter(
       and_(
         Employers.company_id == company_id,
         Period.period_start >= period['start'],
@@ -85,7 +85,7 @@ def getAmountVarios(employer_id, year, period = None):
     date_end = date(year, 12, 31)
 
     result = session.query(
-      func.sum(Time.total_payment).label('wages'),
+      func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay).label('wages'),
       func.sum(Time.commissions).label('commissions'),
       func.sum(Time.concessions).label('concessions'),
       func.sum(Time.tips).label('tips'),
@@ -117,7 +117,7 @@ def getAmountVariosCompany(company_id, year, period = None):
       date_end = period['end']
 
     result = session.query(
-      func.sum(Time.total_payment).label('wages'),
+      func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay).label('wages'),
       func.sum(Time.commissions).label('commissions'),
       func.sum(Time.concessions).label('concessions'),
       func.sum(Time.tips).label('tips'),
@@ -149,7 +149,7 @@ def getAmountVariosCompanyGroupByMonth(company_id, year, period = None):
       date_end = period['end']
 
     result = session.query(
-      func.sum(Time.total_payment).label('wages'),
+      func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay).label('wages'),
       func.sum(Time.commissions).label('commissions'),
       func.sum(Time.concessions).label('concessions'),
       func.sum(Time.tips).label('tips'),
@@ -188,7 +188,7 @@ def getEmployers7000(company_id, date_period):
 
 def getEmployersAmount(company_id, date_period):
     arrayTotal = session.query(
-      func.sum(Time.total_payment).label('total'),
+      func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay).label('total'),
       Employers.id,
       Employers.first_name,
       Employers.last_name,
