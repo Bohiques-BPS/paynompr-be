@@ -94,7 +94,7 @@ def getAmountVarios(employer_id, year, period = None):
       func.sum(Time.tax_pr).label('taxes_pr')
       ).filter(
         and_(
-          Employers.id == employer_id,
+          Time.employer_id == employer_id,
           Time.created_at.between(date_start, date_end)
         )
       ).all()
