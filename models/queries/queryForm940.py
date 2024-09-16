@@ -1,5 +1,5 @@
 from datetime import date
-from models.queries.queryUtils import addDecimal, roundedAmount, getTotalAmount, getEmployers7000, getCompany, getRandomIrs
+from models.queries.queryUtils import addDecimal, roundedAmount, getAmountVariosCompany, getEmployers7000, getCompany, getRandomIrs
 
 
 def queryForm940(company_id, year = None):
@@ -18,9 +18,11 @@ def queryForm940(company_id, year = None):
     company = resultCompany['company']
     account = resultCompany['account']
 
+    amount_varios = getAmountVariosCompany(company.id, year)
+
 
     # Total amount employees
-    total_amount_employers_number = roundedAmount(getTotalAmount(company.id, date_period))
+    total_amount_employers_number = roundedAmount(amount_varios.wages + amount_varios.commissions + amount_varios.concessions + amount_varios.bonus)
     total_amount_employers = addDecimal(total_amount_employers_number)
     # total exceeded 7000
     payment_exceeded_7000_number = roundedAmount(getEmployers7000(company.id, date_period))

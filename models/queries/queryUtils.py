@@ -26,7 +26,7 @@ def addDecimal(number):
 
 
 def getTotalAmountAndExemptAmount(company_id, date_period):
-    result = session.query(func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay).label('total'), Employers.id, Employers.birthday).join(Employers).join(Period).filter(
+    result = session.query(func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay  + Time.commissions + Time.concessions + Time.bonus).label('total'), Employers.id, Employers.birthday).join(Employers).join(Period).filter(
       and_(
         Employers.company_id == company_id,
         Period.period_start >= date_period['start'],
@@ -67,7 +67,7 @@ def getTotalAmountAndWeeks(company_id, year, periodo):
     diferent = period['end'] - period['start']
     weeks = diferent.days // 7
 
-    result = session.query(func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay)).join(Employers, Period).filter(
+    result = session.query(func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay)).join(Employers).join(Period).filter(
       and_(
         Employers.company_id == company_id,
         Period.period_start >= period['start'],
@@ -167,12 +167,12 @@ def getAmountVariosCompanyGroupByMonth(company_id, year, period = None):
           Period.period_start >= date_start,
           Period.period_end <= date_end
         )
-      ).group_by(func.date_trunc('month', Period.period_end)).order_by(func.date_trunc('month', Time.created_at)).all()
+      ).group_by(func.date_trunc('month', Period.period_end)).order_by(func.date_trunc('month', Period.period_end)).all()
 
     return result
 
 def getEmployers7000(company_id, date_period):
-    arrayTotal = session.query(func.sum(Time.total_payment).label('total')).join(Employers).join(Period).filter(
+    arrayTotal = session.query(func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay + Time.commissions + Time.concessions + Time.bonus).label('total')).join(Employers).join(Period).filter(
       and_(
         Employers.company_id == company_id,
         Period.period_start >= date_period['start'],

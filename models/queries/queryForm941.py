@@ -17,15 +17,16 @@ def queryForm941(company_id, year, period):
         amount_varios_number = getAmountVariosCompany(company_id, year, period)
 
         # Calculate column 1
-        salary_security_social = addDecimal(roundedAmount(amount_varios_number.wages))
+        total_wages = amount_varios_number.wages + amount_varios_number.commissions + amount_varios_number.concessions + amount_varios_number.bonus
+        salary_security_social = addDecimal(roundedAmount(total_wages))
         tips_security_social = addDecimal(roundedAmount(amount_varios_number.tips))
-        salary_tips_security_social = addDecimal(roundedAmount(amount_varios_number.wages + amount_varios_number.tips))
+        salary_tips_security_social = addDecimal(roundedAmount(total_wages + amount_varios_number.tips))
         # Calculate column 2
-        salary_security_social_x_0124_number = roundedAmount(amount_varios_number.wages * 0.124)
+        salary_security_social_x_0124_number = roundedAmount(total_wages * 0.124)
         salary_security_social_x_0124 = addDecimal(salary_security_social_x_0124_number)
         tips_security_social_x_0124_number = roundedAmount(amount_varios_number.tips * 0.124)
         tips_security_social_x_0124 = addDecimal(tips_security_social_x_0124_number)
-        salary_tips_security_social_x_0029_number = roundedAmount((amount_varios_number.wages + amount_varios_number.tips) * 0.029)
+        salary_tips_security_social_x_0029_number = roundedAmount((total_wages + amount_varios_number.tips) * 0.029)
         salary_tips_security_social_x_0029 = addDecimal((salary_tips_security_social_x_0029_number))
         # Calculate total Line 5e
         total_5e_number = roundedAmount(salary_security_social_x_0124_number + tips_security_social_x_0124_number + salary_tips_security_social_x_0029_number)

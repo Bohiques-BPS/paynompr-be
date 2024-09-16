@@ -19,12 +19,8 @@ def queryForm499(company_id, year, period):
 
 
         # Calculate
-        rounded_amount_bonus = roundedAmount(amountVarios.bonus)
-        rounded_amount_wages = roundedAmount(amountVariosExempt['total'] + rounded_amount_bonus)
-        rounded_amount_commissions = roundedAmount(amountVarios.commissions)
-        rounded_amount_concessions = roundedAmount(amountVarios.concessions)
         rounded_amount_tips = roundedAmount(amountVarios.tips)
-        total_salary_compensation = roundedAmount(rounded_amount_commissions + rounded_amount_wages + rounded_amount_concessions + rounded_amount_tips)
+        total_salary_compensation = roundedAmount(amountVariosExempt['total'])
         total_retentions = roundedAmount(amountVarios.taxes_pr)
 
         # Part 3 Page 2 calculation
