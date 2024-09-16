@@ -652,9 +652,9 @@ def form_choferil_pdf_controller(company_id, year, period):
     finally:
         session.close()
 
-def form_withheld_499_pdf_controller():
+def form_withheld_499_pdf_controller(company_id, year, period):
     try:
-        pdf = form_withheld_499_pdf_generator()
+        pdf = form_withheld_499_pdf_generator(company_id, year, period)
         # return pdf
         if pdf:
             return FileResponse(
