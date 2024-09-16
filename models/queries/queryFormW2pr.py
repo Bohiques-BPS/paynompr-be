@@ -13,7 +13,7 @@ def queryFormW2pr(employer_id, year = None):
   company = resultEmployer['company']
 
   # Total amount for the employer
-  amountVarios = getAmountVarios(1, year)
+  amountVarios = getAmountVarios(employer_id, year)
 
   # Date of birth (format: YYYY-MM-DD)
   birthday = str(employer.birthday).split('-') if employer.birthday is not None else '0000-00-00'.split('-')
