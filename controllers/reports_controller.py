@@ -3,9 +3,10 @@ from decimal import ROUND_HALF_UP, Decimal
 
 
 from fastapi import APIRouter, HTTPException, status
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from jinja2 import Template
 from sqlalchemy.sql import func
+
 
 from database.config import session
 from models.companies import Companies
@@ -556,6 +557,9 @@ def counterfoil_controller(company_id, employer_id, time_id):
 def form_w2pr_pdf_controller(employer_id, year):
     try:
         info = queryFormW2pr(employer_id, year)
+        if info is None:
+            return Response(status_code=status.HTTP_404_NOT_FOUND, content="No data found")
+
         template = Template(form_w2pr_pdf_generate())
         rendered_html = template.render(info)
 
@@ -579,6 +583,9 @@ def form_w2pr_pdf_controller(employer_id, year):
 def form_940_pdf_controller(company_id, year):
     try:
         pdf = form_940_pdf_generator(company_id, year)
+        if pdf is None:
+            return Response(status_code=status.HTTP_404_NOT_FOUND, content="No data found")
+
         if pdf:
             return FileResponse(
                 pdf,
@@ -598,6 +605,9 @@ def form_940_pdf_controller(company_id, year):
 def form_941_pdf_controller(company_id, year, period):
     try:
         pdf = form_941_pdf_generator(company_id, year, period)
+        if pdf is None:
+            return Response(status_code=status.HTTP_404_NOT_FOUND, content="No data found")
+
         if pdf:
             return FileResponse(
                 pdf,
@@ -617,6 +627,9 @@ def form_941_pdf_controller(company_id, year, period):
 def form_unemployment_pdf_controller(company_id, year, period):
     try:
         pdf = form_unemployment_pdf_generator(company_id, year, period)
+        if pdf is None:
+            return Response(status_code=status.HTTP_404_NOT_FOUND, content="No data found")
+
         if pdf:
             return FileResponse(
                 pdf,
@@ -655,6 +668,9 @@ def form_choferil_pdf_controller(company_id, year, period):
 def form_withheld_499_pdf_controller(company_id, year, period):
     try:
         pdf = form_withheld_499_pdf_generator(company_id, year, period)
+        if pdf is None:
+            return Response(status_code=status.HTTP_404_NOT_FOUND, content="No data found")
+
         # return pdf
         if pdf:
             return FileResponse(

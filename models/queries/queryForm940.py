@@ -3,6 +3,7 @@ from models.queries.queryUtils import addDecimal, roundedAmount, getTotalAmount,
 
 
 def queryForm940(company_id, year = None):
+  try:
     # Data Active
     if year is None:
       year = date.today().year
@@ -139,4 +140,7 @@ def queryForm940(company_id, year = None):
     }
 
     return data
+  except Exception as e:
+    print(f'Error form 940: {e}')
+    return None
 
