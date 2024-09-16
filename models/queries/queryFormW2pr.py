@@ -21,6 +21,7 @@ def queryFormW2pr(employer_id, year = None):
 
   # Rounding amount to 2 decimal places
   rounded_amount_medicares = roundedAmount(amountVarios.medicares)
+  rounded_amount_aflac = roundedAmount(amountVarios.aflac)
   rounded_amount_commissions = roundedAmount(amountVarios.commissions)
   rounded_amount_bonus = roundedAmount(amountVarios.bonus)
   rounded_amount_wages = roundedAmount(amountVarios.wages + rounded_amount_bonus) if age > 26 else 0
@@ -60,6 +61,7 @@ def queryFormW2pr(employer_id, year = None):
     'total_concessions': rounded_amount_concessions,
     'total_tips': rounded_amount_tips,
     'total_donation': rounded_amount_donation,
+    'total_aflac': rounded_amount_aflac,
     'total_11': rounded_amount_11,
     'total_20': rounded_amount_wages_26 if rounded_amount_wages_26 > 0 else rounded_amount_wages,
     'total_22': (rounded_amount_11 + rounded_amount_wages_26),
