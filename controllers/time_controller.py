@@ -484,6 +484,12 @@ def update_vaction_time(employer_id, times, employer,vacation_time, year, month)
             hours_worked += time_to_minutes(time.regular_time) / 60
        
         hours_worked = int(hours_worked // 1)
+        if not employer.date_admission:
+            raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"El empleado no tiene fecha de ingreso asignada"
+        )
+        
         date_limit = datetime(2017, 1, 26)
         if employer.date_admission < date_limit.date()  and hours_worked >= 130:
             vacation_hours = int((hours_worked * 0.01) // 1)
