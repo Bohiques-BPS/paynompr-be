@@ -274,7 +274,7 @@ def form_w2pr_pdf_generate():
                   5. Costo de cubierta de salud auspiciada por el patrono <br />
                   Cost of employer sponsored health coverage:
                 </p>
-                <p class="uppercase text-sm text-right">{{ total_medicares }}</p>
+                <p class="uppercase text-sm text-right">0.00</p>
               </div>
               <div class="border-b-2 py-1 border-black px-2">
                 <p class="text-xs">6. Donativo Charitable Contributions</p>
@@ -413,9 +413,9 @@ def form_w2pr_pdf_generate():
                 <span class="text-xs">16.</span>
               </div>
               <div class="border-black border-b-2 border-r-2 basis-3-5 flex items-start justify-end">
-                <small class="mr-1">Código / Code</small>
+                <small class="mr-1">Código / Code : {{ code_26 }}</small>
               </div>
-              <div class="w-full border-black border-b-2 flex items-end justify-end basic-8/5">0.00</div>
+              <div class="w-full border-black border-b-2 flex items-end justify-end basic-8/5">{{ total_wages_26 }}</div>
             </div>
             <div class="flex text-xs flex-row h-9 pt-1">
               <div class="flex items-end justify-end basis-1/12">
@@ -424,7 +424,7 @@ def form_w2pr_pdf_generate():
               <div class="border-black border-b-2 border-r-2 basis-3-5 flex items-start justify-end">
                 <small class="mr-1">Código / Code</small>
               </div>
-              <div class="w-full border-black border-b-2 flex items-end justify-end basic-8/5">0.00</div>
+              <div class="w-full border-black border-b-2 flex items-end justify-end basic-8/5">0.0</div>
             </div>
             <div class="flex text-xs flex-row h-9 pt-1">
               <div class="flex items-end justify-end basis-1/12">
@@ -433,12 +433,12 @@ def form_w2pr_pdf_generate():
               <div class="border-black border-b-2 border-r-2 basis-3-5 flex items-start justify-end">
                 <small class="mr-1">Código / Code</small>
               </div>
-              <div class="w-full border-black border-b-2 flex items-end justify-end basic-8/5">0.00</div>
+              <div class="w-full border-black border-b-2 flex items-end justify-end basic-8/5">0.</div>
             </div>
           </div>
           <div class="py-1 px-2">
             <p class="text-xs">19. Aportaciones al Programa Ahorra y Duplica tu Dinero - Contributions to the Save and Double your Money Program:</p>
-            <p class="uppercase text-sm text-right">0,00</p>
+            <p class="uppercase text-sm text-right">{{ total_medicares }}</p>
           </div>
         </div>
         <div class="basis-1-4 flex-col border-y-2 border-r-2 border-black">
@@ -448,7 +448,7 @@ def form_w2pr_pdf_generate():
               20. Total Sueldos Seguro social <br />
               Social Security Wages:
             </p>
-            <p class="uppercase text-sm text-right pt-9">0,00</p>
+            <p class="uppercase text-sm text-right pt-9">{{total_20}}</p>
           </div>
           <div class="border-b-2 py-1 border-black px-2">
             <p class="text-xs">
@@ -462,21 +462,21 @@ def form_w2pr_pdf_generate():
               22. Total Sueldos y Pro. Medicare <br />
               Medicare Wages and Tips:
             </p>
-            <p class="uppercase text-sm text-right pt-9">0,00</p>
+            <p class="uppercase text-sm text-right pt-9">{{total_22}}</p>
           </div>
           <div class="border-b-2 py-1 border-black px-2">
             <p class="text-xs">
               23. Contrib. Medicare Retenida <br />
               Medicare Tax Withheld:
             </p>
-            <p class="uppercase text-sm text-right pt-9">0,00</p>
+            <p class="uppercase text-sm text-right pt-9">{{ total_social_tips }}</p>
           </div>
           <div class="border-b-2 py-1 border-black px-2">
             <p class="text-xs">
               24. Propinas Seguro Social <br />
               Social Security Tips:
             </p>
-            <p class="uppercase text-sm text-right pt-9">{{ total_social_tips }}</p>
+            <p class="uppercase text-sm text-right pt-9">{{total_tips}}</p>
           </div>
           <div class="border-b-2 py-1 border-black px-2">
             <p class="text-xs">25. Seguro Social no Retenido en Propinas - Uncollected Social Security Tax on Tips:</p>
