@@ -614,9 +614,9 @@ def form_941_pdf_controller(company_id, year, period):
         session.close()
 
 
-def form_unemployment_pdf_controller():
+def form_unemployment_pdf_controller(company_id, year, period):
     try:
-        pdf = form_unemployment_pdf_generator()
+        pdf = form_unemployment_pdf_generator(company_id, year, period)
         if pdf:
             return FileResponse(
                 pdf,

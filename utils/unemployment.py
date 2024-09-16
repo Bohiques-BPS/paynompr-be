@@ -4,7 +4,7 @@ from database.config import session
 from models.queries.queryFormUnemployment import queryFormUnemployment
 
 
-def form_unemployment_pdf_generator():
+def form_unemployment_pdf_generator(company_id, year, period):
 
     rute = Path(__file__).parent.absolute()
     document_dir = rute.parent / 'output_files'
@@ -14,7 +14,7 @@ def form_unemployment_pdf_generator():
     data_entry = []
 
     try:
-        data_entry = queryFormUnemployment(1, 2024, 3)
+        data_entry = queryFormUnemployment(company_id, year, period)
     except Exception as e:
         print(f"An error occurred obtain data: {e}")
         return None

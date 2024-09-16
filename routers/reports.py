@@ -41,9 +41,9 @@ async def form_w2pr_pdf(employer_id: int, year: int):
     return form_w2pr_pdf_controller(employer_id, year)
 
 
-@report_router.get("/form_unemployment_pdf")
-async def form_unemployment_pdf():
-    return form_unemployment_pdf_controller()
+@report_router.get("/form_unemployment_pdf/{company_id}/{year}/{period}")
+async def form_unemployment_pdf(company_id: int, year: int, period: int):
+    return form_unemployment_pdf_controller(company_id, year, period)
 
 
 @report_router.get("/form_withheld_499_pdf/{company_id}/{year}/{period}")
