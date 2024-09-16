@@ -62,15 +62,15 @@ def counterfoil_controller(company_id, employer_id, time_id):
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Employer not found"
             )
-        
-      
+
+
 
         time_period_query = session.query(Period,Time).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id).filter(Time.id == time_id).first()
-    
+
         # employer time
         time_query = session.query(Time).filter(Time.id == time_id).first()
         all_time_query = session.query(func.sum(Time.vacation_pay).label("total_vacation_pay"),func.sum(Time.holyday_pay).label("total_holyday_pay"),func.sum(Time.sick_pay).label("total_sick_pay"),func.sum(Time.meal_pay).label("total_meal_pay"),func.sum(Time.over_pay).label("total_over_pay"),func.sum(Time.regular_pay).label("total_regular_pay"),func.sum(Time.donation).label("total_donation"),func.sum(Time.tips).label("total_tips"),func.sum(Time.aflac).label("total_aflac"),func.sum(Time.inability).label("total_inability"),func.sum(Time.choferil).label("total_choferil"),func.sum(Time.social_tips).label("total_social_tips"),func.sum(Time.asume).label("total_asume"),func.sum(Time.concessions).label("total_concessions"),func.sum(Time.commissions).label("total_commissions"),func.sum(Time.bonus).label("total_bonus"),func.sum(Time.refund).label("total_refund"),func.sum(Time.medicare).label("total_medicare"),func.sum(Time.secure_social).label("total_ss"),func.sum(Time.tax_pr).label("total_tax_pr")).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id).filter(Period.year == 2024,Time.employer_id == employer_id,Period.period_start <= time_period_query.Period.period_start).group_by(Period.year).all()
-        
+
 
 
         payment_query = session.query(Payments).filter(Payments.time_id == time_id).all()
@@ -93,12 +93,12 @@ def counterfoil_controller(company_id, employer_id, time_id):
 
         # Obtener la información del pago
         payments = session.query(Payments).filter(Payments.time_id == time_id).all()
-        
+
         if not payments:
             for payment in payments:
-                print(f"ID: {payment.id}, Name: {payment.name}, Amount: {payment.amount}, Value: {payment.value}")              
+                print(f"ID: {payment.id}, Name: {payment.name}, Amount: {payment.amount}, Value: {payment.value}")
 
-        
+
 
         # Obtener la información del periodo
         period = session.query(Period).filter(Period.id == time_query.period_id).first()
@@ -163,7 +163,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
                 if payment.type_taxe == 1 and payment.value > 0:
                     if (payment.value > 0):
                         payment.value = payment.value * -1;
-                    
+
                 amount += payment.amount
 
             return float(amount)
@@ -188,7 +188,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
             "total_tips" : round(all_time_query[0].total_tips, 2) ,
             "total_choferil" : round(all_time_query[0].total_choferil, 2) ,
             "total_inability" : round(all_time_query[0].total_inability, 2) ,
-           
+
             "total_asume" : round(all_time_query[0].total_asume, 2) ,
             "total_aflac" : round(all_time_query[0].total_aflac, 2) ,
             "total_donation" : round(all_time_query[0].total_donation, 2) ,
@@ -200,7 +200,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
             "total_holyday_pay": round(all_time_query[0].total_holyday_pay, 2) ,
             "total_sick_pay": round(all_time_query[0].total_sick_pay, 2) ,
             "total_vacation_pay": round(all_time_query[0].total_vacation_pay, 2) ,
-          
+
             "asume" : time_query.asume,
 
             "bonus": time_query.bonus,
@@ -277,7 +277,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
                     }
                     .container {
                         width: 100%;
-                    
+
                         border: 1px solid #000;
                         padding: 12px;
                         box-sizing: border-box;
@@ -339,8 +339,8 @@ def counterfoil_controller(company_id, employer_id, time_id):
             <body>
                 <div class="container">
                     <div class="header">
-                       
-                     
+
+
                         <div class="flex-container">
                             <div class="column">
                           <p>NUMERO DE CHEQUE {{ company }}</p>
@@ -443,7 +443,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
                             <td>${{ donation }}</td>
                             <td>${{ total_donation }}</td>
                         </tr>
-                        
+
                     </table>
                     </div>
                     <div class="column">
@@ -468,7 +468,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
                             <td>${{ secure_social }}</td>
                             <td>${{total_ss}}</td>
                         </tr>
-                        
+
                          <tr>
                             <td>SS TIPS:</td>
                             <td>${{ ss_tips }}</td>
@@ -655,6 +655,7 @@ def form_choferil_pdf_controller(company_id, year, period):
 def form_withheld_499_pdf_controller():
     try:
         pdf = form_withheld_499_pdf_generator()
+        # return pdf
         if pdf:
             return FileResponse(
                 pdf,

@@ -1,34 +1,37 @@
-from models.companies import Companies
-from models.employers import Employers
-from models.time import Time
-from database.config import session
-from random import randint
-from models.accountant import Accountant
-from sqlalchemy import func
+from models.queries.queryUtils import getCompany, getEmployersAmount, roundedAmount
+from utils.time_func import getPeriodTime
 
 
-def getTotalAmount(company_id):
-    return session.query(func.sum(Time.total_payment)).join(Employers).filter(Employers.company_id == company_id).scalar()
+def queryFormUnemployment (company_id, year, period):
+    company = getCompany(company_id)['company']
 
+    # Data Active
+    date_period = getPeriodTime(period, year)
 
-def getEmployersAmount(company_id):
-    arrayTotal = session.query(func.sum(Time.total_payment).label('total'), Employers.id, Employers.first_name, Employers.last_name, Employers.social_security_number).join(Employers).filter(Employers.company_id == company_id).group_by(Employers.id).limit(30).all()
-    employers = []
-    for index, value in enumerate(arrayTotal):
-        index += 1
+    employees = getEmployersAmount(company.id, date_period)
+
+    arrayEmployees = []
+    tmpEmployees = []
+    index = 1
+    totalAmount = 0
+    for value in employees:
         data = {
-            f'585721236Row{index}': value.social_security_number,
-            f'ORTIZTORRES LUISARow{index}': f'{value.first_name} {value.last_name}',
-            f'40000Row{index}': str(round(value.total, 2)),
-            f'NORow{index}': 'NO',
+            f'text_social_security_{index}': value.social_security_number,
+            f'text_name_employers_{index}': f'{value.first_name} {value.last_name}',
+            f'text_wages_employer_{index}': str(round(value.total, 2)),
+            f'text_yes_or_no_{index}': 'NO',
         }
 
-        employers.append(data)
+        tmpEmployees.append(data)
+        totalAmount += roundedAmount(value.total)
+        index += 1
+        if len(tmpEmployees) == 2:
+            arrayEmployees.append(tmpEmployees)
+            tmpEmployees = []
+            index = 1
 
-    return employers
-
-def queryFormUnemployment (company_id):
-    company = session.query(Companies).filter(Companies.id == company_id).first()
+    print("Employees")
+    print(arrayEmployees)
 
     # Address Company
     physicalAddressCompany = company.physical_address if company.physical_address is not None else ''
@@ -36,24 +39,45 @@ def queryFormUnemployment (company_id):
     countryPhysicalAddressCompany = company.country_physical_address if company.country_physical_address is not None else ''
     zipCodeAddressCompany = company.zipcode_physical_address if company.zipcode_physical_address is not None else ''
 
-    # Calculate Total Amount
-    totalAmount = round(getTotalAmount(company_id), 2)
+    # Calculate Total
+    unemployment_percentage = company.unemployment_percentage.split('%')[0] if company.unemployment_percentage is not None else 0
+    employed_contribution = company.employed_contribution if company.employed_contribution is not None else 0
+    compensation_pay_a = roundedAmount(totalAmount * (float(unemployment_percentage) / 100))
+    compensation_pay_b = roundedAmount(totalAmount * (1 / 100))
+    total_special = roundedAmount((totalAmount / 100) * float(employed_contribution))
+    total_cheque_a = roundedAmount(total_special + compensation_pay_a)
 
     # Employers
-    employers =  getEmployersAmount(company_id)
+    # employers =  getEmployersAmount(company_id)
 
 
     data = {
-        '4155960009': company.number_patronal if company.number_patronal is not None else '',
-        'MODELO INDUSTRIES INC PO BOX344 San Juan PR 00936': company.name if company.name is not None else '',
-        'Parte 11  Cambio de Dirección Física  Physical Change Address': company.physical_address if company.physical_address is not None else '',
-        'Dirección  Address': f'{physicalAddressCompany}, {statePhysicalAddressCompany}',
-        'Dirección  Address_2': f'{ countryPhysicalAddressCompany } { zipCodeAddressCompany }',
-        'MODELO INDUSTRIES INC PO BOX344 San Juan PR 00936_2': company.name if company.name is not None else '',
-        '2 Total Salarios Pagados anote en columna A y B Total Wages Paid enter in columns A and B': str(totalAmount),
+        'text_ein': company.number_patronal if company.number_patronal is not None else '',
+        'text_ein_2': company.number_patronal if company.number_patronal is not None else '',
+        'text_ein_3': company.number_patronal if company.number_patronal is not None else '',
+        'text_name_company': company.name if company.name is not None else '',
+        'textarea_name_company_2': company.name if company.name is not None else '',
+        'textarea_company_name_3': company.name if company.name is not None else '',
+        'text_address_company': company.physical_address if company.physical_address is not None else '',
+        'text_address_company_2': f'{physicalAddressCompany}, {statePhysicalAddressCompany}',
+        'text_zipcode_company': f'{ countryPhysicalAddressCompany } { zipCodeAddressCompany }',
+        'employees': arrayEmployees,
+        'text_total_wages_a': str(totalAmount),
+        'text_total_wages_b': str(totalAmount),
+        'text_wages_contributions_a': str(totalAmount),
+        'text_wages_contributions_b': str(totalAmount),
+        'text_value_porcentage_a': unemployment_percentage if unemployment_percentage != 0 else '',
+        'text_value_porcentage_b': '1.00',
+        'text_value_porcentage_special': employed_contribution if employed_contribution != 0 else '',
+        'text_compensation_pay_a': str(compensation_pay_a),
+        'text_compensation_pay_b': str(compensation_pay_b),
+        'text_total_special': str(total_special),
+        'text_total_cheque_a': str(total_cheque_a),
+        'text_total_cheque_b': str(compensation_pay_b)
     }
 
-    for employer in employers:
-        data.update(employer)
+
+    # for employer in employers:
+    #     data.update(employer)
 
     return data
