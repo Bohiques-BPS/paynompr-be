@@ -1,4 +1,5 @@
 from datetime import datetime
+from calendar import timegm
 from models.queries.queryUtils import roundedAmount, getAmountVarios, getEmployer
 from utils.time_func import getAgeEmployer
 
@@ -41,6 +42,8 @@ def queryFormW2pr(employer_id, year = None):
     statePhysicalAddressCompany = company.state_physical_address if company.state_physical_address is not None else ''
     countryPhysicalAddressCompany = company.country_physical_address if company.country_physical_address is not None else ''
 
+    n_control = f'{datetime.now().year}{timegm(datetime.now().timetuple())}'
+
     data = {
       'name_first_user': employer.first_name if employer.first_name is not None else '',
       'name_last_user': employer.last_name if employer.last_name is not None else '',
@@ -72,6 +75,7 @@ def queryFormW2pr(employer_id, year = None):
       'total_taxes_pr': rounded_amount_taxes_pr,
       'total_time_worker': 0,
       'year_active': year,
+      'n_control': n_control
     }
 
     return data
