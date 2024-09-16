@@ -63,7 +63,7 @@ def queryFormW2pr(employer_id, year = None):
     'total_donation': rounded_amount_donation,
     'total_aflac': rounded_amount_aflac,
     'total_11': rounded_amount_11,
-    'total_20': rounded_amount_wages_26 if rounded_amount_wages_26 > 0 else rounded_amount_wages,
+    'total_20': (rounded_amount_wages_26 + rounded_amount_secures_social) if rounded_amount_wages_26 > 0 else (rounded_amount_wages + rounded_amount_secures_social),
     'total_22': (rounded_amount_11 + rounded_amount_wages_26),
     'total_refunds': rounded_amount_refunds,
     'total_secures_social' : rounded_amount_secures_social,
