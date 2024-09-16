@@ -89,7 +89,8 @@ def get_all_companies_controller(user):
             .filter(Companies.code_id == user["id"])
             .all()
         )
-    
+
+
         # Filtrar manualmente los empleados con is_deleted false para cada compañía
         for company in companies_query:
             company.employers = [employer for employer in company.employers if not employer.is_deleted]

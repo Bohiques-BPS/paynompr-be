@@ -22,7 +22,7 @@ employers_router = APIRouter()
 
 
 @employers_router.post("/{company_id}")
-async def create_employer(employer_data: EmployersSchema, company_id : int):    
+async def create_employer(employer_data: EmployersSchema, company_id : int):        
     return create_employer_controller(employer_data, company_id)
 
 

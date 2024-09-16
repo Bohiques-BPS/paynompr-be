@@ -41,6 +41,7 @@ async def create_company(companie_data: CompaniesSchema, user: user_dependency):
 # Obtener todas las compañías
 @companies_router.get("/")
 async def get_all_companies(user: user_dependency):
+    print('USUARIO',user)
     return get_all_companies_controller(user)
 
 # Obtener compañía y empleador por ID

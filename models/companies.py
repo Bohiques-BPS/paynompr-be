@@ -43,10 +43,10 @@ class Companies(Base):
         String(50),
         nullable=False,
     )
-    vacation_hours: Mapped[int] = mapped_column(nullable=True)
-    vacation_date: Mapped[int] = mapped_column( nullable=True)
-    sicks_hours: Mapped[int] = mapped_column(nullable=True)
-    sicks_date: Mapped[int] = mapped_column( nullable=True)
+    vacation_hours: Mapped[float] = mapped_column(nullable=True)
+    vacation_date: Mapped[float] = mapped_column( nullable=True)
+    sicks_hours: Mapped[float] = mapped_column(nullable=True)
+    sicks_date: Mapped[float] = mapped_column( nullable=True)
     zipcode_postal_address: Mapped[str] = mapped_column(
         String(50),
         nullable=False,
