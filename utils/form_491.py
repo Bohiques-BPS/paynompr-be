@@ -19,11 +19,7 @@ def form_941_pdf_generator(company_id, year, period):
                 page = doc[page_number]
                 for field in page.widgets():
                     if field.field_type == fitz.PDF_WIDGET_TYPE_TEXT:
-                        # print('\n----------------------------------------------------------------')
-                        # print(field.field_name, '-', fitz.PDF_WIDGET_TYPE_TEXT)
                         if field.field_name in data_entry_data:
-                            print(field.field_name, '-', data_entry_data[field.field_name])
-                            print(field.field_name, '-', data_entry_data[field.field_name])
                             field.field_value = data_entry_data[field.field_name]
                             field.update()
 
