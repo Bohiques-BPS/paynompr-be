@@ -102,15 +102,7 @@ def get_all_companies_controller(user):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An error occurred: {str(e)}"
         )
-   
-    
-        
-
-
-
-
-
-
+           
 
 def calculate_total_times(periods_data) -> Dict[str, Any]:
     total_times_by_employee = defaultdict(lambda: defaultdict(float))
@@ -157,7 +149,7 @@ def get_all_company_and_employer_controller(user, company_id, employers_id):
         
         # Consulta para obtener todos los periodos del año 2024 y con period_start mayor que la fecha actual
         periods_query = session.query(Period).filter(
-        Period.year == 2024,
+        Period.year == datetime.now().year,
         Period.is_deleted == False,
         Period.period_type == type_period,
         datetime.now() >  Period.period_start

@@ -16,7 +16,7 @@ from datetime import datetime
 from schemas.time import TimeShema, TimeIDShema2
 from passlib.context import CryptContext
 from sqlalchemy import func
-
+from controllers.period import create_weekly_periods, create_biweekly_periods, create_monthly_periods
 from utils.time_func import minutes_to_time, time_to_minutes
 from decimal import ROUND_HALF_UP, Decimal
 
@@ -190,8 +190,8 @@ def create_time_controller(time_data, employer_id):
         session.refresh(employers)
 
 
-        year = time_query.period.period_start.year
-        month = time_query.period.period_start.month
+        year = time_query.period.period_end.year
+        month = time_query.period.period_end.month
 
         vacation_time = session.query(VacationTimes).where(
             VacationTimes.employer_id == Time.employer_id,
@@ -211,9 +211,6 @@ def create_time_controller(time_data, employer_id):
         update_vaction_time(time_query.employer_id,times, employers, vacation_time, year,month)
         update_sicks_time(time_query.employer_id,times,employers,vacation_time, year, month)
 
-
-
-
         for item in time_data.payment:
             payment_query = Payments(
                 name=item.name,
@@ -227,6 +224,14 @@ def create_time_controller(time_data, employer_id):
             )
             session.add(payment_query)
             session.commit()
+            
+        if month == 12:
+            new_period = session(Period).filter(year == year + 1).first()
+            if not new_period:
+                create_weekly_periods(year + 1)
+                create_biweekly_periods(year + 1)
+                create_monthly_periods(year + 1)
+            
         
         return {"ok": True, "msg": "Time was successfully created", "result": {"time": time_query} }
     except Exception as e:
@@ -479,21 +484,32 @@ def update_vaction_time(employer_id, times, employer,vacation_time, year, month)
             hours_worked += time_to_minutes(time.regular_time) / 60
        
         hours_worked = int(hours_worked // 1)
-          
-
+        if not employer.date_admission:
+            raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"El empleado no tiene fecha de ingreso asignada"
+        )
+        
+        date_limit = datetime(2017, 1, 26)
+        if employer.date_admission < date_limit.date()  and hours_worked >= 130:
+            vacation_hours = int((hours_worked * 0.01) // 1)
+        else:
+            vacation_hours = employer.vacation_hours
+        
+   
         if employer.vacation_hours_monthly <= hours_worked:            
 
             if not vacation_time:
                 vacation_query = VacationTimes(
                     employer_id = employer_id,
-                    vacation_hours = employer.vacation_hours,
+                    vacation_hours = vacation_hours,
                     paid_vacation = True,
                     year = year,
                     month = month
 
                 )
                 employer_vacation = time_to_minutes(employer.vacation_time) 
-                minutes_employer = employer.vacation_hours * 60
+                minutes_employer = vacation_hours * 60
                 employer.vacation_time = minutes_to_time(employer_vacation + minutes_employer)
                 session.add(vacation_query)
                 session.commit()
@@ -501,15 +517,15 @@ def update_vaction_time(employer_id, times, employer,vacation_time, year, month)
             
             elif not vacation_time.paid_vacation:     
                 employer_vacation = time_to_minutes(employer.vacation_time) 
-                minutes_employer = employer.vacation_hours * 60
+                minutes_employer = vacation_hours * 60
                 vacation_time.paid_vacation = True
-                employer.vacation_time = minutes_to_time(employer_vacation+minutes_employer)
+                employer.vacation_time = minutes_to_time(employer_vacation + minutes_employer)
                 session.commit()
        
         else:
             if vacation_time and vacation_time.paid_vacation:
                 employer_vacation = time_to_minutes(employer.vacation_time) 
-                minutes_employer = employer.vacation_hours * 60
+                minutes_employer = vacation_hours * 60
                 employer.vacation_time = minutes_to_time(employer_vacation - minutes_employer)
                 vacation_time.paid_vacation = False
                 session.commit()
