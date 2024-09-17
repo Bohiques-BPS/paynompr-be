@@ -192,15 +192,14 @@ def getEmployersAmount(company_id, date_period):
       Employers.id,
       Employers.first_name,
       Employers.last_name,
-      Employers.social_security_number,
-      func.date_trunc('month', Period.period_end).label('month')
+      Employers.social_security_number
     ).join(Employers).join(Period).filter(
       and_(
         Employers.company_id == company_id,
         Period.period_start >= date_period['start'],
         Period.period_end <= date_period['end']
       )
-    ).group_by(Employers.id, func.date_trunc('month', Period.period_end).label('month')).all()
+    ).group_by(Employers.id).all()
 
     return arrayTotal
 

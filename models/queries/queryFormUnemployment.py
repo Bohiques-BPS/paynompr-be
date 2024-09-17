@@ -25,10 +25,10 @@ def queryFormUnemployment (company_id, year, period):
         tmpEmployees.append(data)
         totalAmount += roundedAmount(value.total)
         index += 1
-        if len(tmpEmployees) == 24:
-            arrayEmployees.append(tmpEmployees)
-            tmpEmployees = []
-            index = 1
+        # if len(tmpEmployees) == 24:
+        #     arrayEmployees.append(tmpEmployees)
+        #     tmpEmployees = []
+        #     index = 1
 
     # Address Company
     physicalAddressCompany = company.physical_address if company.physical_address is not None else ''
@@ -70,8 +70,13 @@ def queryFormUnemployment (company_id, year, period):
         'text_compensation_pay_b': str(compensation_pay_b),
         'text_total_special': str(total_special),
         'text_total_cheque_a': str(total_cheque_a),
-        'text_total_cheque_b': str(compensation_pay_b)
+        'text_total_cheque_b': str(compensation_pay_b),
+        'text_total_employers': str(totalAmount),
+        'text_total_wages': str(len(tmpEmployees))
     }
+
+    for employee in tmpEmployees:
+        data.update(employee)
 
 
     return data

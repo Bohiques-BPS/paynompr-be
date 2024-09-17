@@ -9,8 +9,8 @@ def form_unemployment_pdf_generator(company_id, year, period):
     try:
         rute = Path(__file__).parent.absolute()
         document_dir = rute.parent / 'output_files'
-        source_file_name = 'template/planilla_form_unemployees_part_1.pdf'
-        source_file_name_2 = 'template/planilla_form_unemployees_part_2.pdf'
+        source_file_name = 'template/plantilla_unemployees_tmp.pdf'
+        # source_file_name_2 = 'template/planilla_form_unemployees_part_2.pdf'
         output_file_name = 'unemployment.pdf'
 
         data_entry = []
@@ -40,32 +40,32 @@ def form_unemployment_pdf_generator(company_id, year, period):
                             field.field_value = data_entry[field.field_name]
                             field.update()
 
+            doc.save(document_dir / output_file_name, incremental=False, encryption=fitz.PDF_ENCRYPT_KEEP)
+
             # Open the source PDF
-            for index, listEmployees in enumerate(employees, start=1):
-                doc2 = fitz.open(document_dir / source_file_name_2)
-                output_file_name_2 = f'unemployment_{index}.pdf'
-                for field in doc2[0].widgets():
-                    if field.field_type == fitz.PDF_WIDGET_TYPE_TEXT:
-                        for employee in listEmployees:
-                            if field.field_name in employee:
-                                field.field_value = employee[field.field_name]
-                                field.update()
-                        if field.field_name in data_entry:
-                            field.field_value = data_entry[field.field_name]
-                            field.update()
-                        if field.field_name == 'text_total_wages':
-                            field.field_value = str(len(listEmployees))
-                            field.update()
-                        if field.field_name == 'text_total_employers' and len(employees) == index:
-                            field.field_value = data_entry['text_total_wages_a']
-                            field.update()
+            # for index, listEmployees in enumerate(employees, start=1):
+            #     doc2 = fitz.open(document_dir / source_file_name_2)
+            #     output_file_name_2 = f'unemployment_{index}.pdf'
+            #     for field in doc2[0].widgets():
+            #         if field.field_type == fitz.PDF_WIDGET_TYPE_TEXT:
+            #             for employee in listEmployees:
+            #                 if field.field_name in employee:
+            #                     field.field_value = employee[field.field_name]
+            #                     field.update()
+            #             if field.field_name in data_entry:
+            #                 field.field_value = data_entry[field.field_name]
+            #                 field.update()
+            #             if field.field_name == 'text_total_wages':
+            #                 field.field_value = str(len(listEmployees))
+            #                 field.update()
+            #             if field.field_name == 'text_total_employers' and len(employees) == index:
+            #                 field.field_value = data_entry['text_total_wages_a']
+            #                 field.update()
 
 
                 # doc2.save(document_dir / output_file_name_2, incremental=False, encryption=fitz.PDF_ENCRYPT_KEEP)
-                doc.insert_file(document_dir / output_file_name_2)
 
             # Save the updated PDF
-            doc.save(document_dir / output_file_name, incremental=False, encryption=fitz.PDF_ENCRYPT_KEEP)
 
             # Merge all PDFs
     #         print('Merging all PDFs')
