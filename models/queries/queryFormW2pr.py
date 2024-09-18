@@ -1,76 +1,85 @@
 from datetime import datetime
+from calendar import timegm
 from models.queries.queryUtils import roundedAmount, getAmountVarios, getEmployer
 from utils.time_func import getAgeEmployer
 
 
 def queryFormW2pr(employer_id, year = None):
-  if year is None:
-    year = datetime.now().year
+  try:
+    if year is None:
+      year = datetime.now().year
 
-  # Data Active
-  resultEmployer = getEmployer(employer_id)
-  employer = resultEmployer['employer']
-  company = resultEmployer['company']
+    # Data Active
+    resultEmployer = getEmployer(employer_id)
+    employer = resultEmployer['employer']
+    company = resultEmployer['company']
 
-  # Total amount for the employer
-  amountVarios = getAmountVarios(employer_id, year)
+    # Total amount for the employer
+    amountVarios = getAmountVarios(employer_id, year)
 
-  # Date of birth (format: YYYY-MM-DD)
-  birthday = str(employer.birthday).split('-') if employer.birthday is not None else '0000-00-00'.split('-')
-  age = getAgeEmployer(birthday)
+    # Date of birth (format: YYYY-MM-DD)
+    birthday = str(employer.birthday).split('-') if employer.birthday is not None else '0000-00-00'.split('-')
+    age = getAgeEmployer(birthday)
 
-  # Rounding amount to 2 decimal places
-  rounded_amount_medicares = roundedAmount(amountVarios.medicares)
-  rounded_amount_aflac = roundedAmount(amountVarios.aflac)
-  rounded_amount_commissions = roundedAmount(amountVarios.commissions)
-  rounded_amount_bonus = roundedAmount(amountVarios.bonus)
-  rounded_amount_wages = roundedAmount(amountVarios.wages + rounded_amount_bonus) if age > 26 else 0
-  rounded_amount_wages_26 = roundedAmount(amountVarios.wages + rounded_amount_bonus) if age <= 26 else 0.00
-  rounded_amount_concessions = roundedAmount(amountVarios.concessions)
-  rounded_amount_tips = roundedAmount(amountVarios.tips)
-  rounded_amount_donation = roundedAmount(amountVarios.donation)
-  rounded_amount_11 = roundedAmount(rounded_amount_commissions + rounded_amount_wages + rounded_amount_concessions + rounded_amount_tips)
-  rounded_amount_refunds = roundedAmount(amountVarios.refunds)
-  rounded_amount_secures_social = roundedAmount(amountVarios.secure_social)
-  rounded_amount_social_tips = roundedAmount(amountVarios.social_tips)
-  rounded_amount_taxes_pr = roundedAmount(amountVarios.taxes_pr)
+    # Rounding amount to 2 decimal places
+    rounded_amount_medicares = roundedAmount(amountVarios.medicares)
+    rounded_amount_aflac = roundedAmount(amountVarios.aflac)
+    rounded_amount_commissions = roundedAmount(amountVarios.commissions)
+    rounded_amount_bonus = roundedAmount(amountVarios.bonus)
+    rounded_amount_wages = roundedAmount(amountVarios.wages + rounded_amount_bonus) if age > 26 else 0
+    rounded_amount_wages_26 = roundedAmount(amountVarios.wages + rounded_amount_bonus) if age <= 26 else 0.00
+    rounded_amount_concessions = roundedAmount(amountVarios.concessions)
+    rounded_amount_tips = roundedAmount(amountVarios.tips)
+    rounded_amount_donation = roundedAmount(amountVarios.donation)
+    rounded_amount_11 = roundedAmount(rounded_amount_commissions + rounded_amount_wages + rounded_amount_concessions + rounded_amount_tips)
+    rounded_amount_refunds = roundedAmount(amountVarios.refunds)
+    rounded_amount_secures_social = roundedAmount(amountVarios.secure_social)
+    rounded_amount_social_tips = roundedAmount(amountVarios.social_tips)
+    rounded_amount_taxes_pr = roundedAmount(amountVarios.taxes_pr)
 
-  # Address Company
-  physicalAddressCompany = company.physical_address if company.physical_address is not None else ''
-  statePhysicalAddressCompany = company.state_physical_address if company.state_physical_address is not None else ''
-  countryPhysicalAddressCompany = company.country_physical_address if company.country_physical_address is not None else ''
+    # Address Company
+    physicalAddressCompany = company.physical_address if company.physical_address is not None else ''
+    statePhysicalAddressCompany = company.state_physical_address if company.state_physical_address is not None else ''
+    countryPhysicalAddressCompany = company.country_physical_address if company.country_physical_address is not None else ''
 
-  data = {
-    'name_first_user': employer.first_name if employer.first_name is not None else '',
-    'name_last_user': employer.last_name if employer.last_name is not None else '',
-    'address_user': employer.address if employer.address is not None else '',
-    'date_birth_day': birthday[2],
-    'date_birth_month': birthday[1],
-    'date_birth_year': birthday[0],
-    'name_company': company.name if company.name is not None else '',
-    'address_company': f'{physicalAddressCompany}, {statePhysicalAddressCompany}, {countryPhysicalAddressCompany}',
-    'phone_company': company.phone_number if company.phone_number is not None else '',
-    'email_company': company.email if company.email is not None else '',
-    'social_security_no': employer.social_security_number if employer.social_security_number is not None else '',
-    'ein': company.number_patronal if company.number_patronal is not None else '',
-    'total_medicares': rounded_amount_medicares,
-    'total_commissions': rounded_amount_commissions,
-    'total_wages': rounded_amount_wages,
-    'total_wages_26': rounded_amount_wages_26,
-    'code_26': 'E' if rounded_amount_wages_26 > 0 else '',
-    'total_concessions': rounded_amount_concessions,
-    'total_tips': rounded_amount_tips,
-    'total_donation': rounded_amount_donation,
-    'total_aflac': rounded_amount_aflac,
-    'total_11': rounded_amount_11,
-    'total_20': rounded_amount_wages_26 if rounded_amount_wages_26 > 0 else rounded_amount_wages,
-    'total_22': (rounded_amount_11 + rounded_amount_wages_26),
-    'total_refunds': rounded_amount_refunds,
-    'total_secures_social' : rounded_amount_secures_social,
-    'total_social_tips': rounded_amount_social_tips,
-    'total_taxes_pr': rounded_amount_taxes_pr,
-    'total_time_worker': 0,
-    'year_active': year,
-  }
+    n_control = f'{datetime.now().year}{timegm(datetime.now().timetuple())}'
 
-  return data
+    data = {
+      'name_first_user': employer.first_name if employer.first_name is not None else '',
+      'name_last_user': employer.last_name if employer.last_name is not None else '',
+      'address_user': employer.address if employer.address is not None else '',
+      'date_birth_day': birthday[2],
+      'date_birth_month': birthday[1],
+      'date_birth_year': birthday[0],
+      'name_company': company.name if company.name is not None else '',
+      'address_company': f'{physicalAddressCompany}, {statePhysicalAddressCompany}, {countryPhysicalAddressCompany}',
+      'phone_company': company.phone_number if company.phone_number is not None else '',
+      'email_company': company.email if company.email is not None else '',
+      'social_security_no': employer.social_security_number if employer.social_security_number is not None else '',
+      'ein': company.number_patronal if company.number_patronal is not None else '',
+      'total_medicares': rounded_amount_medicares,
+      'total_commissions': rounded_amount_commissions,
+      'total_wages': rounded_amount_wages,
+      'total_wages_26': rounded_amount_wages_26,
+      'code_26': 'E' if rounded_amount_wages_26 > 0 else '',
+      'total_concessions': rounded_amount_concessions,
+      'total_tips': rounded_amount_tips,
+      'total_donation': rounded_amount_donation,
+      'total_aflac': rounded_amount_aflac,
+      'total_11': rounded_amount_11,
+      'total_20': (rounded_amount_wages_26 + rounded_amount_secures_social) if rounded_amount_wages_26 > 0 else (rounded_amount_wages + rounded_amount_secures_social),
+      'total_22': (rounded_amount_11 + rounded_amount_wages_26),
+      'total_refunds': rounded_amount_refunds,
+      'total_secures_social' : rounded_amount_secures_social,
+      'total_social_tips': rounded_amount_social_tips,
+      'total_taxes_pr': rounded_amount_taxes_pr,
+      'total_time_worker': 0,
+      'year_active': year,
+      'n_control': n_control
+    }
+
+    return data
+  except Exception as e:
+    print(f'Error in queryFormW2pr: {str(e)}')
+    return None
+

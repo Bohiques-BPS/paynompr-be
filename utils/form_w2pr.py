@@ -235,7 +235,7 @@ def form_w2pr_pdf_generate():
               </div>
               <div class="border-b-2 py-1 border-black px-2">
                 <p class="text-xs">Numero Control - Control Number:</p>
-                <p class="uppercase text-sm">54567524223</p>
+                <p class="uppercase text-sm">{{n_control}}</p>
               </div>
               <div class="px-2 flex flex-row">
                 <div class="basis-3-5 font-bold">

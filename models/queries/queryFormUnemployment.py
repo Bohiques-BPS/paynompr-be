@@ -25,13 +25,10 @@ def queryFormUnemployment (company_id, year, period):
         tmpEmployees.append(data)
         totalAmount += roundedAmount(value.total)
         index += 1
-        if len(tmpEmployees) == 2:
-            arrayEmployees.append(tmpEmployees)
-            tmpEmployees = []
-            index = 1
-
-    print("Employees")
-    print(arrayEmployees)
+        # if len(tmpEmployees) == 24:
+        #     arrayEmployees.append(tmpEmployees)
+        #     tmpEmployees = []
+        #     index = 1
 
     # Address Company
     physicalAddressCompany = company.physical_address if company.physical_address is not None else ''
@@ -42,9 +39,9 @@ def queryFormUnemployment (company_id, year, period):
     # Calculate Total
     unemployment_percentage = company.unemployment_percentage.split('%')[0] if company.unemployment_percentage is not None else 0
     employed_contribution = company.employed_contribution if company.employed_contribution is not None else 0
-    compensation_pay_a = roundedAmount(totalAmount * (float(unemployment_percentage) / 100))
+    compensation_pay_a = roundedAmount(totalAmount * (float(employed_contribution) / 100))
     compensation_pay_b = roundedAmount(totalAmount * (1 / 100))
-    total_special = roundedAmount((totalAmount / 100) * float(employed_contribution))
+    total_special = roundedAmount((totalAmount / 100) * float(unemployment_percentage))
     total_cheque_a = roundedAmount(total_special + compensation_pay_a)
 
     # Employers
@@ -66,18 +63,20 @@ def queryFormUnemployment (company_id, year, period):
         'text_total_wages_b': str(totalAmount),
         'text_wages_contributions_a': str(totalAmount),
         'text_wages_contributions_b': str(totalAmount),
-        'text_value_porcentage_a': unemployment_percentage if unemployment_percentage != 0 else '',
+        'text_value_porcentage_a': employed_contribution if employed_contribution != 0 else '',
         'text_value_porcentage_b': '1.00',
-        'text_value_porcentage_special': employed_contribution if employed_contribution != 0 else '',
+        'text_value_porcentage_special': unemployment_percentage if unemployment_percentage != 0 else '',
         'text_compensation_pay_a': str(compensation_pay_a),
         'text_compensation_pay_b': str(compensation_pay_b),
         'text_total_special': str(total_special),
         'text_total_cheque_a': str(total_cheque_a),
-        'text_total_cheque_b': str(compensation_pay_b)
+        'text_total_cheque_b': str(compensation_pay_b),
+        'text_total_employers': str(totalAmount),
+        'text_total_wages': str(len(tmpEmployees))
     }
 
+    for employee in tmpEmployees:
+        data.update(employee)
 
-    # for employer in employers:
-    #     data.update(employer)
 
     return data
