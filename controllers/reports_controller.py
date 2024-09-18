@@ -325,14 +325,14 @@ def counterfoil_controller(company_id, employer_id, time_id):
             "total_holiday_time" : total_holiday_time ,
             "total_sick_time" : total_sick_time ,
             "total_vacation_time" : total_vacation_time ,
-            "total_col_1" : round(time_query.regular_pay+time_query.over_pay+time_query.meal_pay+time_query.holyday_pay+time_query.sick_pay+time_query.vacation_pay+ time_query.tips+ time_query.commissions+ time_query.concessions+ time_query.others+ time_query.bonus+ time_query.salary, 2) ,
-            "total_col_1_year" : round(all_time_query[0].total_regular_pay+all_time_query[0].total_over_pay+all_time_query[0].total_meal_pay+all_time_query[0].total_holyday_pay+all_time_query[0].total_sick_pay+all_time_query[0].total_vacation_pay+ all_time_query[0].total_tips+ all_time_query[0].total_commissions+ all_time_query[0].total_concessions+ all_time_query[0].total_others+ all_time_query[0].total_bonus+ all_time_query[0].total_salary, 2) ,
+            "total_col_1" : round(time_query.regular_pay+time_query.over_pay+time_query.meal_pay+time_query.holyday_pay+time_query.sick_pay+time_query.vacation_pay+ time_query.tips+ time_query.commissions+ time_query.concessions+ time_query.others+ time_query.bonus, 2) ,
+            "total_col_1_year" : round(all_time_query[0].total_regular_pay+all_time_query[0].total_over_pay+all_time_query[0].total_meal_pay+all_time_query[0].total_holyday_pay+all_time_query[0].total_sick_pay+all_time_query[0].total_vacation_pay+ all_time_query[0].total_tips+ all_time_query[0].total_commissions+ all_time_query[0].total_concessions+ all_time_query[0].total_salary, 2) ,
             
-            "total_col_2" : round(time_query.asume+time_query.refund+time_query.donation, 2) ,
-            "total_col_2_year" : round(all_time_query[0].total_asume+all_time_query[0].total_refund+all_time_query[0].total_donation, 2) ,
+            "total_col_2" : round(time_query.asume+time_query.refund+time_query.donation+payment_amount, 2) ,
+            "total_col_2_year" : round(all_time_query[0].total_asume+all_time_query[0].total_refund+all_time_query[0].total_donation+all_time_query[0].total_aflac+total_payment_amount, 2) ,
 
-            "total_col_3" : round(time_query.tax_pr+time_query.secure_social+time_query.tips+time_query.choferil+time_query.inability+time_query.medicare+time_query.social_tips+time_query.aflac+payment_amount, 2) ,
-            "total_col_3_year" : round(all_time_query[0].total_tax_pr+all_time_query[0].total_ss+all_time_query[0].total_tips+all_time_query[0].total_choferil+all_time_query[0].total_inability+all_time_query[0].total_medicare+all_time_query[0].total_social_tips+all_time_query[0].total_aflac+total_payment_amount, 2) ,
+            "total_col_3" : round(time_query.tax_pr+time_query.secure_social+time_query.tips+time_query.choferil+time_query.inability+time_query.medicare+time_query.social_tips+time_query.aflac, 2) ,
+            "total_col_3_year" : round(all_time_query[0].total_tax_pr+all_time_query[0].total_ss+all_time_query[0].total_tips+all_time_query[0].total_choferil+all_time_query[0].total_inability+all_time_query[0].total_medicare+all_time_query[0].total_social_tips, 2) ,
            
 
             "asume" : time_query.asume,
@@ -583,6 +583,7 @@ Gastos Reembolsados:</td>
                             <td>${{ donation }}</td>
                             <td>${{ total_donation }}</td>
                         </tr>
+                         {{payment_texts}}
                         <tr>
                             <td>Total:</td>
                             <td>${{ total_col_2 }}</td>
@@ -667,7 +668,7 @@ Gastos Reembolsados:</td>
                         </tr>
                          
                         
-                         {{payment_texts}}
+                        
                          <tr>
                             <td>Total:</td>
                             <td>${{ total_col_3 }}</td>
