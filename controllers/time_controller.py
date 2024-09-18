@@ -216,6 +216,7 @@ def create_time_controller(time_data, employer_id):
                 name=item.name,
                 amount=item.amount,
                 value=item.value,
+                taxe_id = item.id,
                 time_id=time_query.id,
                 is_active=item.is_active,
                 required=item.required,
@@ -327,151 +328,132 @@ def delete_time_controller(time_id, user):
 
 
 def update_time_controller(time_id, time):
-    try:
-        time_query = session.query(Time).filter_by(id=time_id).first()
+    
+    time_query = session.query(Time).filter_by(id=time_id).first()
 
-        if not time_query:
-            return {"ok": False, "msg": "Time update error", "result": time_query}
-        
-        old_vacation_time = time_query.vacation_time
-        old_sick_time = time_query.sick_time
+    if not time_query:
+        return {"ok": False, "msg": "Time update error", "result": time_query}
+    
+    old_vacation_time = time_query.vacation_time
+    old_sick_time = time_query.sick_time
 
-        employer = (
-            session.query(Employers)
-            .filter(Employers.id == time_query.employer_id)
-            .one_or_none()
+    employer = (
+        session.query(Employers)
+        .filter(Employers.id == time_query.employer_id)
+        .one_or_none()
+    )
+
+    if not employer:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Usuario no encontrado"
         )
 
+    accountant = (
+        session.query(Accountant)
+        .filter(Accountant.id == time_query.accountant_id)
+        .one_or_none()
+    )
+    
+    if not accountant:
         if not employer:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Usuario no encontrado"
-            )
+                detail=f"Cuenta no encontrada"
+            )        
+    
+    # Sumar las horas anteriores a los empleadores antes de la actualización
+    #employers.sick_hours = int(employers.sick_hours) + int(time_query.sick_time.split(":")[0])
+    #employers.vacation_hours = int(employers.vacation_hours) + int(time_query.vacation_time.split(":")[0])
 
-        accountant = (
-            session.query(Accountant)
-            .filter(Accountant.id == time_query.accountant_id)
-            .one_or_none()
-        )
+    # Actualizar los campos del modelo Time
+    time_query.regular_time = time.regular_time
+    time_query.over_time = time.over_time
+    time_query.meal_time = time.meal_time
+    time_query.holiday_time = time.holiday_time
+    time_query.sick_time = time.sick_time
+    time_query.vacation_time = time.vacation_time
+    time_query.regular_amount = time.regular_amount
+    time_query.over_amount = time.over_amount
+    time_query.meal_amount = time.meal_amount
+    time_query.salary = time.salary
+    time_query.refund = time.refund
+
+    time_query.regular_pay=time.regular_pay,
+    time_query.over_pay=time.overtime_pay,
+    time_query.meal_pay=time.meal_time_pay,
+    time_query.sick_pay=time.sick_pay,
+    time_query.vacation_pay=time.vacation_pay,
+
+    time_query.holyday_pay=time.holyday_pay, 
+
+    time_query.donation = time.donation
+    time_query.asume = time.asume
+    time_query.accountant_id=time.accountant_id,
+
+
+    time_query.commissions = time.commissions
+    time_query.choferil = time.choferil
+    time_query.concessions = time.concessions
+    time_query.tips = time.tips
+    time_query.aflac = time.aflac
+    time_query.inability = time.inability
+    time_query.medicare = time.medicare
+    time_query.secure_social = time.secure_social
+    time_query.social_tips = time.social_tips
+    time_query.tax_pr = time.tax_pr
+    time_query.memo = time.memo
+
+    session.add(time_query)
+    session.commit()
+    session.refresh(time_query)
+
+    # Restar las nuevas horas de los empleadores después de la actualización
+    #employers.sick_hours = int(employers.sick_hours) - int(time.sick_time.split(":")[0])
+    #employers.vacation_hours = int(employers.vacation_hours) - int(time.vacation_time.split(":")[0])
+
+    session.add(employer)
+    session.commit()
+    session.refresh(employer)
+
+
+    year = time_query.period.period_start.year
+    month = time_query.period.period_start.month
+
+    vacation_time = session.query(VacationTimes).where(
+        VacationTimes.employer_id == Time.employer_id,
+        VacationTimes.year == str(year),
+        VacationTimes.month == str(month)
+        ).first()
+    
+    times = session.query(Time).filter(Time.employer_id == time_query.employer_id).join(Period).filter(
+            Period.id == Time.period_id,
+            Period.year == year,
+            extract('month', Period.period_start) == month
+        ).all()
+
+    subtract_vacation_time(employer, old_vacation_time, time.vacation_time)
+    subtract_sick_time(employer, old_sick_time, time.sick_time)
+
+    update_vaction_time(time_query.employer_id,times, employer, vacation_time, year,month)
+    update_sicks_time(time_query.employer_id,times,employer,vacation_time, year, month)
+    for item in time.payment:
+        payment_query = session.query(Payments).filter_by(id=item.id).first()
         
-        if not accountant:
-            if not employer:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Cuenta no encontrada"
-                )        
-        
-        # Sumar las horas anteriores a los empleadores antes de la actualización
-        #employers.sick_hours = int(employers.sick_hours) + int(time_query.sick_time.split(":")[0])
-        #employers.vacation_hours = int(employers.vacation_hours) + int(time_query.vacation_time.split(":")[0])
-
-        # Actualizar los campos del modelo Time
-        time_query.regular_time = time.regular_time
-        time_query.over_time = time.over_time
-        time_query.meal_time = time.meal_time
-        time_query.holiday_time = time.holiday_time
-        time_query.sick_time = time.sick_time
-        time_query.vacation_time = time.vacation_time
-        time_query.regular_amount = time.regular_amount
-        time_query.over_amount = time.over_amount
-        time_query.meal_amount = time.meal_amount
-        time_query.salary = time.salary
-        time_query.refund = time.refund
-
-        time_query.regular_pay=time.regular_pay,
-        time_query.over_pay=time.overtime_pay,
-        time_query.meal_pay=time.meal_time_pay,
-        time_query.sick_pay=time.sick_pay,
-        time_query.vacation_pay=time.vacation_pay,
-
-        time_query.holyday_pay=time.holyday_pay, 
-
-        time_query.donation = time.donation
-        time_query.asume = time.asume
-        time_query.accountant_id=time.accountant_id,
-
-
-        time_query.commissions = time.commissions
-        time_query.choferil = time.choferil
-        time_query.concessions = time.concessions
-        time_query.tips = time.tips
-        time_query.aflac = time.aflac
-        time_query.inability = time.inability
-        time_query.medicare = time.medicare
-        time_query.secure_social = time.secure_social
-        time_query.social_tips = time.social_tips
-        time_query.tax_pr = time.tax_pr
-        time_query.memo = time.memo
-
-        session.add(time_query)
+        payment_query.name=item.name
+        payment_query.amount=item.amount
+        payment_query.value=item.value
+        payment_query.time_id=time_query.id
+        payment_query.is_active=item.is_active
+        payment_query.required=item.required
+        payment_query.type_taxe=item.type_taxe
+        payment_query.type_amount=item.type_amount        
+        session.add(payment_query)
         session.commit()
-        session.refresh(time_query)
+        session.refresh(payment_query)
 
-        # Restar las nuevas horas de los empleadores después de la actualización
-        #employers.sick_hours = int(employers.sick_hours) - int(time.sick_time.split(":")[0])
-        #employers.vacation_hours = int(employers.vacation_hours) - int(time.vacation_time.split(":")[0])
-
-        session.add(employer)
-        session.commit()
-        session.refresh(employer)
-
-
-        year = time_query.period.period_start.year
-        month = time_query.period.period_start.month
-
-        vacation_time = session.query(VacationTimes).where(
-            VacationTimes.employer_id == Time.employer_id,
-            VacationTimes.year == str(year),
-            VacationTimes.month == str(month)
-            ).first()
-        
-        times = session.query(Time).filter(Time.employer_id == time_query.employer_id).join(Period).filter(
-                Period.id == Time.period_id,
-                Period.year == year,
-                extract('month', Period.period_start) == month
-            ).all()
-
-        subtract_vacation_time(employer, old_vacation_time, time.vacation_time)
-        subtract_sick_time(employer, old_sick_time, time.sick_time)
-
-        update_vaction_time(time_query.employer_id,times, employer, vacation_time, year,month)
-        update_sicks_time(time_query.employer_id,times,employer,vacation_time, year, month)
-
-        for item in time.payment:
-            payment_query = session.query(Payments).filter_by(id=item.id).first()
-            if payment_query:
-                if item.required == 2 or (item.required == 1 and item.is_active):
-                    payment_query.name = item.name
-                    payment_query.amount = item.amount
-                    payment_query.value = item.value
-                    payment_query.required = item.required
-                    payment_query.type_taxe = item.type_taxe
-                    payment_query.type_amount = item.type_amount
-            else:
-                if item.required == 2 or (item.required == 1 and item.is_active):
-                    payment_query = Payments(
-                        name=item.name,
-                        amount=item.amount,
-                        value=item.value,
-                        time_id=time_query.id,
-                        required=item.required,
-                        type_taxe=item.type_taxe,
-                        type_amount=item.type_amount,
-                    )
-
-            session.add(payment_query)
-            session.commit()
-            session.refresh(payment_query)
-
-        return {"ok": True, "msg": "Time was successfully updated", "result": time_query}
-    except Exception as e:
-        session.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
-        )
-    finally:
-        session.close()
+    return {"ok": True, "msg": "Time was successfully updated", "result": time_query}
+    
 
 
 

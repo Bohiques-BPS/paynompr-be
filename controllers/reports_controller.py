@@ -24,6 +24,7 @@ from utils.form_940 import form_940_pdf_generator
 from utils.form_491 import form_941_pdf_generator
 from utils.unemployment import form_unemployment_pdf_generator
 from utils.form_w2pr import form_w2pr_pdf_generate
+from collections import defaultdict
 
 
 report_router = APIRouter()
@@ -73,7 +74,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
 
         # employer time
         time_query = session.query(Time).filter(Time.id == time_id).first()
-        all_time_query = session.query(func.sum(Time.salary).label("total_salary"),func.sum(Time.others).label("total_others"),func.sum(Time.vacation_pay).label("total_vacation_pay"),func.sum(Time.holyday_pay).label("total_holyday_pay"),func.sum(Time.sick_pay).label("total_sick_pay"),func.sum(Time.meal_pay).label("total_meal_pay"),func.sum(Time.over_pay).label("total_over_pay"),func.sum(Time.regular_pay).label("total_regular_pay"),func.sum(Time.donation).label("total_donation"),func.sum(Time.tips).label("total_tips"),func.sum(Time.aflac).label("total_aflac"),func.sum(Time.inability).label("total_inability"),func.sum(Time.choferil).label("total_choferil"),func.sum(Time.social_tips).label("total_social_tips"),func.sum(Time.asume).label("total_asume"),func.sum(Time.concessions).label("total_concessions"),func.sum(Time.commissions).label("total_commissions"),func.sum(Time.bonus).label("total_bonus"),func.sum(Time.refund).label("total_refund"),func.sum(Time.medicare).label("total_medicare"),func.sum(Time.secure_social).label("total_ss"),func.sum(Time.tax_pr).label("total_tax_pr")).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id).filter(Period.year == 2024,Time.employer_id == employer_id,Period.period_start <= time_period_query.Period.period_start).group_by(Period.year).all()
+        all_time_query = session.query(func.sum(Time.salary).label("total_salary"),func.sum(Time.others).label("total_others"),func.sum(Time.vacation_pay).label("total_vacation_pay"),func.sum(Time.holyday_pay).label("total_holyday_pay"),func.sum(Time.sick_pay).label("total_sick_pay"),func.sum(Time.meal_pay).label("total_meal_pay"),func.sum(Time.over_pay).label("total_over_pay"),func.sum(Time.regular_pay).label("total_regular_pay"),func.sum(Time.donation).label("total_donation"),func.sum(Time.tips).label("total_tips"),func.sum(Time.aflac).label("total_aflac"),func.sum(Time.inability).label("total_inability"),func.sum(Time.choferil).label("total_choferil"),func.sum(Time.social_tips).label("total_social_tips"),func.sum(Time.asume).label("total_asume"),func.sum(Time.concessions).label("total_concessions"),func.sum(Time.commissions).label("total_commissions"),func.sum(Time.bonus).label("total_bonus"),func.sum(Time.refund).label("total_refund"),func.sum(Time.medicare).label("total_medicare"),func.sum(Time.secure_social).label("total_ss"),func.sum(Time.tax_pr).label("total_tax_pr")).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id).filter(Period.year == 2024,Time.employer_id == employer_id,Period.period_start <= time_period_query.Period.period_start,Time.employer_id == employer_id).group_by(Period.year).all()
 
        
         all_times_query = session.query(Time).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id).filter(Period.year == 2024,Time.employer_id == employer_id,Period.period_start <= time_period_query.Period.period_start).all()
@@ -183,16 +184,28 @@ def counterfoil_controller(company_id, employer_id, time_id):
 
 
 
+        
 
-        payment_query = session.query(Payments).filter(Payments.time_id == time_id).all()
+        payment_query = session.query(Payments).select_from(Period).join(Time, Period.id == Time.period_id ).join(Payments, Payments.time_id == Time.id).filter(Payments.is_active == True,Payments.is_active == True,Period.year == 2024,Period.period_start <= time_period_query.Period.period_start,Time.employer_id == employer_id).all()
         payment_texts = ""
         # Crear lista de textos de pagos
+        total_payment_amount = 0
+
+        total_amount_by_tax_id = defaultdict(int)  # Dictionary to store total per tax_id
+
+        # Calculate total amount by tax_id
+        for payment in payment_query:
+            total_amount_by_tax_id[payment.taxe_id] += payment.amount
 
         for payment in payment_query:
-            amount = 0;
-            if (payment.amount< 0):
-                amount = payment.amount * -1
-            payment_texts += f" <tr><td>{payment.name}:</td><td>${amount}</td><td></td></tr>"
+            total_payment_amount += payment.amount
+            if payment.time_id == time_id:
+                amount = payment.amount;
+                if (payment.amount< 0):
+                    amount = payment.amount * -1
+                total_for_current_tax_id = total_amount_by_tax_id.get(payment.taxe_id, 0)
+
+                payment_texts += f" <tr><td>{payment.name}:</td><td>${amount}</td><td>${total_for_current_tax_id}</td></tr>"
 
 
         if not time_query:
@@ -202,12 +215,6 @@ def counterfoil_controller(company_id, employer_id, time_id):
             )
 
 
-        # Obtener la información del pago
-        payments = session.query(Payments).filter(Payments.time_id == time_id).all()
-
-        if not payments:
-            for payment in payments:
-                print(f"ID: {payment.id}, Name: {payment.name}, Amount: {payment.amount}, Value: {payment.value}")
 
 
 
@@ -267,17 +274,17 @@ def counterfoil_controller(company_id, employer_id, time_id):
             aflac = time_query.aflac
 
             return float(secure_social) + float(ss_tips) + float(medicare) + float(inability) + float(choferil) + float(tax_pr)  + float(aflac) + float(time_query.asume) + float(time_query.donation)
-
+        payment_amount = 0
         def calculate_payments():
             amount = 0
-            for payment in payments:
-                if payment.type_taxe == 1 and payment.value > 0:
-                    if (payment.value > 0):
-                        payment.value = payment.value * -1;
-
-                amount += payment.amount
-
-            return float(amount)
+            for payment in payment_query:
+                if (payment.time_id == time_id):
+                    if payment.type_taxe == 1 and payment.amount > 0:
+                        amount -= payment.amount
+                    else:
+                        amount += payment.amount
+            payment_amount = amount
+            return amount
 
         def calculate_total():
             income = calculate_income()
@@ -318,7 +325,15 @@ def counterfoil_controller(company_id, employer_id, time_id):
             "total_holiday_time" : total_holiday_time ,
             "total_sick_time" : total_sick_time ,
             "total_vacation_time" : total_vacation_time ,
+            "total_col_1" : round(time_query.regular_pay+time_query.over_pay+time_query.meal_pay+time_query.holyday_pay+time_query.sick_pay+time_query.vacation_pay+ time_query.tips+ time_query.commissions+ time_query.concessions+ time_query.others+ time_query.bonus+ time_query.salary, 2) ,
+            "total_col_1_year" : round(all_time_query[0].total_regular_pay+all_time_query[0].total_over_pay+all_time_query[0].total_meal_pay+all_time_query[0].total_holyday_pay+all_time_query[0].total_sick_pay+all_time_query[0].total_vacation_pay+ all_time_query[0].total_tips+ all_time_query[0].total_commissions+ all_time_query[0].total_concessions+ all_time_query[0].total_others+ all_time_query[0].total_bonus+ all_time_query[0].total_salary, 2) ,
             
+            "total_col_2" : round(time_query.asume+time_query.refund+time_query.donation, 2) ,
+            "total_col_2_year" : round(all_time_query[0].total_asume+all_time_query[0].total_refund+all_time_query[0].total_donation, 2) ,
+
+            "total_col_3" : round(time_query.tax_pr+time_query.secure_social+time_query.tips+time_query.choferil+time_query.inability+time_query.medicare+time_query.social_tips+time_query.aflac+payment_amount, 2) ,
+            "total_col_3_year" : round(all_time_query[0].total_tax_pr+all_time_query[0].total_ss+all_time_query[0].total_tips+all_time_query[0].total_choferil+all_time_query[0].total_inability+all_time_query[0].total_medicare+all_time_query[0].total_social_tips+all_time_query[0].total_aflac+total_payment_amount, 2) ,
+           
 
             "asume" : time_query.asume,
 
@@ -538,6 +553,11 @@ def counterfoil_controller(company_id, employer_id, time_id):
                             <td>${{ others }}</td>
                             <td>${{ total_others }}</td>
                         </tr>
+                        <tr>
+                         <td>Total:</td>
+                            <td>${{ total_col_1 }}</td>
+                            <td>${{total_col_1_year}}</td>
+                        </tr>
                     </table>
                     </div>
                     <div class="column">
@@ -548,7 +568,8 @@ def counterfoil_controller(company_id, employer_id, time_id):
                             <th>YEAR</th>
                         </tr>
                         <tr>
-                            <td>RETIRE FUND:</td>
+                            <td>
+Gastos Reembolsados:</td>
                             <td>${{ refund }}</td>
                             <td>${{ total_refund }}</td>
                         </tr>
@@ -561,6 +582,11 @@ def counterfoil_controller(company_id, employer_id, time_id):
                             <td>DONATIVOS:</td>
                             <td>${{ donation }}</td>
                             <td>${{ total_donation }}</td>
+                        </tr>
+                        <tr>
+                            <td>Total:</td>
+                            <td>${{ total_col_2 }}</td>
+                            <td>${{ total_col_2_year }}</td>
                         </tr>
 
                     </table>
@@ -577,12 +603,8 @@ def counterfoil_controller(company_id, employer_id, time_id):
                             <td>${{ tax_pr }}</td>
                             <td>${{ total_tax_pr }}</td>
                         </tr>
+                       
                         <tr>
-                            <td>SS WITHHELD:</td>
-                            <td>$0.00</td>
-                            <td>$0.00</td>
-                        </tr>
-<tr>
                             <td>SEGURO SOCIAL:</td>
                             <td>${{ secure_social }}</td>
                             <td>${{total_ss}}</td>
@@ -607,6 +629,11 @@ def counterfoil_controller(company_id, employer_id, time_id):
                             <td>CHAUFFEUR W:</td>
                             <td>${{ choferil }}</td>
                             <td>${{ total_choferil }}</td>
+                        </tr>
+                        <tr>
+                            <td>AFLAC:</td>
+                            <td>${{ aflac }}</td>
+                            <td>${{ total_aflac }}</td>
                         </tr>
                          <tr>
                             <td>REG. HOURS:</td>
@@ -638,12 +665,14 @@ def counterfoil_controller(company_id, employer_id, time_id):
                             <td>{{ holiday_hours }}</td>
                             <td>{{ total_holiday_time }}</td>
                         </tr>
-                         <tr>
-                            <td>AFLAC:</td>
-                            <td>${{ aflac }}</td>
-                            <td>${{ total_aflac }}</td>
-                        </tr>
+                         
+                        
                          {{payment_texts}}
+                         <tr>
+                            <td>Total:</td>
+                            <td>${{ total_col_3 }}</td>
+                            <td>${{ total_col_3_year }}</td>
+                        </tr>
                     </table>
                    </div>
 </div>
