@@ -23,6 +23,7 @@ class CompaniesSchema(BaseModel):
     sicks_date: Optional[int] = Field(None, ge=0)
     postal_address: Optional[str] = Field(None, max_length=200)
     zipcode_postal_address: Optional[str] = Field(None, max_length=20)
+    special_contribution: Optional[str] = Field(None, max_length=20)
     country_postal_address: Optional[str] = Field(None, max_length=100)
     state_postal_addess: Optional[str] = Field(None, max_length=100)
     physical_address: Optional[str] = Field(None, max_length=200)

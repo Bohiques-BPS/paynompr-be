@@ -33,7 +33,7 @@ def create_company_controller(companie_data, user):
             employed_contribution=companie_data.employed_contribution,
             contact=companie_data.contact,
             choferil_number=companie_data.choferil_number,
-
+            special_contribution=companie_data.special_contribution,
             contact_number=companie_data.contact_number,
             website=companie_data.website,
             number_patronal=companie_data.number_patronal,
@@ -89,7 +89,8 @@ def get_all_companies_controller(user):
             .filter(Companies.code_id == user["id"])
             .all()
         )
-    
+
+
         # Filtrar manualmente los empleados con is_deleted false para cada compañía
         for company in companies_query:
             company.employers = [employer for employer in company.employers if not employer.is_deleted]
@@ -101,15 +102,7 @@ def get_all_companies_controller(user):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An error occurred: {str(e)}"
         )
-   
-    
-        
-
-
-
-
-
-
+           
 
 def calculate_total_times(periods_data) -> Dict[str, Any]:
     total_times_by_employee = defaultdict(lambda: defaultdict(float))
@@ -156,7 +149,7 @@ def get_all_company_and_employer_controller(user, company_id, employers_id):
         
         # Consulta para obtener todos los periodos del año 2024 y con period_start mayor que la fecha actual
         periods_query = session.query(Period).filter(
-        Period.year == 2024,
+        Period.year == datetime.now().year,
         Period.is_deleted == False,
         Period.period_type == type_period,
         datetime.now() >  Period.period_start
@@ -365,6 +358,7 @@ def update_company_controller(companies_id, company_data):
         company_query.email = company_data.email
         company_query.choferil_number = company_data.choferil_number
         company_query.contact = company_data.contact
+        company_query.special_contribution = company_data.special_contribution
         company_query.contact_number = company_data.contact_number
         company_query.website = company_data.website
         company_query.employed_contribution = company_data.employed_contribution

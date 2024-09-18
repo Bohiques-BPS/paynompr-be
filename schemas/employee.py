@@ -36,8 +36,14 @@ class EmployersSchema(BaseModel):
     date_egress: Optional[date] = None
     overtime: Optional[float] = Field(None, ge=0.0)
     mealtime: Optional[float] = Field(None, ge=0.0)
-    vacation_time: str   
+    vacation_time: Optional[str]
+    vacation_hours: Optional[int] = Field(None, ge=0)
+    vacation_hours_monthly: Optional[int]
+    vacation_date: Optional[str] 
+    sicks_date: Optional[str] 
+    sicks_hours: Optional[int] = Field(None, ge=0)    
     sick_time: Optional[str]
+    sicks_hours_monthly: Optional[int] = Field(None, ge=0)
     number_dependents: Optional[int] = Field(None, ge=0)
     shared_custody: Optional[bool] = None
     number_concessions: Optional[int] = Field(None, ge=0)
