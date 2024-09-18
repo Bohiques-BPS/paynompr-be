@@ -23,6 +23,7 @@ from utils.pdfkit.pdfhandled import create_pdf
 from weasyprint import HTML
 from utils.form_940 import form_940_pdf_generator
 from utils.form_491 import form_941_pdf_generator
+from utils.form_493 import form_943_pdf_generator
 from utils.unemployment import form_unemployment_pdf_generator
 from utils.form_w2pr import form_w2pr_pdf_generate
 
@@ -605,6 +606,27 @@ def form_940_pdf_controller(company_id, year):
 def form_941_pdf_controller(company_id, year, period):
     try:
         pdf = form_941_pdf_generator(company_id, year, period)
+        if pdf is None:
+            return Response(status_code=status.HTTP_404_NOT_FOUND, content="No data found")
+
+        if pdf:
+            return FileResponse(
+                pdf,
+                media_type="application/pdf",
+                filename="form_940.pdf"
+            )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred: {str(e)}"
+        )
+    finally:
+        session.close()
+
+def form_943_pdf_controller(company_id, year, period):
+    try:
+        pdf = form_943_pdf_generator(company_id, year, period)
         if pdf is None:
             return Response(status_code=status.HTTP_404_NOT_FOUND, content="No data found")
 
