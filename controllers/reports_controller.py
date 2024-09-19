@@ -192,7 +192,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
         payment_texts = ""
         # Crear lista de textos de pagos
         total_payment_amount = 0
-
+        payment_amount = 0
         total_amount_by_tax_id = defaultdict(int)  # Dictionary to store total per tax_id
 
         # Calculate total amount by tax_id
@@ -276,7 +276,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
             aflac = time_query.aflac
 
             return float(secure_social) + float(ss_tips) + float(medicare) + float(inability) + float(choferil) + float(tax_pr)  + float(aflac) + float(time_query.asume) + float(time_query.donation)
-        payment_amount = 0
+        
         def calculate_payments():
             amount = 0
             for payment in payment_query:
@@ -285,15 +285,18 @@ def counterfoil_controller(company_id, employer_id, time_id):
                         amount -= payment.amount
                     else:
                         amount += payment.amount
-            payment_amount = amount
+           
             return amount
 
         def calculate_total():
             income = calculate_income()
             egress = calculate_egress()
             adicional_amount = calculate_payments()
+            
             return round(income - egress + adicional_amount, 2)
-
+        payment_amount = calculate_payments()
+        if (payment_amount < 0 ):
+            payment_amount = payment_amount * -1
         info = {
             # EMPLOYERS INFO
             "first_name": employer.first_name,
@@ -324,16 +327,19 @@ def counterfoil_controller(company_id, employer_id, time_id):
             "total_regular_time" : total_regular_time ,
             "total_over_time" : total_over_time ,
             "total_meal_time" : total_mealt_time ,
+            "holiday_time_pay" : time_query.holyday_pay, 
+            "total_holiday_pay" : all_time_query[0].total_holyday_pay ,
+
             "total_holiday_time" : total_holiday_time ,
             "total_sick_time" : total_sick_time ,
             "total_vacation_time" : total_vacation_time ,
-            "total_col_1" : round(time_query.regular_pay+time_query.over_pay+time_query.meal_pay+time_query.holyday_pay+time_query.sick_pay+time_query.vacation_pay+ time_query.tips+ time_query.commissions+ time_query.concessions+ time_query.others+ time_query.bonus, 2) ,
-            "total_col_1_year" : round(all_time_query[0].total_regular_pay+all_time_query[0].total_over_pay+all_time_query[0].total_meal_pay+all_time_query[0].total_holyday_pay+all_time_query[0].total_sick_pay+all_time_query[0].total_vacation_pay+ all_time_query[0].total_tips+ all_time_query[0].total_commissions+ all_time_query[0].total_concessions+ all_time_query[0].total_salary, 2) ,
+            "total_col_1" : round(time_query.regular_pay+time_query.over_pay+time_query.meal_pay+time_query.holyday_pay+time_query.sick_pay+time_query.vacation_pay+ time_query.tips+ time_query.commissions+ time_query.concessions, 2) ,
+            "total_col_1_year" : round(all_time_query[0].total_regular_pay+all_time_query[0].total_over_pay+all_time_query[0].total_meal_pay+all_time_query[0].total_holyday_pay+all_time_query[0].total_sick_pay+all_time_query[0].total_vacation_pay+ all_time_query[0].total_tips+ all_time_query[0].total_commissions+ all_time_query[0].total_concessions, 2) ,
             
             "total_col_2" : round(time_query.asume+time_query.refund+time_query.donation+payment_amount, 2) ,
             "total_col_2_year" : round(all_time_query[0].total_asume+all_time_query[0].total_refund+all_time_query[0].total_donation+all_time_query[0].total_aflac+total_payment_amount, 2) ,
 
-            "total_col_3" : round(time_query.tax_pr+time_query.secure_social+time_query.tips+time_query.choferil+time_query.inability+time_query.medicare+time_query.social_tips+time_query.aflac, 2) ,
+            "total_col_3" : round(time_query.tax_pr+time_query.secure_social+time_query.choferil+time_query.inability+time_query.medicare+time_query.social_tips+time_query.aflac, 2) ,
             "total_col_3_year" : round(all_time_query[0].total_tax_pr+all_time_query[0].total_ss+all_time_query[0].total_tips+all_time_query[0].total_choferil+all_time_query[0].total_inability+all_time_query[0].total_medicare+all_time_query[0].total_social_tips, 2) ,
            
 
@@ -524,6 +530,11 @@ def counterfoil_controller(company_id, employer_id, time_id):
                             <td>MEAL TIME:</td>
                             <td>${{ meal_time_pay }}</td>
                             <td>${{ total_meal_pay }}</td>
+                        </tr>
+                        <tr>
+                            <td>HOLIDAY TIME:</td>
+                            <td>${{ holiday_time_pay }}</td>
+                            <td>${{ total_holiday_pay }}</td>
                         </tr>
                          <tr>
                             <td>COMMI:</td>
