@@ -3,9 +3,10 @@ from decimal import ROUND_HALF_UP, Decimal
 
 
 from fastapi import APIRouter, HTTPException, status
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from jinja2 import Template
 from sqlalchemy.sql import func
+
 
 from database.config import session
 from models.companies import Companies
@@ -22,8 +23,10 @@ from utils.pdfkit.pdfhandled import create_pdf
 from weasyprint import HTML
 from utils.form_940 import form_940_pdf_generator
 from utils.form_491 import form_941_pdf_generator
+from utils.form_493 import form_943_pdf_generator
 from utils.unemployment import form_unemployment_pdf_generator
 from utils.form_w2pr import form_w2pr_pdf_generate
+from collections import defaultdict
 
 
 report_router = APIRouter()
@@ -62,26 +65,149 @@ def counterfoil_controller(company_id, employer_id, time_id):
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Employer not found"
             )
-        
-      
+
+        # Función para convertir una cadena de tiempo a minutos
+        def time_to_minutes(time_str):
+            printf("-------------------"+time_str) 
+            hours, minutes = map(int, time_str.split(':'))
+            return hours * 60 + minutes
 
         time_period_query = session.query(Period,Time).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id).filter(Time.id == time_id).first()
-    
+
         # employer time
         time_query = session.query(Time).filter(Time.id == time_id).first()
-        all_time_query = session.query(func.sum(Time.vacation_pay).label("total_vacation_pay"),func.sum(Time.holyday_pay).label("total_holyday_pay"),func.sum(Time.sick_pay).label("total_sick_pay"),func.sum(Time.meal_pay).label("total_meal_pay"),func.sum(Time.over_pay).label("total_over_pay"),func.sum(Time.regular_pay).label("total_regular_pay"),func.sum(Time.donation).label("total_donation"),func.sum(Time.tips).label("total_tips"),func.sum(Time.aflac).label("total_aflac"),func.sum(Time.inability).label("total_inability"),func.sum(Time.choferil).label("total_choferil"),func.sum(Time.social_tips).label("total_social_tips"),func.sum(Time.asume).label("total_asume"),func.sum(Time.concessions).label("total_concessions"),func.sum(Time.commissions).label("total_commissions"),func.sum(Time.bonus).label("total_bonus"),func.sum(Time.refund).label("total_refund"),func.sum(Time.medicare).label("total_medicare"),func.sum(Time.secure_social).label("total_ss"),func.sum(Time.tax_pr).label("total_tax_pr")).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id).filter(Period.year == datetime.now().year,Time.employer_id == employer_id,Period.period_start <= time_period_query.Period.period_start).group_by(Period.year).all()
+        all_time_query = session.query(func.sum(Time.salary).label("total_salary"),func.sum(Time.others).label("total_others"),func.sum(Time.vacation_pay).label("total_vacation_pay"),func.sum(Time.holyday_pay).label("total_holyday_pay"),func.sum(Time.sick_pay).label("total_sick_pay"),func.sum(Time.meal_pay).label("total_meal_pay"),func.sum(Time.over_pay).label("total_over_pay"),func.sum(Time.regular_pay).label("total_regular_pay"),func.sum(Time.donation).label("total_donation"),func.sum(Time.tips).label("total_tips"),func.sum(Time.aflac).label("total_aflac"),func.sum(Time.inability).label("total_inability"),func.sum(Time.choferil).label("total_choferil"),func.sum(Time.social_tips).label("total_social_tips"),func.sum(Time.asume).label("total_asume"),func.sum(Time.concessions).label("total_concessions"),func.sum(Time.commissions).label("total_commissions"),func.sum(Time.bonus).label("total_bonus"),func.sum(Time.refund).label("total_refund"),func.sum(Time.medicare).label("total_medicare"),func.sum(Time.secure_social).label("total_ss"),func.sum(Time.tax_pr).label("total_tax_pr")).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id).filter(Period.year == 2024,Time.employer_id == employer_id,Period.period_start <= time_period_query.Period.period_start,Time.employer_id == employer_id).group_by(Period.year).all()
+
+       
+        all_times_query = session.query(Time).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id).filter(Period.year == 2024,Time.employer_id == employer_id,Period.period_start <= time_period_query.Period.period_start).all()
+
+        total_regular_time  = "00:00"
+        total_regular_time_seconds = 0
+
+        total_over_time  = "00:00"
+        total_over_time_seconds = 0
+
+        total_mealt_time  = "00:00"
+        total_mealt_time_seconds = 0
+
+        total_vacation_time  = "00:00"
+        total_vacation_time_seconds = 0
+
+        total_sick_time  = "00:00"
+        total_sick_time_seconds = 0
+
+        total_holiday_time  = "00:00"
+        total_holiday_time_seconds = 0
+        for time_entry in all_times_query:
+            regular_time = time_entry.regular_time 
+            over_time = time_entry.over_time 
+            mealt_time = time_entry.meal_time 
+            vacation_time = time_entry.vacation_time 
+            sick_time = time_entry.sick_time 
+            holiday_time = time_entry.holiday_time 
+
+
+
+            try:
+                # Convertir la cadena a horas y minutos
+                regular_hours, regular_minutes = map(int, regular_time.split(':'))
+                
+                # Convertir a segundos
+                regular_total_seconds = regular_hours * 3600 + regular_minutes * 60
+
+                # Convertir la cadena a horas y minutos
+                over_hours, over_minutes = map(int, over_time.split(':'))
+                
+                # Convertir a segundos
+                over_total_seconds = over_hours * 3600 + over_minutes * 60
+
+                # Convertir la cadena a horas y minutos
+                mealt_hours, mealt_minutes = map(int, mealt_time.split(':'))
+                
+                # Convertir a segundos
+                mealt_total_seconds = mealt_hours * 3600 + mealt_minutes * 60
+
+                # Convertir la cadena a horas y minutos
+                vacation_hours, vacation_minutes = map(int, vacation_time.split(':'))
+                
+                # Convertir a segundos
+                vacation_total_seconds = vacation_hours * 3600 + vacation_minutes * 60
+
+                # Convertir la cadena a horas y minutos
+                sick_hours, sick_minutes = map(int, sick_time.split(':'))
+                
+                # Convertir a segundos
+                sick_total_seconds = sick_hours * 3600 + sick_minutes * 60
+
+                # Convertir la cadena a horas y minutos
+                holiday_hours, holiday_minutes = map(int, holiday_time.split(':'))
+                
+                # Convertir a segundos
+                holiday_total_seconds = holiday_hours * 3600 + holiday_minutes * 60
+
+            except ValueError:
+                # Manejar formatos de tiempo inválidos (opcional)
+                print(f"Formato de tiempo inválido: {regular_time}")
+                continue  # Saltar a la siguiente entrada
+
+            # Sumar los segundos al total
+            total_regular_time_seconds += regular_total_seconds
+            total_mealt_time_seconds += mealt_total_seconds
+            total_over_time_seconds += over_total_seconds
+            total_sick_time_seconds += sick_total_seconds
+            total_vacation_time_seconds += vacation_total_seconds
+            total_holiday_time_seconds += holiday_total_seconds
+
+
+            # Convertir los segundos totales a horas y minutos
+            regular_hours, remaining_seconds = divmod(total_regular_time_seconds, 3600)
+            regular_minutes, regular_seconds = divmod(remaining_seconds, 60)
+            total_regular_time = f"{regular_hours:02d}:{regular_minutes:02d}"
+            # Convertir los segundos totales a horas y minutos
+            over_hours, remaining_seconds = divmod(total_over_time_seconds, 3600)
+            over_minutes, over_seconds = divmod(remaining_seconds, 60)
+            total_over_time = f"{over_hours:02d}:{over_minutes:02d}"
+            # Convertir los segundos totales a horas y minutos
+            sick_hours, remaining_seconds = divmod(total_sick_time_seconds, 3600)
+            sick_minutes, sick_seconds = divmod(remaining_seconds, 60)
+            total_sick_time = f"{sick_hours:02d}:{sick_minutes:02d}"
+            # Convertir los segundos totales a horas y minutos
+            mealt_hours, remaining_seconds = divmod(total_mealt_time_seconds, 3600)
+            mealt_minutes, mealt_seconds = divmod(remaining_seconds, 60)
+            total_mealt_time = f"{mealt_hours:02d}:{mealt_minutes:02d}"
+            # Convertir los segundos totales a horas y minutos
+            vacation_hours, remaining_seconds = divmod(total_vacation_time_seconds, 3600)
+            vacation_minutes, vacation_seconds = divmod(remaining_seconds, 60)
+            total_vacation_time = f"{vacation_hours:02d}:{vacation_minutes:02d}"
+            # Convertir los segundos totales a horas y minutos
+            holiday_hours, remaining_seconds = divmod(total_holiday_time_seconds, 3600)
+            holiday_minutes, holiday_seconds = divmod(remaining_seconds, 60)
+            total_holiday_time = f"{holiday_hours:02d}:{holiday_minutes:02d}"
+
+
+
         
 
-
-        payment_query = session.query(Payments).filter(Payments.time_id == time_id).all()
+        payment_query = session.query(Payments).select_from(Period).join(Time, Period.id == Time.period_id ).join(Payments, Payments.time_id == Time.id).filter(Payments.is_active == True,Payments.is_active == True,Period.year == 2024,Period.period_start <= time_period_query.Period.period_start,Time.employer_id == employer_id).all()
         payment_texts = ""
         # Crear lista de textos de pagos
+        total_payment_amount = 0
+        payment_amount = 0
+        total_amount_by_tax_id = defaultdict(int)  # Dictionary to store total per tax_id
+
+        # Calculate total amount by tax_id
+        for payment in payment_query:
+            total_amount_by_tax_id[payment.taxe_id] += payment.amount
 
         for payment in payment_query:
-            amount = 0;
-            if (payment.amount< 0):
-                amount = payment.amount * -1
-            payment_texts += f" <tr><td>{payment.name}:</td><td>${amount}</td><td></td></tr>"
+            total_payment_amount += payment.amount
+            if payment.time_id == time_id:
+                amount = payment.amount;
+                if (payment.amount< 0):
+                    amount = payment.amount * -1
+                total_for_current_tax_id = total_amount_by_tax_id.get(payment.taxe_id, 0)
+
+                payment_texts += f" <tr><td>{payment.name}:</td><td>${amount}</td><td>${total_for_current_tax_id}</td></tr>"
 
 
         if not time_query:
@@ -91,14 +217,8 @@ def counterfoil_controller(company_id, employer_id, time_id):
             )
 
 
-        # Obtener la información del pago
-        payments = session.query(Payments).filter(Payments.time_id == time_id).all()
-        
-        if not payments:
-            for payment in payments:
-                print(f"ID: {payment.id}, Name: {payment.name}, Amount: {payment.amount}, Value: {payment.value}")              
 
-        
+
 
         # Obtener la información del periodo
         period = session.query(Period).filter(Period.id == time_query.period_id).first()
@@ -156,24 +276,27 @@ def counterfoil_controller(company_id, employer_id, time_id):
             aflac = time_query.aflac
 
             return float(secure_social) + float(ss_tips) + float(medicare) + float(inability) + float(choferil) + float(tax_pr)  + float(aflac) + float(time_query.asume) + float(time_query.donation)
-
+        
         def calculate_payments():
             amount = 0
-            for payment in payments:
-                if payment.type_taxe == 1 and payment.value > 0:
-                    if (payment.value > 0):
-                        payment.value = payment.value * -1;
-                    
-                amount += payment.amount
-
-            return float(amount)
+            for payment in payment_query:
+                if (payment.time_id == time_id):
+                    if payment.type_taxe == 1 and payment.amount > 0:
+                        amount -= payment.amount
+                    else:
+                        amount += payment.amount
+           
+            return amount
 
         def calculate_total():
             income = calculate_income()
             egress = calculate_egress()
             adicional_amount = calculate_payments()
+            
             return round(income - egress + adicional_amount, 2)
-
+        payment_amount = calculate_payments()
+        if (payment_amount < 0 ):
+            payment_amount = payment_amount * -1
         info = {
             # EMPLOYERS INFO
             "first_name": employer.first_name,
@@ -188,7 +311,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
             "total_tips" : round(all_time_query[0].total_tips, 2) ,
             "total_choferil" : round(all_time_query[0].total_choferil, 2) ,
             "total_inability" : round(all_time_query[0].total_inability, 2) ,
-           
+            "total_others" : round(all_time_query[0].total_others, 2) ,
             "total_asume" : round(all_time_query[0].total_asume, 2) ,
             "total_aflac" : round(all_time_query[0].total_aflac, 2) ,
             "total_donation" : round(all_time_query[0].total_donation, 2) ,
@@ -200,7 +323,26 @@ def counterfoil_controller(company_id, employer_id, time_id):
             "total_holyday_pay": round(all_time_query[0].total_holyday_pay, 2) ,
             "total_sick_pay": round(all_time_query[0].total_sick_pay, 2) ,
             "total_vacation_pay": round(all_time_query[0].total_vacation_pay, 2) ,
-          
+            "total_salary" : round(all_time_query[0].total_salary, 2) ,
+            "total_regular_time" : total_regular_time ,
+            "total_over_time" : total_over_time ,
+            "total_meal_time" : total_mealt_time ,
+            "holiday_time_pay" : time_query.holyday_pay, 
+            "total_holiday_pay" : all_time_query[0].total_holyday_pay ,
+
+            "total_holiday_time" : total_holiday_time ,
+            "total_sick_time" : total_sick_time ,
+            "total_vacation_time" : total_vacation_time ,
+            "total_col_1" : round(time_query.regular_pay+time_query.over_pay+time_query.meal_pay+time_query.holyday_pay+time_query.sick_pay+time_query.vacation_pay+ time_query.tips+ time_query.commissions+ time_query.concessions, 2) ,
+            "total_col_1_year" : round(all_time_query[0].total_regular_pay+all_time_query[0].total_over_pay+all_time_query[0].total_meal_pay+all_time_query[0].total_holyday_pay+all_time_query[0].total_sick_pay+all_time_query[0].total_vacation_pay+ all_time_query[0].total_tips+ all_time_query[0].total_commissions+ all_time_query[0].total_concessions, 2) ,
+            
+            "total_col_2" : round(time_query.asume+time_query.refund+time_query.donation+payment_amount, 2) ,
+            "total_col_2_year" : round(all_time_query[0].total_asume+all_time_query[0].total_refund+all_time_query[0].total_donation+all_time_query[0].total_aflac+total_payment_amount, 2) ,
+
+            "total_col_3" : round(time_query.tax_pr+time_query.secure_social+time_query.choferil+time_query.inability+time_query.medicare+time_query.social_tips+time_query.aflac, 2) ,
+            "total_col_3_year" : round(all_time_query[0].total_tax_pr+all_time_query[0].total_ss+all_time_query[0].total_tips+all_time_query[0].total_choferil+all_time_query[0].total_inability+all_time_query[0].total_medicare+all_time_query[0].total_social_tips, 2) ,
+           
+
             "asume" : time_query.asume,
 
             "bonus": time_query.bonus,
@@ -277,7 +419,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
                     }
                     .container {
                         width: 100%;
-                    
+
                         border: 1px solid #000;
                         padding: 12px;
                         box-sizing: border-box;
@@ -339,8 +481,8 @@ def counterfoil_controller(company_id, employer_id, time_id):
             <body>
                 <div class="container">
                     <div class="header">
-                       
-                     
+
+
                         <div class="flex-container">
                             <div class="column">
                           <p>NUMERO DE CHEQUE {{ company }}</p>
@@ -389,6 +531,11 @@ def counterfoil_controller(company_id, employer_id, time_id):
                             <td>${{ meal_time_pay }}</td>
                             <td>${{ total_meal_pay }}</td>
                         </tr>
+                        <tr>
+                            <td>HOLIDAY TIME:</td>
+                            <td>${{ holiday_time_pay }}</td>
+                            <td>${{ total_holiday_pay }}</td>
+                        </tr>
                          <tr>
                             <td>COMMI:</td>
                             <td>${{ comissions }}</td>
@@ -407,7 +554,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
                          <tr>
                             <td>SALARY:</td>
                             <td>${{ salary }}</td>
-                            <td>${{ salary }}</td>
+                            <td>${{ total_salary }}</td>
                         </tr>
                          <tr>
                             <td>BONUS:</td>
@@ -417,7 +564,12 @@ def counterfoil_controller(company_id, employer_id, time_id):
                          <tr>
                             <td>OTHER 1:</td>
                             <td>${{ others }}</td>
-                            <td>${{ others }}</td>
+                            <td>${{ total_others }}</td>
+                        </tr>
+                        <tr>
+                         <td>Total:</td>
+                            <td>${{ total_col_1 }}</td>
+                            <td>${{total_col_1_year}}</td>
                         </tr>
                     </table>
                     </div>
@@ -429,7 +581,8 @@ def counterfoil_controller(company_id, employer_id, time_id):
                             <th>YEAR</th>
                         </tr>
                         <tr>
-                            <td>RETIRE FUND:</td>
+                            <td>
+Gastos Reembolsados:</td>
                             <td>${{ refund }}</td>
                             <td>${{ total_refund }}</td>
                         </tr>
@@ -443,7 +596,13 @@ def counterfoil_controller(company_id, employer_id, time_id):
                             <td>${{ donation }}</td>
                             <td>${{ total_donation }}</td>
                         </tr>
-                        
+                         {{payment_texts}}
+                        <tr>
+                            <td>Total:</td>
+                            <td>${{ total_col_2 }}</td>
+                            <td>${{ total_col_2_year }}</td>
+                        </tr>
+
                     </table>
                     </div>
                     <div class="column">
@@ -458,17 +617,13 @@ def counterfoil_controller(company_id, employer_id, time_id):
                             <td>${{ tax_pr }}</td>
                             <td>${{ total_tax_pr }}</td>
                         </tr>
+                       
                         <tr>
-                            <td>SS WITHHELD:</td>
-                            <td>$0.00</td>
-                            <td>$0.00</td>
-                        </tr>
-<tr>
                             <td>SEGURO SOCIAL:</td>
                             <td>${{ secure_social }}</td>
                             <td>${{total_ss}}</td>
                         </tr>
-                        
+
                          <tr>
                             <td>SS TIPS:</td>
                             <td>${{ ss_tips }}</td>
@@ -489,32 +644,49 @@ def counterfoil_controller(company_id, employer_id, time_id):
                             <td>${{ choferil }}</td>
                             <td>${{ total_choferil }}</td>
                         </tr>
-                         <tr>
-                            <td>REG. HOURS:</td>
-                            <td>{{ regular_hours }}</td>
-                            <td>{{ regular_hours }}</td>
-                        </tr>
                         <tr>
-                            <td>VAC HOURS:</td>
-                            <td>{{ vacation_hours }}</td>
-                            <td>{{ vacation_hours }}</td>
-                        </tr>
-                         <tr>
-                            <td>SICK HOURS:</td>
-                            <td>{{ sick_hours }}</td>
-                            <td>{{ sick_hours }}</td>
-                        </tr>
-                         <tr>
-                            <td>OVER. HOURS:</td>
-                            <td>{{ over_hours }}</td>
-                            <td>{{ over_hours }}</td>
-                        </tr>
-                         <tr>
                             <td>AFLAC:</td>
                             <td>${{ aflac }}</td>
                             <td>${{ total_aflac }}</td>
                         </tr>
-                         {{payment_texts}}
+                         <tr>
+                            <td>REG. HOURS:</td>
+                            <td>{{ regular_hours }}</td>
+                            <td>{{ total_regular_time }}</td>
+                        </tr>
+                        <tr>
+                            <td>VAC HOURS:</td>
+                            <td>{{ vacation_hours }}</td>
+                            <td>{{ total_vacation_time }}</td>
+                        </tr>
+                        <tr>
+                            <td>MEAL HOURS:</td>
+                            <td>{{ meal_hours }}</td>
+                            <td>{{ total_meal_time }}</td>
+                        </tr>
+                         <tr>
+                            <td>SICK HOURS:</td>
+                            <td>{{ sick_hours }}</td>
+                            <td>{{ total_sick_time }}</td>
+                        </tr>
+                         <tr>
+                            <td>OVER. HOURS:</td>
+                            <td>{{ over_hours }}</td>
+                            <td>{{ total_over_time }}</td>
+                        </tr>
+                        <tr>
+                            <td>HOLIDAY HOURS:</td>
+                            <td>{{ holiday_hours }}</td>
+                            <td>{{ total_holiday_time }}</td>
+                        </tr>
+                         
+                        
+                        
+                         <tr>
+                            <td>Total:</td>
+                            <td>${{ total_col_3 }}</td>
+                            <td>${{ total_col_3_year }}</td>
+                        </tr>
                     </table>
                    </div>
 </div>
@@ -556,6 +728,9 @@ def counterfoil_controller(company_id, employer_id, time_id):
 def form_w2pr_pdf_controller(employer_id, year):
     try:
         info = queryFormW2pr(employer_id, year)
+        if info is None:
+            return Response(status_code=status.HTTP_404_NOT_FOUND, content="No data found")
+
         template = Template(form_w2pr_pdf_generate())
         rendered_html = template.render(info)
 
@@ -579,6 +754,9 @@ def form_w2pr_pdf_controller(employer_id, year):
 def form_940_pdf_controller(company_id, year):
     try:
         pdf = form_940_pdf_generator(company_id, year)
+        if pdf is None:
+            return Response(status_code=status.HTTP_404_NOT_FOUND, content="No data found")
+
         if pdf:
             return FileResponse(
                 pdf,
@@ -598,6 +776,30 @@ def form_940_pdf_controller(company_id, year):
 def form_941_pdf_controller(company_id, year, period):
     try:
         pdf = form_941_pdf_generator(company_id, year, period)
+        if pdf is None:
+            return Response(status_code=status.HTTP_404_NOT_FOUND, content="No data found")
+
+        if pdf:
+            return FileResponse(
+                pdf,
+                media_type="application/pdf",
+                filename="form_940.pdf"
+            )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred: {str(e)}"
+        )
+    finally:
+        session.close()
+
+def form_943_pdf_controller(company_id, year, period):
+    try:
+        pdf = form_943_pdf_generator(company_id, year, period)
+        if pdf is None:
+            return Response(status_code=status.HTTP_404_NOT_FOUND, content="No data found")
+
         if pdf:
             return FileResponse(
                 pdf,
@@ -614,9 +816,12 @@ def form_941_pdf_controller(company_id, year, period):
         session.close()
 
 
-def form_unemployment_pdf_controller():
+def form_unemployment_pdf_controller(company_id, year, period):
     try:
-        pdf = form_unemployment_pdf_generator()
+        pdf = form_unemployment_pdf_generator(company_id, year, period)
+        if pdf is None:
+            return Response(status_code=status.HTTP_404_NOT_FOUND, content="No data found")
+
         if pdf:
             return FileResponse(
                 pdf,
@@ -652,9 +857,13 @@ def form_choferil_pdf_controller(company_id, year, period):
     finally:
         session.close()
 
-def form_withheld_499_pdf_controller():
+def form_withheld_499_pdf_controller(company_id, year, period):
     try:
-        pdf = form_withheld_499_pdf_generator()
+        pdf = form_withheld_499_pdf_generator(company_id, year, period)
+        if pdf is None:
+            return Response(status_code=status.HTTP_404_NOT_FOUND, content="No data found")
+
+        # return pdf
         if pdf:
             return FileResponse(
                 pdf,

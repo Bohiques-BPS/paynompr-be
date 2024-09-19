@@ -65,6 +65,8 @@ class Companies(Base):
     industrial_code: Mapped[str] = mapped_column(String(50))
     payer: Mapped[str] = mapped_column(String(50))
     desem: Mapped[str] = mapped_column(String(50))
+    special_contribution: Mapped[str] = mapped_column(String(50))
+
     employed_contribution: Mapped[str] = mapped_column(String(50))
 
     disabled_percent: Mapped[str] = mapped_column(String(50))

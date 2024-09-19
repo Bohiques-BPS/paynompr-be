@@ -235,7 +235,7 @@ def form_w2pr_pdf_generate():
               </div>
               <div class="border-b-2 py-1 border-black px-2">
                 <p class="text-xs">Numero Control - Control Number:</p>
-                <p class="uppercase text-sm">54567524223</p>
+                <p class="uppercase text-sm">{{n_control}}</p>
               </div>
               <div class="px-2 flex flex-row">
                 <div class="basis-3-5 font-bold">
@@ -438,7 +438,7 @@ def form_w2pr_pdf_generate():
           </div>
           <div class="py-1 px-2">
             <p class="text-xs">19. Aportaciones al Programa Ahorra y Duplica tu Dinero - Contributions to the Save and Double your Money Program:</p>
-            <p class="uppercase text-sm text-right">{{ total_medicares }}</p>
+            <p class="uppercase text-sm text-right">{{ total_aflac }}</p>
           </div>
         </div>
         <div class="basis-1-4 flex-col border-y-2 border-r-2 border-black">
@@ -469,7 +469,7 @@ def form_w2pr_pdf_generate():
               23. Contrib. Medicare Retenida <br />
               Medicare Tax Withheld:
             </p>
-            <p class="uppercase text-sm text-right pt-9">{{ total_social_tips }}</p>
+            <p class="uppercase text-sm text-right pt-9">{{ total_medicares }}</p>
           </div>
           <div class="border-b-2 py-1 border-black px-2">
             <p class="text-xs">
