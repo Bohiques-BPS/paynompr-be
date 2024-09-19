@@ -26,7 +26,6 @@ class EmployersSchema(BaseModel):
     choferil: Optional[str] = Field(None, max_length=50)
     regular_time: Optional[float] = Field(None, ge=0.0)
     salary: Optional[float] = Field(None, ge=0.0)
-
     period_norma: Optional[int] = Field(None, ge=0)
     licence: Optional[str] = Field(None, max_length=50)
     category_cfse: Optional[str] = Field(None, max_length=50)
@@ -39,8 +38,8 @@ class EmployersSchema(BaseModel):
     vacation_time: Optional[str]
     vacation_hours: Optional[int] = Field(None, ge=0)
     vacation_hours_monthly: Optional[int]
-    vacation_date: Optional[str] 
-    sicks_date: Optional[str] 
+    vacation_date: Optional[date] = None
+    sicks_date: Optional[date] = None
     sicks_hours: Optional[int] = Field(None, ge=0)    
     sick_time: Optional[str]
     sicks_hours_monthly: Optional[int] = Field(None, ge=0)

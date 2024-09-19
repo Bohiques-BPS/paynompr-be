@@ -260,6 +260,35 @@ def get_time_by_employer_id_controller(employer_id):
         )
     finally:
         session.close()
+    
+def get_sum_taxes_by_employer_id_controller(employer_id):
+    try:
+        
+        year = datetime.now().year
+        time_query = session.query(func.sum(Time.inability).label("total_inability"),
+                                func.sum(Time.medicare).label("total_medicare"),
+                                func.sum(Time.secure_social).label("total_secure_social"),
+                                func.sum(Time.social_tips).label("total_social_tips"),
+                                func.sum(Time.choferil).label("total_choferil")
+                                ).filter(Time.employer_id == employer_id
+                                ).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id
+                                ).filter(Period.year == datetime.now().year,Time.employer_id == employer_id).group_by(Time.employer_id).all()
+
+        print("sumas",time_query)
+        return {
+            "ok": True,
+            "msg": "Employers were successfully retrieved",
+            "result": time_query,
+        }
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred: {str(e)}"
+        )
+    finally:
+        session.close()
+                
 def get_all_data_time_employer_controller(company_id: int, employer_id: int, time_id: int):
     try:
         company_query = session.query(Companies).filter(Companies.id == company_id).first()
@@ -490,13 +519,8 @@ def update_vaction_time(employer_id, times, employer,vacation_time, year, month)
             detail=f"El empleado no tiene fecha de ingreso asignada"
         )
         
-        date_limit = datetime(2017, 1, 26)
-        if employer.date_admission < date_limit.date()  and hours_worked >= 130:
-            vacation_hours = int((hours_worked * 0.01) // 1)
-        else:
-            vacation_hours = employer.vacation_hours
+        vacation_hours = employer.vacation_hours
         
-   
         if employer.vacation_hours_monthly <= hours_worked:            
 
             if not vacation_time:
@@ -560,11 +584,16 @@ def update_sicks_time(employer_id, times, employer,vacation_time, year, month):
                 session.commit()
                 session.refresh(vacation_query)                
 
-            elif not vacation_time.paid_sick:     
-                employer_sick = time_to_minutes(employer.sick_time) 
+            elif not vacation_time.paid_sick:  
+                   
+                employer_sick = time_to_minutes(employer.sick_time)
+                   
                 minutes_employer = employer.sicks_hours * 60
                 vacation_time.paid_sick = True
-                employer.sick_time = minutes_to_time(employer_sick+minutes_employer)
+                if employer_sick > 7.200:
+                    employer.sick_time = minutes_to_time(7200)
+                else:
+                    employer.sick_time = minutes_to_time(employer_sick+minutes_employer)
                 session.commit()
        
         else:

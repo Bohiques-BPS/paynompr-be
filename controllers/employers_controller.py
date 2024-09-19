@@ -10,7 +10,7 @@ from routers.auth import user_dependency
 from models.employers import Employers
 from models.companies import Companies
 from models.time import Time
-
+from utils.time_func import calculete_service_year
 
 from schemas.employee import EmployersSchema
 from passlib.context import CryptContext
@@ -23,9 +23,29 @@ employers_router = APIRouter()
 
 def create_employer_controller(employer_data, company_id):
     try: 
-        company = session.query(Companies).filter(Companies.id == company_id).first()
-        if not company:
-            return {"ok": False, "msg": "Company not found", "result": None}
+        vacation_hours = employer_data.vacation_hours
+        vacation_hours_monthly = employer_data.vacation_hours_monthly
+        if not employer_data.date_admission:
+            employer_data.date_admission = datetime.today()
+        
+        if vacation_hours == 0:
+            date_admission = datetime(2017, 1, 26)
+            if employer_data.date_admission <= date_admission.date():
+                vacation_hours = 10
+                vacation_hours_monthly = 130
+            else:
+                vacation_hours_monthly = 130
+                service_years = calculete_service_year(employer_data.date_admission)
+                if service_years <= 1:
+                    vacation_hours = 4
+                elif service_years <=5:
+                    vacation_hours = 6               
+                elif service_years <=5:
+                    vacation_hours = 6
+                elif service_years <=15:
+                    vacation_hours = 8
+                else:
+                    vacation_hours = 10                                       
 
         employer_query = Employers(
             last_name=employer_data.last_name,
@@ -33,7 +53,6 @@ def create_employer_controller(employer_data, company_id):
             first_name=employer_data.first_name,
             middle_name=employer_data.middle_name,
             salary=employer_data.salary,
-
             company_id=company_id,
             employee_type=employer_data.employee_type,
             social_security_number=employer_data.social_security_number,
@@ -63,11 +82,11 @@ def create_employer_controller(employer_data, company_id):
             mealtime=employer_data.mealtime,
             vacation_time=employer_data.vacation_time,
             sick_time=employer_data.sick_time,
-            vacation_hours=company.vacation_hours,            
-            vacation_hours_monthly=company.vacation_date,
+            vacation_hours=vacation_hours,
+            vacation_hours_monthly=vacation_hours_monthly,
             vacation_date = employer_data.vacation_date,
-            sicks_hours=company.sicks_hours,
-            sicks_hours_monthly=company.sicks_date,
+            sicks_hours=employer_data.sicks_hours,
+            sicks_hours_monthly=employer_data.sicks_date,
             sicks_date=employer_data.sicks_date,
 
             number_dependents=employer_data.number_dependents,
@@ -130,6 +149,29 @@ def get_employer_by_id_controller(employers_id,company_id,user):
 def update_employer_controller(employers_id, employer, user):
     try: 
         employer_query = session.query(Employers).filter_by(id=employers_id).first() 
+        vacation_hours = employer.vacation_hours
+        vacation_hours_monthly = employer.vacation_hours_monthly
+        
+        if employer_query.date_admission != employer.date_admission:
+            date_admission = datetime(2017, 1, 26)
+            if employer.date_admission <= date_admission.date():
+                vacation_hours = 10
+                vacation_hours_monthly = 130
+            else:
+                vacation_hours_monthly = 130
+                service_years = calculete_service_year(employer.date_admission)
+                print("ENTRE",employer.date_admission)
+                if service_years <= 1:
+                    vacation_hours = 4
+                elif service_years <=5:
+                    vacation_hours = 6               
+                elif service_years <=5:
+                    vacation_hours = 6
+                elif service_years <=15:
+                    vacation_hours = 8
+                else:
+                    vacation_hours = 10                                       
+        
         employer_query.last_name = employer.last_name
         employer_query.mother_last_name = employer.mother_last_name
         employer_query.first_name = employer.first_name
@@ -162,11 +204,11 @@ def update_employer_controller(employers_id, employer, user):
         employer_query.date_egress = employer.date_egress
       
         employer_query.sick_time = employer.sick_time,
-        employer_query.vacation_hours = employer.vacation_hours,
-        employer_query.vacation_hours_monthly = employer.vacation_hours_monthly,
-        employer_query.sicks_hours = employer.sicks_hours,
+        employer_query.vacation_hours = vacation_hours,
+        employer_query.vacation_hours_monthly = vacation_hours_monthly
+        employer_query.sicks_hours = employer.sicks_hours
         employer_query.sicks_date =  employer.sicks_date
-        employer_query.sicks_hours_monthly = employer.sicks_hours_monthly,        
+        employer_query.sicks_hours_monthly = employer.sicks_hours_monthly        
         employer_query.vacation_time = employer.vacation_time        
         employer_query.overtime = employer.overtime
         employer_query.mealtime = employer.mealtime        

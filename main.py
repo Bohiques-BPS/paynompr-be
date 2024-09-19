@@ -11,6 +11,7 @@ from routers.users import user_router
 from routers.roles import role_router
 from routers.auth import auth_router
 from routers.code import code_router
+from routers.fixed_taxes import fixed_taxes_router
 # from routers.mail import email_router
 
 from routers.employers import employers_router
@@ -25,6 +26,7 @@ from routers.period import period_routes
 
 
 from models.users import User, Role, Code, UserCode
+from models.taxes import FixedTaxes
 from models.companies import Companies
 from models.employers import Employers
 
@@ -44,6 +46,7 @@ PORT = os.environ.get("PORT")
 event.listen(Role.__table__, "after_create", initialize_table)
 event.listen(Code.__table__, "after_create", initialize_table)
 event.listen(User.__table__, "after_create", initialize_table)
+event.listen(FixedTaxes.__table__, "after_create", initialize_table)
 
 event.listen(UserCode.__table__, "after_create", initialize_table)
 
@@ -72,6 +75,7 @@ app.include_router(companies_router, tags=["companies"], prefix="/api/companies"
 app.include_router(employers_router, tags=["employers"], prefix="/api/employers")
 app.include_router(time_router, tags=["time"], prefix="/api/time")
 app.include_router(taxes_router, tags=["taxes"], prefix="/api/taxes")
+app.include_router(fixed_taxes_router, tags=["fixed_taxes"], prefix="/api/fixed-taxes")
 app.include_router(
     outemployers_router, tags=["outemployers"], prefix="/api/outemployers"
 )

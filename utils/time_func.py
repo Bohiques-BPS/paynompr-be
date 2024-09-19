@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 
 def time_to_minutes(time_str: str) -> int:
     """Convierte una cadena de tiempo en formato HH:MM a minutos."""
@@ -34,3 +34,21 @@ def getPeriodTime(periodo: int, year: int):
     }
 
     return period[periodo]
+
+def calculete_service_year(date_admission):
+    """Calcula los años de servicio a partir de una fecha de adhesión.
+
+    Args:
+        fecha_adhesion: Un objeto datetime.date que representa la fecha de adhesión.
+
+      Returns:
+        Un entero que representa los años de servicio.
+    """
+    today = datetime.today()
+    years = today.year - date_admission.year
+
+    # Si aún no ha pasado el mes de nacimiento en el año actual, restamos un año
+    if today.month < date_admission.month or (today.month == date_admission.month and today.day < date_admission.day):
+        years -= 1
+
+    return years
