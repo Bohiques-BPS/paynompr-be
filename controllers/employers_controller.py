@@ -21,7 +21,7 @@ employers_router = APIRouter()
 
 
 
-def create_employer_controller(employer_data, company_id):
+def create_employer_controller(employer_data: Employers, company_id):
     try: 
         vacation_hours = employer_data.vacation_hours
         vacation_hours_monthly = employer_data.vacation_hours_monthly
@@ -86,7 +86,7 @@ def create_employer_controller(employer_data, company_id):
             vacation_hours_monthly=vacation_hours_monthly,
             vacation_date = employer_data.vacation_date,
             sicks_hours=employer_data.sicks_hours,
-            sicks_hours_monthly=employer_data.sicks_date,
+            sicks_hours_monthly=employer_data.sicks_hours_monthly,
             sicks_date=employer_data.sicks_date,
 
             number_dependents=employer_data.number_dependents,

@@ -263,25 +263,37 @@ def get_time_by_employer_id_controller(employer_id):
         session.close()
     
 def get_sum_taxes_by_employer_id_controller(employer_id):
+    print("sum taces jejejeje")
     try:
         
-        year = datetime.now().year
-        time_query = session.query(func.sum(Time.inability).label("total_inability"),
-                                func.sum(Time.medicare).label("total_medicare"),
-                                func.sum(Time.secure_social).label("total_secure_social"),
-                                func.sum(Time.social_tips).label("total_social_tips"),
-                                func.sum(Time.choferil).label("total_choferil")
-                                ).filter(Time.employer_id == employer_id
-                                ).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id
-                                ).filter(Period.year == datetime.now().year,Time.employer_id == employer_id).group_by(Time.employer_id).all()
 
-        print("sumas",time_query)
+        time_query = session.query(
+            func.sum(Time.inability).label("total_inability"),
+            func.sum(Time.medicare).label("total_medicare"),
+            func.sum(Time.secure_social).label("total_secure_social"),
+            func.sum(Time.social_tips).label("total_social_tips"),
+            func.sum(Time.choferil).label("total_choferil")
+        ).join(Period, Period.id == Time.period_id).filter(           
+                Time.employer_id == employer_id,
+                Period.year == datetime.now().year
+            ).group_by(Time.employer_id).all()
+        
+        result_dict = {
+            "total_inability": time_query[0][0],
+            "total_medicare": time_query[0][1],
+            "total_secure_social": time_query[0][2],
+            "total_social_tips": time_query[0][3],
+            "total_choferil": time_query[0][4]
+        }
+
+        print("sumas",result_dict)
         return {
             "ok": True,
             "msg": "Employers were successfully retrieved",
-            "result": time_query,
+            "result": result_dict,
         }
     except Exception as e:
+        print("Wl error",e)
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -488,7 +500,7 @@ def update_time_controller(time_id, time):
 
 
 def update_vaction_time(employer_id, times, employer,vacation_time, year, month):
-
+    print("update_vaction_time")
     if times:
         hours_worked = 0
         for time in times:
@@ -502,7 +514,7 @@ def update_vaction_time(employer_id, times, employer,vacation_time, year, month)
         )
         
         vacation_hours = employer.vacation_hours
-        
+        print("cac esta",employer.vacation_hours_monthly ,hours_worked)
         if employer.vacation_hours_monthly <= hours_worked:            
 
             if not vacation_time:
@@ -539,8 +551,8 @@ def update_vaction_time(employer_id, times, employer,vacation_time, year, month)
 
 
 
-def update_sicks_time(employer_id, times, employer,vacation_time, year, month):
-
+def update_sicks_time(employer_id, times, employer: Employers,vacation_time, year, month):
+    print("update_sicks_time",employer.sicks_hours_monthly )
     if times:
         hours_worked = 0
         for time in times:
