@@ -212,13 +212,16 @@ def create_time_controller(time_data, employer_id):
         update_sicks_time(time_query.employer_id,times,employers,vacation_time, year, month)
 
         for item in time_data.payment:
+            is_active =  item.is_active
+            if (item.required == 2):
+                is_active = True
             payment_query = Payments(
                 name=item.name,
                 amount=item.amount,
                 value=item.value,
                 taxe_id = item.id,
                 time_id=time_query.id,
-                is_active=item.is_active,
+                is_active=is_active,
                 required=item.required,
                 type_taxe=item.type_taxe,
                 type_amount=item.type_amount,
@@ -439,12 +442,14 @@ def update_time_controller(time_id, time):
     update_sicks_time(time_query.employer_id,times,employer,vacation_time, year, month)
     for item in time.payment:
         payment_query = session.query(Payments).filter_by(id=item.id).first()
-        
+        is_active =  item.is_active
+        if (item.required == 2):
+            is_active = True
         payment_query.name=item.name
         payment_query.amount=item.amount
         payment_query.value=item.value
         payment_query.time_id=time_query.id
-        payment_query.is_active=item.is_active
+        payment_query.is_active=is_active
         payment_query.required=item.required
         payment_query.type_taxe=item.type_taxe
         payment_query.type_amount=item.type_amount        

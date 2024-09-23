@@ -188,7 +188,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
 
         
 
-        payment_query = session.query(Payments).select_from(Period).join(Time, Period.id == Time.period_id ).join(Payments, Payments.time_id == Time.id).filter(Payments.is_active == True,Payments.is_active == True,Period.year == 2024,Period.period_start <= time_period_query.Period.period_start,Time.employer_id == employer_id).all()
+        payment_query = session.query(Payments).select_from(Period).join(Time, Period.id == Time.period_id ).join(Payments, Payments.time_id == Time.id).filter(Period.year == 2024,Period.period_start <= time_period_query.Period.period_start,Time.employer_id == employer_id).all()
         payment_texts = ""
         # Crear lista de textos de pagos
         total_payment_amount = 0
@@ -197,17 +197,25 @@ def counterfoil_controller(company_id, employer_id, time_id):
 
         # Calculate total amount by tax_id
         for payment in payment_query:
-            total_amount_by_tax_id[payment.taxe_id] += payment.amount
+            print("----------- " +str(payment.amount))
+            if (payment.is_active or payment.required == 2):
+                total_amount_by_tax_id[payment.taxe_id] += payment.amount
+            
 
         for payment in payment_query:
-            total_payment_amount += payment.amount
-            if payment.time_id == time_id:
-                amount = payment.amount;
-                if (payment.amount< 0):
-                    amount = payment.amount * -1
-                total_for_current_tax_id = total_amount_by_tax_id.get(payment.taxe_id, 0)
+            if (payment.is_active or payment.required == 2):
+                total_payment_amount += payment.amount
+                if payment.time_id == time_id:
+                    amount = payment.amount;
+                    if (payment.amount< 0):
+                        amount = payment.amount * -1
+                    total_for_current_tax_id = total_amount_by_tax_id.get(payment.taxe_id, 0)
 
-                payment_texts += f" <tr><td>{payment.name}:</td><td>${amount}</td><td>${total_for_current_tax_id}</td></tr>"
+                    payment_texts += f" <tr><td>{payment.name}:</td><td>${amount}</td><td>${total_for_current_tax_id}</td></tr>"
+            else:
+                if payment.time_id == time_id:
+                    total_for_current_tax_id = total_amount_by_tax_id.get(payment.taxe_id, 0)
+                    payment_texts += f" <tr><td>{payment.name}:</td><td>$0</td><td>${total_for_current_tax_id}</td></tr>"
 
 
         if not time_query:
@@ -280,11 +288,12 @@ def counterfoil_controller(company_id, employer_id, time_id):
         def calculate_payments():
             amount = 0
             for payment in payment_query:
-                if (payment.time_id == time_id):
-                    if payment.type_taxe == 1 and payment.amount > 0:
-                        amount -= payment.amount
-                    else:
-                        amount += payment.amount
+                if (payment.is_active == True or payment.required == 2):
+                    if (payment.time_id == time_id):
+                        if payment.type_taxe == 1 and payment.amount > 0:
+                            amount -= payment.amount
+                        else:
+                            amount += payment.amount
            
             return amount
 
@@ -336,11 +345,11 @@ def counterfoil_controller(company_id, employer_id, time_id):
             "total_col_1" : round(time_query.regular_pay+time_query.over_pay+time_query.meal_pay+time_query.holyday_pay+time_query.sick_pay+time_query.vacation_pay+ time_query.tips+ time_query.commissions+ time_query.concessions, 2) ,
             "total_col_1_year" : round(all_time_query[0].total_regular_pay+all_time_query[0].total_over_pay+all_time_query[0].total_meal_pay+all_time_query[0].total_holyday_pay+all_time_query[0].total_sick_pay+all_time_query[0].total_vacation_pay+ all_time_query[0].total_tips+ all_time_query[0].total_commissions+ all_time_query[0].total_concessions, 2) ,
             
-            "total_col_2" : round(time_query.asume+time_query.refund+time_query.donation+payment_amount, 2) ,
-            "total_col_2_year" : round(all_time_query[0].total_asume+all_time_query[0].total_refund+all_time_query[0].total_donation+all_time_query[0].total_aflac+total_payment_amount, 2) ,
+            "total_col_2" : round(time_query.asume+time_query.donation+payment_amount+time_query.aflac-time_query.refund, 2) ,
+            "total_col_2_year" : round(all_time_query[0].total_asume+all_time_query[0].total_donation+total_payment_amount+all_time_query[0].total_aflac-all_time_query[0].total_refund, 2) ,
 
-            "total_col_3" : round(time_query.tax_pr+time_query.secure_social+time_query.choferil+time_query.inability+time_query.medicare+time_query.social_tips+time_query.aflac, 2) ,
-            "total_col_3_year" : round(all_time_query[0].total_tax_pr+all_time_query[0].total_ss+all_time_query[0].total_tips+all_time_query[0].total_choferil+all_time_query[0].total_inability+all_time_query[0].total_medicare+all_time_query[0].total_social_tips, 2) ,
+            "total_col_3" : round(time_query.tax_pr+time_query.secure_social+time_query.choferil+time_query.inability+time_query.medicare+time_query.social_tips, 2) ,
+            "total_col_3_year" : round(all_time_query[0].total_tax_pr+all_time_query[0].total_ss+all_time_query[0].total_choferil+all_time_query[0].total_inability+all_time_query[0].total_medicare+all_time_query[0].total_social_tips, 2) ,
            
 
             "asume" : time_query.asume,
@@ -363,6 +372,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
             "period_type": period.period_type.value,
             # COMPANY INFO
             "company": company.name,
+            "physical_address": company.physical_address,
             # TIME INFO
             "regular_hours": time_query.regular_time,
             "over_hours": time_query.over_time,
@@ -387,6 +397,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
             "year_curr":calculate_year_curr(period.period_type.value, regular_pay(time_query.regular_amount, time_query.regular_time,time_query.salary,time_query.others,time_query.bonus)),
             #RATE
             "regular_rate": time_query.regular_amount,
+            "mealt_rate": time_query.meal_amount,
             "over_rate": time_query.over_amount,
             # DESCUENTOS INFO
             "secure_social": time_query.secure_social,
@@ -417,6 +428,17 @@ def counterfoil_controller(company_id, employer_id, time_id):
                         background-color: #fff;
                         color: #000;
                     }
+                     .cheque {
+      border: 2px solid black;
+      padding: 20px;
+      margin-top: 10px;
+   
+    }
+    .titulo-cheque {
+      font-weight: bold;
+      font-size: 24px;
+      text-align: center;
+    }
                     .container {
                         width: 100%;
 
@@ -446,6 +468,8 @@ def counterfoil_controller(company_id, employer_id, time_id):
                         padding: 10px;
                         box-sizing: border-box;
                     }
+                    .cheque  .column {
+                        width:50%; }
                     .totals {
                         text-align: right;
                     }
@@ -596,11 +620,52 @@ Gastos Reembolsados:</td>
                             <td>${{ donation }}</td>
                             <td>${{ total_donation }}</td>
                         </tr>
+                         <tr>
+                            <td>AFLAC:</td>
+                            <td>${{ aflac }}</td>
+                            <td>${{ total_aflac }}</td>
+                        </tr>
+
+                       
+
+
+                        
                          {{payment_texts}}
-                        <tr>
+                          <tr>
                             <td>Total:</td>
                             <td>${{ total_col_2 }}</td>
                             <td>${{ total_col_2_year }}</td>
+                        </tr>
+                         <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                         <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                         <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                       
+                         <tr>
+                            <td>REG RATE:</td>
+                            <td>${{ regular_rate }}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>MEALT RATE:</td>
+                            <td>${{ mealt_rate }}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>OVER RATE:</td>
+                            <td>${{ over_rate }}</td>
+                            <td></td>
                         </tr>
 
                     </table>
@@ -644,10 +709,26 @@ Gastos Reembolsados:</td>
                             <td>${{ choferil }}</td>
                             <td>${{ total_choferil }}</td>
                         </tr>
-                        <tr>
-                            <td>AFLAC:</td>
-                            <td>${{ aflac }}</td>
-                            <td>${{ total_aflac }}</td>
+                       
+                         <tr>
+                            <td>Total:</td>
+                            <td>${{ total_col_3 }}</td>
+                            <td>${{ total_col_3_year }}</td>
+                        </tr>
+                         <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                         <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                         <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                         </tr>
                          <tr>
                             <td>REG. HOURS:</td>
@@ -682,11 +763,7 @@ Gastos Reembolsados:</td>
                          
                         
                         
-                         <tr>
-                            <td>Total:</td>
-                            <td>${{ total_col_3 }}</td>
-                            <td>${{ total_col_3_year }}</td>
-                        </tr>
+                        
                     </table>
                    </div>
 </div>
@@ -697,11 +774,38 @@ Gastos Reembolsados:</td>
                     <div class="footer">
                         <p>VAC ACUM: ENF ACUM:</p>
                     </div>
+
+              
                 </div>
-            </body>
-            </html>
+                      <div class="cheque">
+    <div>
 
 
+                        <div style="font-size: 14px;" class="flex-container">
+                            <div class="column" style="width: 70%;">
+
+
+
+                                                      <p > {{ company }}</p>
+                                                      <p style="margin-top: 0px"> {{ physical_address }}</p>
+
+                              <p style="margin-top: 24px;width: 100%;            ">PAY TO ORDER OF: <span style="border-bottom: 1px solid black;padding: 2px 16px 2px 16px;">      {{ first_name }} {{ last_name }}             </p>
+                         
+                       
+                               
+                                <p style="margin-top: 24px;">FOR: ________________</p>
+                              
+                            </div>
+                            <div class="column" style="text-align: right;width: 30%;">
+                             <p>Fecha: {{ actual_date }}</p>
+                                <p   style="margin-top: 56px;">Total: ${{ total }}</p>
+                                <p style="margin-top: 24px;">FOR: ________________</p>
+                            </div>
+                        </div>
+                    </div>
+
+
+                       
 
         """
 
