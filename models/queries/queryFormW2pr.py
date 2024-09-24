@@ -18,24 +18,24 @@ def queryFormW2pr(employer_id, year = None):
     amountVarios = getAmountVarios(employer_id, year)
 
     # Date of birth (format: YYYY-MM-DD)
-    birthday = str(employer.birthday).split('-') if employer.birthday is not None else '0000-00-00'.split('-')
+    birthday = str(employer.birthday).split('-') if employer.birthday is not None else '1000-01-01'.split('-')
     age = getAgeEmployer(birthday)
 
     # Rounding amount to 2 decimal places
-    rounded_amount_medicares = roundedAmount(amountVarios.medicares)
-    rounded_amount_aflac = roundedAmount(amountVarios.aflac)
-    rounded_amount_commissions = roundedAmount(amountVarios.commissions)
-    rounded_amount_bonus = roundedAmount(amountVarios.bonus)
-    rounded_amount_wages = roundedAmount(amountVarios.wages + rounded_amount_bonus) if age > 26 else 0
-    rounded_amount_wages_26 = roundedAmount(amountVarios.wages + rounded_amount_bonus) if age <= 26 else 0.00
-    rounded_amount_concessions = roundedAmount(amountVarios.concessions)
-    rounded_amount_tips = roundedAmount(amountVarios.tips)
-    rounded_amount_donation = roundedAmount(amountVarios.donation)
+    rounded_amount_medicares = roundedAmount(amountVarios.medicares if amountVarios.medicares is not None else 0)
+    rounded_amount_aflac = roundedAmount(amountVarios.aflac if amountVarios.aflac is not None else 0)
+    rounded_amount_commissions = roundedAmount(amountVarios.commissions if amountVarios.commissions is not None else 0)
+    rounded_amount_bonus = roundedAmount(amountVarios.bonus if amountVarios.bonus is not None else 0)
+    rounded_amount_wages = roundedAmount(amountVarios.wages if amountVarios.wages is not None else 0 + rounded_amount_bonus) if age > 26 else 0
+    rounded_amount_wages_26 = roundedAmount(amountVarios.wages if amountVarios.wages is not None else 0 + rounded_amount_bonus) if age <= 26 else 0.00
+    rounded_amount_concessions = roundedAmount(amountVarios.concessions if amountVarios.concessions is not None else 0)
+    rounded_amount_tips = roundedAmount(amountVarios.tips if amountVarios.tips is not None else 0)
+    rounded_amount_donation = roundedAmount(amountVarios.donation if amountVarios.donation is not None else 0)
     rounded_amount_11 = roundedAmount(rounded_amount_commissions + rounded_amount_wages + rounded_amount_concessions + rounded_amount_tips)
-    rounded_amount_refunds = roundedAmount(amountVarios.refunds)
-    rounded_amount_secures_social = roundedAmount(amountVarios.secure_social)
-    rounded_amount_social_tips = roundedAmount(amountVarios.social_tips)
-    rounded_amount_taxes_pr = roundedAmount(amountVarios.taxes_pr)
+    rounded_amount_refunds = roundedAmount(amountVarios.refunds if amountVarios.refunds is not None else 0)
+    rounded_amount_secures_social = roundedAmount(amountVarios.secure_social if amountVarios.secure_social is not None else 0)
+    rounded_amount_social_tips = roundedAmount(amountVarios.social_tips if amountVarios.social_tips is not None else 0)
+    rounded_amount_taxes_pr = roundedAmount(amountVarios.taxes_pr if amountVarios.taxes_pr is not None else 0)
 
     # Address Company
     physicalAddressCompany = company.physical_address if company.physical_address is not None else ''

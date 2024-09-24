@@ -1,5 +1,6 @@
 from datetime import datetime
 from decimal import ROUND_HALF_UP, Decimal
+import fitz  # PyMuPDF
 
 
 from fastapi import APIRouter, HTTPException, status
@@ -68,7 +69,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
 
         # Función para convertir una cadena de tiempo a minutos
         def time_to_minutes(time_str):
-            printf("-------------------"+time_str) 
+            printf("-------------------"+time_str)
             hours, minutes = map(int, time_str.split(':'))
             return hours * 60 + minutes
 
@@ -78,7 +79,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
         time_query = session.query(Time).filter(Time.id == time_id).first()
         all_time_query = session.query(func.sum(Time.salary).label("total_salary"),func.sum(Time.others).label("total_others"),func.sum(Time.vacation_pay).label("total_vacation_pay"),func.sum(Time.holyday_pay).label("total_holyday_pay"),func.sum(Time.sick_pay).label("total_sick_pay"),func.sum(Time.meal_pay).label("total_meal_pay"),func.sum(Time.over_pay).label("total_over_pay"),func.sum(Time.regular_pay).label("total_regular_pay"),func.sum(Time.donation).label("total_donation"),func.sum(Time.tips).label("total_tips"),func.sum(Time.aflac).label("total_aflac"),func.sum(Time.inability).label("total_inability"),func.sum(Time.choferil).label("total_choferil"),func.sum(Time.social_tips).label("total_social_tips"),func.sum(Time.asume).label("total_asume"),func.sum(Time.concessions).label("total_concessions"),func.sum(Time.commissions).label("total_commissions"),func.sum(Time.bonus).label("total_bonus"),func.sum(Time.refund).label("total_refund"),func.sum(Time.medicare).label("total_medicare"),func.sum(Time.secure_social).label("total_ss"),func.sum(Time.tax_pr).label("total_tax_pr")).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id).filter(Period.year == 2024,Time.employer_id == employer_id,Period.period_start <= time_period_query.Period.period_start,Time.employer_id == employer_id).group_by(Period.year).all()
 
-       
+
         all_times_query = session.query(Time).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id).filter(Period.year == 2024,Time.employer_id == employer_id,Period.period_start <= time_period_query.Period.period_start).all()
 
         total_regular_time  = "00:00"
@@ -99,49 +100,49 @@ def counterfoil_controller(company_id, employer_id, time_id):
         total_holiday_time  = "00:00"
         total_holiday_time_seconds = 0
         for time_entry in all_times_query:
-            regular_time = time_entry.regular_time 
-            over_time = time_entry.over_time 
-            mealt_time = time_entry.meal_time 
-            vacation_time = time_entry.vacation_time 
-            sick_time = time_entry.sick_time 
-            holiday_time = time_entry.holiday_time 
+            regular_time = time_entry.regular_time
+            over_time = time_entry.over_time
+            mealt_time = time_entry.meal_time
+            vacation_time = time_entry.vacation_time
+            sick_time = time_entry.sick_time
+            holiday_time = time_entry.holiday_time
 
 
 
             try:
                 # Convertir la cadena a horas y minutos
                 regular_hours, regular_minutes = map(int, regular_time.split(':'))
-                
+
                 # Convertir a segundos
                 regular_total_seconds = regular_hours * 3600 + regular_minutes * 60
 
                 # Convertir la cadena a horas y minutos
                 over_hours, over_minutes = map(int, over_time.split(':'))
-                
+
                 # Convertir a segundos
                 over_total_seconds = over_hours * 3600 + over_minutes * 60
 
                 # Convertir la cadena a horas y minutos
                 mealt_hours, mealt_minutes = map(int, mealt_time.split(':'))
-                
+
                 # Convertir a segundos
                 mealt_total_seconds = mealt_hours * 3600 + mealt_minutes * 60
 
                 # Convertir la cadena a horas y minutos
                 vacation_hours, vacation_minutes = map(int, vacation_time.split(':'))
-                
+
                 # Convertir a segundos
                 vacation_total_seconds = vacation_hours * 3600 + vacation_minutes * 60
 
                 # Convertir la cadena a horas y minutos
                 sick_hours, sick_minutes = map(int, sick_time.split(':'))
-                
+
                 # Convertir a segundos
                 sick_total_seconds = sick_hours * 3600 + sick_minutes * 60
 
                 # Convertir la cadena a horas y minutos
                 holiday_hours, holiday_minutes = map(int, holiday_time.split(':'))
-                
+
                 # Convertir a segundos
                 holiday_total_seconds = holiday_hours * 3600 + holiday_minutes * 60
 
@@ -186,7 +187,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
 
 
 
-        
+
 
         payment_query = session.query(Payments).select_from(Period).join(Time, Period.id == Time.period_id ).join(Payments, Payments.time_id == Time.id).filter(Period.year == 2024,Period.period_start <= time_period_query.Period.period_start,Time.employer_id == employer_id).all()
         payment_texts = ""
@@ -284,7 +285,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
             aflac = time_query.aflac
 
             return float(secure_social) + float(ss_tips) + float(medicare) + float(inability) + float(choferil) + float(tax_pr)  + float(aflac) + float(time_query.asume) + float(time_query.donation)
-        
+
         def calculate_payments():
             amount = 0
             for payment in payment_query:
@@ -301,7 +302,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
             income = calculate_income()
             egress = calculate_egress()
             adicional_amount = calculate_payments()
-            
+
             return round(income - egress + adicional_amount, 2)
         payment_amount = calculate_payments()
         if (payment_amount < 0 ):
@@ -336,7 +337,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
             "total_regular_time" : total_regular_time ,
             "total_over_time" : total_over_time ,
             "total_meal_time" : total_mealt_time ,
-            "holiday_time_pay" : time_query.holyday_pay, 
+            "holiday_time_pay" : time_query.holyday_pay,
             "total_holiday_pay" : all_time_query[0].total_holyday_pay ,
 
             "total_holiday_time" : total_holiday_time ,
@@ -682,7 +683,7 @@ Gastos Reembolsados:</td>
                             <td>${{ tax_pr }}</td>
                             <td>${{ total_tax_pr }}</td>
                         </tr>
-                       
+
                         <tr>
                             <td>SEGURO SOCIAL:</td>
                             <td>${{ secure_social }}</td>
@@ -829,17 +830,35 @@ Gastos Reembolsados:</td>
     finally:
         session.close()
 
-def form_w2pr_pdf_controller(employer_id, year):
+
+def form_w2pr_pdf_controller(company_id, employer_id, year):
     try:
-        info = queryFormW2pr(employer_id, year)
-        if info is None:
-            return Response(status_code=status.HTTP_404_NOT_FOUND, content="No data found")
+        employers = []
+        pdf_files = []
+        if company_id is not None:
+            employers = session.query(Employers.id).filter(Employers.company_id == company_id).all()
+        else:
+            employers = session.query(Employers.id).filter(Employers.id == employer_id).all()
 
-        template = Template(form_w2pr_pdf_generate())
-        rendered_html = template.render(info)
+        for (index, employer) in enumerate(employers, start=1):
+            info = queryFormW2pr(employer.id, year)
+            if info is None:
+                return Response(status_code=status.HTTP_404_NOT_FOUND, content="No data found")
 
-        pdf_file = "./output_files/form_w2pr.pdf"
-        HTML(string=rendered_html).write_pdf(pdf_file)
+            template = Template(form_w2pr_pdf_generate())
+            rendered_html = template.render(info)
+
+            pdf_file = f"./output_files/form_w2pr{index}.pdf"
+            HTML(string=rendered_html).write_pdf(pdf_file)
+            pdf_files.append(pdf_file)
+
+
+        doc3 = fitz.open()
+        for file in pdf_files:
+            doc3.insert_file(file)
+
+        pdf_file = "./output_files/form_w2pr_combined.pdf"
+        doc3.save(pdf_file)
 
         return FileResponse(
             pdf_file,

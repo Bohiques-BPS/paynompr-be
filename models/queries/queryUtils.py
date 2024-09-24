@@ -192,7 +192,9 @@ def getEmployersAmount(company_id, date_period):
       Employers.id,
       Employers.first_name,
       Employers.last_name,
-      Employers.social_security_number
+      Employers.licence,
+      Employers.social_security_number,
+      func.count(Time.period_id).label('total_weeks'),
     ).join(Employers).join(Period).filter(
       and_(
         Employers.company_id == company_id,

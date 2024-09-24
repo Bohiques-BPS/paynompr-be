@@ -1,32 +1,44 @@
-from models.queries.queryUtils import getCompany, getTotalAmountAndWeeks
+from models.queries.queryUtils import getCompany, getEmployersAmount, roundedAmount
+from utils.time_func import getPeriodTime
+from datetime import datetime, date
 
 def queryFormChoferil (company_id, year, periodo):
 
     company = getCompany(company_id)['company']
 
-    # Address Company
-    physicalAddressCompany = company.physical_address if company.physical_address is not None else ''
-    statePhysicalAddressCompany = company.state_physical_address if company.state_physical_address is not None else ''
-    countryPhysicalAddressCompany = company.country_physical_address if company.country_physical_address is not None else ''
-    zipCodeAddressCompany = company.zipcode_physical_address if company.zipcode_physical_address is not None else ''
+    date_period = getPeriodTime(periodo, year)
+    dateToday = datetime.now()
 
-    # Calculate Total Amount
-    totalAmountAndWeeks = getTotalAmountAndWeeks(company_id, year, periodo)
+    employees = getEmployersAmount(company.id, date_period)
+
+    index = 1
+    totalAmount = 0
+    totalWeeks = 0
+    arrayEmployees = []
+    for value in employees:
+        data = {
+            f'text_social_employee_{index}': value.social_security_number if value.social_security_number is not None else '',
+            f'text_name_{index}': f'{value.first_name} {value.last_name}',
+            f'text_license_number_{index}': value.licence if value.licence is not None else '',
+            f'text_total_weeks_{index}': str(value.total_weeks) if value.total_weeks is not None else '',
+        }
+
+        totalWeeks += value.total_weeks
+        arrayEmployees.append(data)
+        totalAmount += roundedAmount(value.total)
+        index += 1
 
     data = {
-        'txtNombrePatrono': company.name if company.name is not None else '',
-        'Parte 11  Cambio de Dirección Física  Physical Change Address': company.physical_address if company.physical_address is not None else '',
-        'txtNumeroCuenta': company.polize_number if company.polize_number is not None else '',
-        'txtEMail': company.email if company.email is not None else '',
-        'txtPhone': company.phone_number if company.phone_number is not None else '',
-        'txtPostal1': physicalAddressCompany,
-        'txtPostal2': statePhysicalAddressCompany,
-        'txtPostal3': countryPhysicalAddressCompany,
-        'txtPostal4': zipCodeAddressCompany,
-        'dicTotalTaxDue': str(round(totalAmountAndWeeks['total_amount'], 2)) if totalAmountAndWeeks['total_amount'] is not None else '0.00',
-        'intTotalWeek': str(totalAmountAndWeeks['weeks']),
-        'intYear': str(year),
-        'intQuarter': str(periodo),
+        'text_date_end': str(date_period['end']),
+        'text_total_weeks_paid': str(totalWeeks),
+        'text_total_tax_due': str(totalAmount),
+        'text_payment_ampunt': '0',
+        'text_position': '--',
+        'text_phone': company.phone_number if company.phone_number is not None else '',
+        'text_date': f'{dateToday.year}-{dateToday.month}-{dateToday.day}'
     }
+
+    for employee in arrayEmployees:
+        data.update(employee)
 
     return data

@@ -28,7 +28,10 @@ class EmployerYear(BaseModel):
     year: int
     period: int | None
 
-
+class CompanyOrEmployer(BaseModel):
+    company_id: int | None
+    employer_id: int | None
+    year: int
 
 
 @report_router.get("/counterfoil1/{company_id}/{period_Id}")
@@ -53,8 +56,8 @@ async def form_943_pdf(companyYear: CompanyYear):
     return form_943_pdf_controller(companyYear.company_id, companyYear.year, companyYear.period)
 
 @report_router.post("/form_w2pr_pdf")
-async def form_w2pr_pdf(employerYear: EmployerYear):
-    return form_w2pr_pdf_controller(employerYear.employer_id, employerYear.year)
+async def form_w2pr_pdf(companyOrEmployer: CompanyOrEmployer):
+    return form_w2pr_pdf_controller(companyOrEmployer.company_id, companyOrEmployer.employer_id, companyOrEmployer.year)
 
 
 @report_router.post("/form_unemployment_pdf")
@@ -68,9 +71,9 @@ async def form_withheld_499_pdf(companyYear: CompanyYear):
 
 
 
-@report_router.get("/form_choferil_pdf/{company_id}/{year}/{periodo}")
-async def form_choferil_pdf(company_id:int, year:int, periodo:int):
-    return form_choferil_pdf_controller(company_id, year, periodo)
+@report_router.post("/form_choferil_pdf")
+async def form_choferil_pdf(companyYear: CompanyYear):
+    return form_choferil_pdf_controller(companyYear.company_id, companyYear.year, companyYear.period)
 
 @report_router.get("/get_report_cfse_pdf/{company_id}")
 async def get_report_cfse_pdf(company_id: int):
