@@ -6,6 +6,38 @@ bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Database initial data
 INITIAL_DATA = {
+    "fixed_taxes":[ 
+        {
+            "id":1,
+            "name":"inability",
+            "amount":"0.3",
+            "limit":10000
+        },
+        {
+            "id":2,
+            "name":"medicare",
+            "amount":"1.45",
+            "limit":10000
+        },
+        {
+            "id":3,
+            "name":"secure_social",
+            "amount":"6.2",
+            "limit":10000
+        },
+        {
+            "id":4,
+            "name":"social_tips",
+            "amount":"6.2",
+            "limit":10000
+        },
+        {
+            "id":5,
+            "name":"choferil",
+            "amount":"0.5",
+            "limit":10000
+        },                                
+        ],
     "users": [
         {
             "name": "admin",

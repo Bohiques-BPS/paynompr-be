@@ -7,6 +7,17 @@ from sqlalchemy.orm import relationship
 from database.config import Base
 
 
+class  FixedTaxes(Base):
+    __tablename__ = "fixed_taxes"
+
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True, index=True
+    )
+    name: Mapped[str] = mapped_column(String(50),nullable=False,)
+    amount: Mapped[float] = mapped_column(nullable=True,default=0)
+    limit: Mapped[int] = mapped_column(nullable=True,default=0)  
+
+
 class  Taxes(Base):
     __tablename__ = "taxes"
 

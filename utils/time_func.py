@@ -35,6 +35,24 @@ def getPeriodTime(periodo: int, year: int):
 
     return period[periodo]
 
+def calculete_service_year(date_admission):
+    """Calcula los años de servicio a partir de una fecha de adhesión.
+
+    Args:
+        fecha_adhesion: Un objeto datetime.date que representa la fecha de adhesión.
+
+      Returns:
+        Un entero que representa los años de servicio.
+    """
+    today = datetime.today()
+    years = today.year - date_admission.year
+
+    # Si aún no ha pasado el mes de nacimiento en el año actual, restamos un año
+    if today.month < date_admission.month or (today.month == date_admission.month and today.day < date_admission.day):
+        years -= 1
+
+    return years
+
 def getAgeEmployer(birthday):
     dateBirthday = datetime(int(birthday[0]), int(birthday[1]), int(birthday[2]))
     dateToday = datetime.now()
