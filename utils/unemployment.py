@@ -2,7 +2,7 @@ from pathlib import Path
 import fitz  # PyMuPDF
 from database.config import session
 from models.queries.queryFormUnemployment import queryFormUnemployment
-
+import os
 
 def form_unemployment_pdf_generator(company_id, year, period):
 
@@ -85,3 +85,70 @@ def form_unemployment_pdf_generator(company_id, year, period):
     except Exception as e:
         print(f"An error occurred: {e}")
         return None
+    
+    
+    
+    
+def form_unemployment_pdf_generator22(company_id, year, period):
+    try:
+        # Directory paths
+        rute = Path(__file__).parent.absolute()
+        document_dir = rute.parent / 'output_files'
+        source_file_name = 'template/plantilla_unemployees_tmp.pdf'
+        output_file_name_prefix = 'unemployment_part_'  # Prefix for individual PDFs
+
+        data_entry = []
+
+        try:
+            # Retrieve employee data
+            data_entry = queryFormUnemployment(company_id, year, period)
+            employees = data_entry['employees']
+            
+        except Exception as e:
+            print(f"An error occurred obtaining data: {e}")
+            return None
+
+        # Split employees into groups of 24
+        employee_groups = [employees[i:i+24] for i in range(0, len(employees), 24)]
+
+        # Generate individual PDFs with employee lists (up to 24 per PDF)
+        for i, employee_group in enumerate(employee_groups):
+            output_file_name = document_dir / (output_file_name_prefix + str(i+1) + '.pdf')
+
+            try:
+                # Open the source PDF
+                doc = fitz.open(document_dir / source_file_name)
+
+                # Update form fields with data
+                for page_number in range(len(doc)):
+                    page = doc[page_number]
+                    for field in page.widgets():
+                        if field.field_type == fitz.PDF_WIDGET_TYPE_TEXT:
+                            if field.field_name in data_entry:
+                                field.field_value = data_entry[field.field_name]
+                                field.update()
+
+                # Save the individual PDF
+                doc.save(output_file_name, incremental=False, encryption=fitz.PDF_ENCRYPT_KEEP)
+                doc.close()
+
+            except Exception as e:
+                print(f"An error occurred generating part {i+1} PDF: {e}")
+
+        # Combine individual PDFs into a single PDF (optional)
+        def combine_pdfs(pdf_list, output_file_name):
+            combined_doc = fitz.open()
+            for pdf in pdf_list:
+                combined_doc.insert_pdf(pdf)
+            combined_doc.save(document_dir / output_file_name)
+            combined_doc.close()
+
+        # Uncomment the following lines to combine the PDFs
+        pdf_list = [document_dir / f for f in os.listdir(document_dir) if f.startswith(output_file_name_prefix)]
+        combine_pdfs(pdf_list, document_dir / 'unemployment_combined.pdf')
+
+        return document_dir
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None    

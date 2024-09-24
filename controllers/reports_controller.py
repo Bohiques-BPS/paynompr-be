@@ -69,7 +69,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
 
         # Función para convertir una cadena de tiempo a minutos
         def time_to_minutes(time_str):
-            printf("-------------------"+time_str)
+            print("-------------------"+time_str)
             hours, minutes = map(int, time_str.split(':'))
             return hours * 60 + minutes
 
