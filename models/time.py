@@ -35,7 +35,7 @@ class Time(Base):
     others: Mapped[float] = mapped_column(nullable=True, default=0)
     refund: Mapped[float] = mapped_column(nullable=True, default=0)
     bonus: Mapped[float] = mapped_column(nullable=True, default=0)
-    employer_retained: Mapped[float] = mapped_column(nullable=True, default=0)
+    employer_retained: Mapped[str] = mapped_column(nullable=True, default=0)
     regular_pay: Mapped[float] = mapped_column(nullable=True, default=0)
     over_pay: Mapped[float] = mapped_column(nullable=True, default=0)
     vacation_pay: Mapped[float] = mapped_column(nullable=True, default=0)
