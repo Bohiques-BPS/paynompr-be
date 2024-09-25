@@ -130,9 +130,8 @@ def getAmountVariosCompany(company_id, year, period = None):
       func.sum(Time.tax_pr).label('taxes_pr')
       ).join(Period).filter(
         and_(
-          Employers.company_id == company_id,
-          Period.period_start >= date_start,
-          Period.period_end <= date_end
+          Time.employer_id == company_id,
+          Period.year == year
         )
       ).all()
 

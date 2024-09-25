@@ -132,7 +132,7 @@ def create_time_controller(time_data, employer_id):
             sick_pay=time_data.sick_pay,
             holyday_pay=time_data.holyday_pay,  
             vacation_pay = time_data.vacation_pay,          
-            
+            employer_retained = employers.payment_percentage,
             regular_time=time_data.regular_time,
             over_time=time_data.over_time,
             meal_time=time_data.meal_time,

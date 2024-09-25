@@ -400,6 +400,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
             "regular_rate": time_query.regular_amount,
             "mealt_rate": time_query.meal_amount,
             "over_rate": time_query.over_amount,
+            "employer_retained" : time_query.employer_retained,
             # DESCUENTOS INFO
             "secure_social": time_query.secure_social,
             "ss_tips": time_query.social_tips,
@@ -666,6 +667,11 @@ Gastos Reembolsados:</td>
                         <tr>
                             <td>OVER RATE:</td>
                             <td>${{ over_rate }}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>% RETENCIÓN:</td>
+                            <td>${{ employer_retained }} %</td>
                             <td></td>
                         </tr>
 
