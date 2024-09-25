@@ -46,7 +46,8 @@ def create_employer_controller(employer_data: Employers, company_id):
                     vacation_hours = 8
                 else:
                     vacation_hours = 10                                       
-
+        if (employer_data.salary is None):
+            employer_data.salary = 0
         employer_query = Employers(
             last_name=employer_data.last_name,
             mother_last_name=employer_data.mother_last_name,
@@ -171,7 +172,8 @@ def update_employer_controller(employers_id, employer, user):
                     vacation_hours = 8
                 else:
                     vacation_hours = 10                                       
-        
+        if (employer.salary is None):
+            employer.salary = 0
         employer_query.last_name = employer.last_name
         employer_query.mother_last_name = employer.mother_last_name
         employer_query.first_name = employer.first_name
