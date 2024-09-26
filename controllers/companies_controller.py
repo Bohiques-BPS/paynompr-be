@@ -126,7 +126,7 @@ def time_to_hours(time_str: str) -> float:
     hours, minutes = map(int, time_str.split(':'))
     return hours + minutes / 60
 
-def get_all_company_and_employer_controller(user, company_id, employers_id):    
+def get_all_company_and_employer_controller(user, company_id, employers_id,year):    
     try:
         # Filtramos la compañía y el empleador
         companie_query = session.query(Companies).filter(Companies.id == company_id).first()
@@ -149,7 +149,7 @@ def get_all_company_and_employer_controller(user, company_id, employers_id):
         
         # Consulta para obtener todos los periodos del año 2024 y con period_start mayor que la fecha actual
         periods_query = session.query(Period).filter(
-        Period.year == datetime.now().year,
+        Period.year == year,
         Period.is_deleted == False,
         Period.period_type == type_period,
         datetime.now() >  Period.period_start

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from controllers.taxes_controller import create_taxe_controller, delete_taxe_controller, get_taxes_by_company_and_taxe_controller, get_taxes_by_company_controller, update_taxe_controller
+from controllers.taxes_controller import create_taxe_controller,disable_taxe_controller, delete_taxe_controller, get_taxes_by_company_and_taxe_controller, get_taxes_by_company_controller, update_taxe_controller
 from routers.auth import user_dependency
 from models.taxes import Taxes
 from schemas.taxes import TaxeIDShema, TaxeShema
@@ -17,8 +17,11 @@ async def create_taxe(taxe_data: TaxeShema, company_id : int):
 
 @taxes_router.delete("/{taxes_id}")
 async def employers(taxes_id: int,):
-    return delete_taxe_controller(taxes_id)
+    return disable_taxe_controller(taxes_id)
 
+@taxes_router.delete("/delete/{taxes_id}")
+async def employers(taxes_id: int,):
+    return delete_taxe_controller(taxes_id)
 
 @taxes_router.get("/{company_id}")
 async def get_taxes_by_company(company_id: int):

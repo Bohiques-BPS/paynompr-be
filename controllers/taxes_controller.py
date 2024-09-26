@@ -8,6 +8,7 @@ from database.config import session
 from routers.auth import user_dependency
 
 from models.taxes import Taxes
+from models.payments import Payments
 
 
 
@@ -46,7 +47,7 @@ def create_taxe_controller(taxe_data, company_id):
     finally:
         session.close()
 
-def delete_taxe_controller(taxes_id):
+def disable_taxe_controller(taxes_id):
     try:    
         taxe_query = session.query(Taxes).filter(Taxes.id == taxes_id).first()
         taxe_query.is_deleted = not taxe_query.is_deleted    
@@ -116,6 +117,30 @@ def update_taxe_controller(taxe_id, taxe):
         session.refresh(taxes_query)
 
         return {"ok": True, "msg": "Taxe was successfully updated", "result": taxes_query}
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred: {str(e)}"
+        )
+    finally:
+        session.close()
+
+def delete_taxe_controller(taxe_id):
+    try: 
+        # Verificar si la compañía tiene time asociados
+        taxe_count = session.query(Payments).filter(Payments.taxe_id == taxe_id).count()
+
+        if taxe_count > 0:   
+            return {"ok": False, "msg": "El Taxe no puede ser eliminado porque esta cargado en horas de usuarios.", "result": None}
+        # Si no hay empleados, proceder con la eliminación
+        taxe_query = session.query(Taxes).filter(Taxes.id == taxe_id).first()
+        if taxe_query:
+            session.delete(taxe_query)
+            session.commit()
+            return {"ok": True, "msg": "Taxe eliminada con éxito.", "result": taxe_query}
+        else:
+            return {"ok": False, "msg": "Taxe no encontrada.", "result": None}
     except Exception as e:
         session.rollback()
         raise HTTPException(

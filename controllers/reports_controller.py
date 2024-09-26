@@ -312,6 +312,9 @@ def counterfoil_controller(company_id, employer_id, time_id):
             "first_name": employer.first_name,
             "salary": time_query.salary,
             "others": time_query.others,
+            "vacation_time": employer.vacation_time,
+            "sick_time": employer.sick_time,
+            "others": time_query.others,
             "total_ss":round(all_time_query[0].total_ss, 2) ,
             "total_tax_pr":round(all_time_query[0].total_tax_pr, 2) ,
             "total_medicare":round(all_time_query[0].total_medicare, 2) ,
@@ -774,13 +777,14 @@ Gastos Reembolsados:</td>
                     </table>
                    </div>
 </div>
+ <div class="footer" style="  padding-left: 12px;">
+                        <p>VAC ACUM: {{vacation_time}} ENF ACUM: {{sick_time}}</p>
+                    </div>
                     <div class="totals">
                         <p>Total: ${{ total }}</p>
                     </div>
 
-                    <div class="footer">
-                        <p>VAC ACUM: ENF ACUM:</p>
-                    </div>
+                   
 
               
                 </div>

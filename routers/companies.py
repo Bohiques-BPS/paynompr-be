@@ -45,9 +45,9 @@ async def get_all_companies(user: user_dependency):
     return get_all_companies_controller(user)
 
 # Obtener compañía y empleador por ID
-@companies_router.get("/{company_id}/employer/{employers_id}")
-async def get_all_company_and_employer(user: user_dependency, company_id: int, employers_id: int):
-    return get_all_company_and_employer_controller(user, company_id, employers_id)
+@companies_router.get("/{company_id}/employer/{employers_id}/year/{year}")
+async def get_all_company_and_employer(user: user_dependency, company_id: int, employers_id: int,year : str):
+    return get_all_company_and_employer_controller(user, company_id, employers_id,year)
 
 # Obtener talonario por compañía, empleador y periodo
 @companies_router.get("/{company_id}/employer/{employers_id}/period/{period_id}")
