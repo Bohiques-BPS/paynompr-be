@@ -56,7 +56,7 @@ def create_time_controller(time_data, employer_id):
             if not employers:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Cuenta no encontrada"
+                    detail=f"Contador no encontrada"
                 )        
             
         #calculamos el total_payment
@@ -234,12 +234,12 @@ def create_time_controller(time_data, employer_id):
                 create_monthly_periods(year + 1)
             
         
-        return {"ok": True, "msg": "Time was successfully created", "result": {"time": time_query} }
+        return {"ok": True, "msg": "El tiempo se creó con éxito", "result": {"time": time_query} }
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error: {str(e)}"
         )
     finally:
         session.close()
@@ -250,14 +250,14 @@ def get_time_by_employer_id_controller(employer_id):
 
         return {
             "ok": True,
-            "msg": "Employers were successfully retrieved",
+            "msg": "Los empleadores fueron recuperados con éxito",
             "result": time_query,
         }
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error: {str(e)}"
         )
     finally:
         session.close()
@@ -282,14 +282,14 @@ def get_all_data_time_employer_controller(company_id: int, employer_id: int, tim
         if not company_query  or not time_query:
             raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Company, Employer, or Time not found"
+            detail="Compañia, empleado o tiempo no encontrado"
             )
 
         total_amount = session.query(func.sum(Time.total_payment)).join(Employers).filter(Employers.company_id == company_id).scalar()
 
         return {
         "ok": True,
-        "msg": "Data successfully retrieved",
+        "msg": "Datos recuperados con éxito",
         "result": {
         'time': time_query,
         'company': company_query,
@@ -301,7 +301,7 @@ def get_all_data_time_employer_controller(company_id: int, employer_id: int, tim
         session.rollback()
         raise HTTPException(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        detail=f"An error occurred: {str(e)}"
+        detail=f"Se ha producido un error: {str(e)}"
         )
     finally:
         session.close()
@@ -321,7 +321,7 @@ def delete_time_controller(time_id, user):
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error: {str(e)}"
         )
     finally:
         session.close()
@@ -332,7 +332,7 @@ def update_time_controller(time_id, time):
     time_query = session.query(Time).filter_by(id=time_id).first()
 
     if not time_query:
-        return {"ok": False, "msg": "Time update error", "result": time_query}
+        return {"ok": False, "msg": "Error de actualización del tiempo", "result": time_query}
     
     old_vacation_time = time_query.vacation_time
     old_sick_time = time_query.sick_time
@@ -359,7 +359,7 @@ def update_time_controller(time_id, time):
         if not employer:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Cuenta no encontrada"
+                detail=f"Contador no encontrada"
             )        
     
     # Sumar las horas anteriores a los empleadores antes de la actualización
@@ -452,7 +452,7 @@ def update_time_controller(time_id, time):
         session.commit()
         session.refresh(payment_query)
 
-    return {"ok": True, "msg": "Time was successfully updated", "result": time_query}
+    return {"ok": True, "msg": "El tiempo se actualizó con éxito", "result": time_query}
     
 
 

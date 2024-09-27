@@ -41,7 +41,7 @@ def create_taxe_controller(taxe_data, company_id):
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error: {str(e)}"
         )
     finally:
         session.close()
@@ -54,12 +54,12 @@ def delete_taxe_controller(taxes_id):
         session.add(taxe_query)   
         session.commit()  
         session.refresh(taxe_query)   
-        return {"ok": True, "msg": "user was successfully created", "result": taxe_query}
+        return {"ok": True, "msg": "Taxe eliminado con exito", "result": taxe_query}
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error: {str(e)}"
         )
     finally:
         session.close()
@@ -70,14 +70,14 @@ def get_taxes_by_company_controller(company_id):
 
         return {
             "ok": True,
-            "msg": "Taxe were successfully retrieved",
+            "msg": "Taxe se recuperaron con éxito",
             "result": taxe_query,
         }
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error: {str(e)}"
         )
     finally:
         session.close()
@@ -88,14 +88,14 @@ def get_taxes_by_company_and_taxe_controller(company_id, taxe_id):
 
         return {
             "ok": True,
-            "msg": "Taxe were successfully retrieved",
+            "msg": "Taxe se recuperaron con éxito",
             "result": taxe_query,
         }
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error: {str(e)}"
         )
     finally:
         session.close()
@@ -115,12 +115,12 @@ def update_taxe_controller(taxe_id, taxe):
         session.commit()
         session.refresh(taxes_query)
 
-        return {"ok": True, "msg": "Taxe was successfully updated", "result": taxes_query}
+        return {"ok": True, "msg": "Taxe se actualizo con exito", "result": taxes_query}
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error: {str(e)}"
         )
     finally:
         session.close()

@@ -89,13 +89,13 @@ def create_accountant_controller(accountants_data, user):
         session.refresh(user_query)
         session.refresh(accountant_query)
         session.refresh(code_query)
-        return {"ok": True, "msg": "user was successfully created", "result": user_query}
+        return {"ok": True, "msg": "Usuario creado exitosamente", "result": user_query}
     except HTTPException as e:
         raise e
     except Exception as e:
         session.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                            detail=f"An error occurred: {str(e)}")
+                            detail=f"Se ha producido un error: {str(e)}")
     finally:
         session.close()
 
@@ -105,14 +105,14 @@ def get_all_accountants_controller(user):
         accountant_query = session.query(Accountant).join(User).filter(user['code'] == Accountant.code_id, User.id == Accountant.user_id ).all()
         return {
             "ok": True,
-            "msg": "Accountant were successfully retrieved",
+            "msg": "Contador se recuperaron con éxito",
             "result": accountant_query,
         }
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error: {str(e)}"
         )
     finally:
         session.close()
@@ -122,14 +122,14 @@ def get_accountant_controller(user, id):
         accountant_query = session.query(Accountant).join(User).filter(Accountant.id == id, User.id == Accountant.user_id ).first()
         return {
             "ok": True,
-            "msg": "Accountant were successfully retrieved",
+            "msg": "Contador se recuperaron con éxito",
             "result": accountant_query,
         }
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error: {str(e)}"
         )
     finally:
         session.close()
@@ -156,12 +156,12 @@ def update_accountant_controller(accountants_data, user, id):
         session.add(accountant_query)   
         session.commit()  
         session.refresh(accountant_query)   
-        return {"ok": True, "msg": "user was successfully created", "result": accountant_query}
+        return {"ok": True, "msg": "El usuario se ha actualizado con éxito", "result": accountant_query}
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error: {str(e)}"
         )
     finally:
         session.close()
@@ -175,12 +175,12 @@ def disable_accountant_controller(id):
         session.add(accountant_query)   
         session.commit()  
         session.refresh(accountant_query)   
-        return {"ok": True, "msg": "user was successfully created", "result": accountant_query}
+        return {"ok": True, "msg": "El usuario se ha deshabilitado con éxito", "result": accountant_query}
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error: {str(e)}"
         )
     finally:
         session.close()
@@ -204,7 +204,7 @@ def delete_accountant_controller(accountant_id):
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error: {str(e)}"
         )
     finally:
         session.close()

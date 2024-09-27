@@ -13,7 +13,8 @@ from controllers.companies_controller import (
     get_companies_by_id_controller,
     get_company_controller,
     get_talonario_controller,
-    update_company_controller
+    update_company_controller,
+    get_talonario_by_company_controller
     
 )
 from controllers.time_controller import get_all_data_time_employer_controller
@@ -82,3 +83,8 @@ async def disable_company(id: int):
 @companies_router.delete("/delete/{id}")
 async def delete_company(id: int):
     return delete_company_controller(id)
+
+# Obtener talonario por compañía y periodo
+@companies_router.get("/{company_id}/period/{period_id}")
+async def get_talonario_by_company(user: user_dependency, company_id: int, period_id: int):
+    return get_talonario_by_company_controller(user, company_id,  period_id)
