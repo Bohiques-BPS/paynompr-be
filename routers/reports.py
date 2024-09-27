@@ -34,9 +34,9 @@ class CompanyOrEmployer(BaseModel):
     year: int
 
 
-@report_router.get("/counterfoil1/{company_id}/{period_Id}")
-async def all_counterfoil(company_id: int, period_Id: int):
-    return all_counterfoil_controller(company_id, period_Id)
+@report_router.get("/counterfoil1/{company_id}/{period_id}")
+async def all_counterfoil(company_id: int, period_id: int):
+    return all_counterfoil_controller(company_id, period_id)
 
 @report_router.get("/counterfoil/{company_id}/{employer_id}/{time_id}")
 async def counterfoil(company_id: int, employer_id: int, time_id: int):

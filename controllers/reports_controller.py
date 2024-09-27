@@ -33,22 +33,6 @@ from collections import defaultdict
 report_router = APIRouter()
 
 
-def all_counterfoil_controller(company_id, period_Id):
-    try:
-        return {
-                "ok": True,
-                "msg": "Employers was successfully retrieved",
-                "result": {"company": company_id, "period": period_Id},
-            }
-    except Exception as e:
-        session.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Se ha producido un error: {str(e)}"
-        )
-    finally:
-        session.close()
-
 def counterfoil_controller(company_id, employer_id, time_id):
     try:
         # Obtener la información de la empresa
@@ -1070,7 +1054,7 @@ def get_report_cfse_pdf_controller(company_id):
         
         
 
-def todos_counterfoil_controller(company_id, period_id ,time_id):
+def all_counterfoil_controller(company_id, period_id ):
     try:        
         # calculo del overtime_pay
         def convertir_horas_decimales(hh_mm_str):
@@ -1191,12 +1175,15 @@ def todos_counterfoil_controller(company_id, period_id ,time_id):
                         func.sum(Time.bonus).label("total_bonus"),
                         func.sum(Time.refund).label("total_refund"),
                         func.sum(Time.medicare).label("total_medicare"),
-                        func.sum(Time.secure_social).label("total_ss"),                        
+                        func.sum(Time.secure_social).label("total_ss"),           
                         func.sum(Time.tax_pr).label("total_tax_pr")
+                        ).join(Period, Period.id == Time.period_id
                         ).join(Employers, Employers.id == Time.employer_id
-                        ).select_from(Period).join(Time, Period.id == Time.period_id
-                        ).filter(Period.year == datetime.now().year,Period.period_start <= period.period_start
-                        ).group_by(Period.year,Employers.id).all()
+                        ).filter(Period.year == datetime.now().year,Period.id == period_id, Employers.company_id == company_id
+                        ).group_by(Employers.id
+                        ).all()
+        print("entre")
+
         pdf_files = []
         for index, all_time_query in all_time_query_sums:
             employer_id = all_time_query.employer_id
