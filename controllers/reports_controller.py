@@ -1153,7 +1153,6 @@ def all_counterfoil_controller(company_id, period_id ):
                 detail="Periodo no encontrado"
             )        
 
-        # employer time
         all_time_query_sums = session.query(Employers.id.label("employer_id"), Time.id.label("time_id"),
                         func.sum(Time.salary).label("total_salary"),
                         func.sum(Time.others).label("total_others"),
@@ -1175,14 +1174,13 @@ def all_counterfoil_controller(company_id, period_id ):
                         func.sum(Time.bonus).label("total_bonus"),
                         func.sum(Time.refund).label("total_refund"),
                         func.sum(Time.medicare).label("total_medicare"),
-                        func.sum(Time.secure_social).label("total_ss"),           
-                        func.sum(Time.tax_pr).label("total_tax_pr")
-                        ).join(Period, Period.id == Time.period_id
-                        ).join(Employers, Employers.id == Time.employer_id
-                        ).filter(Period.year == datetime.now().year,Period.id == period_id, Employers.company_id == company_id
-                        ).group_by(Employers.id
-                        ).all()
-        print("entre")
+                        func.sum(Time.secure_social).label("total_ss"),
+                        func.sum(Time.tax_pr).label("total_tax_pr")).select_from(Period).join(Time, onclause=Time.period_id == period_id
+                        ).join(Employers, onclause=Employers.company_id == company_id
+                        ).filter(Period.year == 2024,Period.id == period.id
+                        ).group_by(Period.year, Employers.id, Time.id)
+
+
 
         pdf_files = []
         for index, all_time_query in all_time_query_sums:
