@@ -1181,9 +1181,10 @@ def all_counterfoil_controller(company_id, period_id ):
                         ).group_by(Period.year, Employers.id, Time.id)
 
 
-
         pdf_files = []
-        for index, all_time_query in all_time_query_sums:
+        index = 0 
+        for all_time_query in all_time_query_sums:
+            index += 1
             employer_id = all_time_query.employer_id
             time_id = all_time_query.time_id
             
@@ -1330,45 +1331,45 @@ def all_counterfoil_controller(company_id, period_id ):
                 "first_name": employer.first_name,
                 "salary": time_query.salary,
                 "others": time_query.others,
-                "total_ss":round(all_time_query[0].total_ss, 2) ,
-                "total_tax_pr":round(all_time_query[0].total_tax_pr, 2) ,
-                "total_medicare":round(all_time_query[0].total_medicare, 2) ,
-                "total_refund":round(all_time_query[0].total_refund, 2) ,
-                "total_bonus":round(all_time_query[0].total_bonus, 2) ,
-                "total_commissions" : round(all_time_query[0].total_commissions, 2) ,
-                "total_tips" : round(all_time_query[0].total_tips, 2) ,
-                "total_choferil" : round(all_time_query[0].total_choferil, 2) ,
-                "total_inability" : round(all_time_query[0].total_inability, 2) ,
-                "total_others" : round(all_time_query[0].total_others, 2) ,
-                "total_asume" : round(all_time_query[0].total_asume, 2) ,
-                "total_aflac" : round(all_time_query[0].total_aflac, 2) ,
-                "total_donation" : round(all_time_query[0].total_donation, 2) ,
-                "total_concessions" : round(all_time_query[0].total_concessions, 2) ,
-                "total_social_tips" : round(all_time_query[0].total_social_tips, 2) ,
-                "total_regular_pay": round(all_time_query[0].total_regular_pay, 2) ,
-                "total_over_pay": round(all_time_query[0].total_over_pay, 2) ,
-                "total_meal_pay": round(all_time_query[0].total_meal_pay, 2) ,
-                "total_holyday_pay": round(all_time_query[0].total_holyday_pay, 2) ,
-                "total_sick_pay": round(all_time_query[0].total_sick_pay, 2) ,
-                "total_vacation_pay": round(all_time_query[0].total_vacation_pay, 2) ,
-                "total_salary" : round(all_time_query[0].total_salary, 2) ,
+                "total_ss":round(all_time_query.total_ss, 2) ,
+                "total_tax_pr":round(all_time_query.total_tax_pr, 2) ,
+                "total_medicare":round(all_time_query.total_medicare, 2) ,
+                "total_refund":round(all_time_query.total_refund, 2) ,
+                "total_bonus":round(all_time_query.total_bonus, 2) ,
+                "total_commissions" : round(all_time_query.total_commissions, 2) ,
+                "total_tips" : round(all_time_query.total_tips, 2) ,
+                "total_choferil" : round(all_time_query.total_choferil, 2) ,
+                "total_inability" : round(all_time_query.total_inability, 2) ,
+                "total_others" : round(all_time_query.total_others, 2) ,
+                "total_asume" : round(all_time_query.total_asume, 2) ,
+                "total_aflac" : round(all_time_query.total_aflac, 2) ,
+                "total_donation" : round(all_time_query.total_donation, 2) ,
+                "total_concessions" : round(all_time_query.total_concessions, 2) ,
+                "total_social_tips" : round(all_time_query.total_social_tips, 2) ,
+                "total_regular_pay": round(all_time_query.total_regular_pay, 2) ,
+                "total_over_pay": round(all_time_query.total_over_pay, 2) ,
+                "total_meal_pay": round(all_time_query.total_meal_pay, 2) ,
+                "total_holyday_pay": round(all_time_query.total_holyday_pay, 2) ,
+                "total_sick_pay": round(all_time_query.total_sick_pay, 2) ,
+                "total_vacation_pay": round(all_time_query.total_vacation_pay, 2) ,
+                "total_salary" : round(all_time_query.total_salary, 2) ,
                 "total_regular_time" : total_regular_time ,
                 "total_over_time" : total_over_time ,
                 "total_meal_time" : total_mealt_time ,
                 "holiday_time_pay" : time_query.holyday_pay,
-                "total_holiday_pay" : all_time_query[0].total_holyday_pay ,
+                "total_holiday_pay" : all_time_query.total_holyday_pay ,
 
                 "total_holiday_time" : total_holiday_time ,
                 "total_sick_time" : total_sick_time ,
                 "total_vacation_time" : total_vacation_time ,
                 "total_col_1" : round(time_query.regular_pay+time_query.over_pay+time_query.meal_pay+time_query.holyday_pay+time_query.sick_pay+time_query.vacation_pay+ time_query.tips+ time_query.commissions+ time_query.concessions, 2) ,
-                "total_col_1_year" : round(all_time_query[0].total_regular_pay+all_time_query[0].total_over_pay+all_time_query[0].total_meal_pay+all_time_query[0].total_holyday_pay+all_time_query[0].total_sick_pay+all_time_query[0].total_vacation_pay+ all_time_query[0].total_tips+ all_time_query[0].total_commissions+ all_time_query[0].total_concessions, 2) ,
+                "total_col_1_year" : round(all_time_query.total_regular_pay+all_time_query.total_over_pay+all_time_query.total_meal_pay+all_time_query.total_holyday_pay+all_time_query.total_sick_pay+all_time_query.total_vacation_pay+ all_time_query.total_tips+ all_time_query.total_commissions+ all_time_query.total_concessions, 2) ,
 
                 "total_col_2" : round(time_query.asume+time_query.refund+time_query.donation+payment_amount, 2) ,
-                "total_col_2_year" : round(all_time_query[0].total_asume+all_time_query[0].total_refund+all_time_query[0].total_donation+all_time_query[0].total_aflac+total_payment_amount, 2) ,
+                "total_col_2_year" : round(all_time_query.total_asume+all_time_query.total_refund+all_time_query.total_donation+all_time_query.total_aflac+total_payment_amount, 2) ,
 
                 "total_col_3" : round(time_query.tax_pr+time_query.secure_social+time_query.choferil+time_query.inability+time_query.medicare+time_query.social_tips+time_query.aflac, 2) ,
-                "total_col_3_year" : round(all_time_query[0].total_tax_pr+all_time_query[0].total_ss+all_time_query[0].total_tips+all_time_query[0].total_choferil+all_time_query[0].total_inability+all_time_query[0].total_medicare+all_time_query[0].total_social_tips, 2) ,
+                "total_col_3_year" : round(all_time_query.total_tax_pr+all_time_query.total_ss+all_time_query.total_tips+all_time_query.total_choferil+all_time_query.total_inability+all_time_query.total_medicare+all_time_query.total_social_tips, 2) ,
 
                 "asume" : time_query.asume,
 
