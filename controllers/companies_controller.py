@@ -19,6 +19,7 @@ from collections import defaultdict
 from datetime import datetime
 from typing import Dict, Any
 from routers.auth import user_dependency
+from sqlalchemy import func
 
 companies_router = APIRouter()
 
@@ -75,7 +76,7 @@ def create_company_controller(companie_data, user):
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()
@@ -100,7 +101,7 @@ def get_all_companies_controller(user):
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
            
 
@@ -254,12 +255,9 @@ def get_all_company_and_employer_controller(user, company_id, employers_id,year)
 
     except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Se ha producido un error {str(e)}")
     finally:
         session.close()
-
-
-
 
 
 def get_talonario_controller(user, company_id, employers_id, period_id):
@@ -296,7 +294,7 @@ def get_talonario_controller(user, company_id, employers_id, period_id):
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()
@@ -319,7 +317,7 @@ def get_company_controller(user, companies_id):
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()
@@ -329,18 +327,18 @@ def get_companies_by_id_controller(companies_id):
         company_query = session.query(Companies).filter_by(id=companies_id).first()
 
         if not company_query:
-            return {"ok": False, "msg": "Companies not found", "result": None}
+            return {"ok": False, "msg": "Compañia no encontrada", "result": None}
 
         return {
             "ok": True,
-            "msg": "user was successfully retrieved",
+            "msg": "Compañias encontrada",
             "result": company_query,
         }
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()
@@ -350,7 +348,7 @@ def update_company_controller(companies_id, company_data):
         company_query = session.query(Companies).filter_by(id=companies_id).one_or_none()
 
         if not company_query:
-            return {"ok": False, "msg": "Companies not found"}
+            return {"ok": False, "msg": "Compañias no encontradas"}
         company_query.name = company_data.name
         company_query.commercial_register = company_data.commercial_register
         company_query.jurisdiction = company_data.jurisdiction
@@ -397,14 +395,14 @@ def update_company_controller(companies_id, company_data):
 
         return {
             "ok": True,
-            "msg": "Companies was successfully updated",
+            "msg": "Compañias se actualizó con éxito",
             "result": company_query,
         }
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()
@@ -425,7 +423,7 @@ def disable_company_controller(id):
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()
@@ -458,7 +456,79 @@ def delete_company_controller(id):
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
+        )
+    finally:
+        session.close()
+
+
+def get_talonario_by_company_controller(company_id, period_id):
+    try:
+        company_query = (
+            session.query(
+                func.sum(Time.salary).label("total_salary"),
+                func.sum(Time.others).label("total_others"),
+                func.sum(Time.vacation_pay).label("total_vacation_pay"),
+                func.sum(Time.holyday_pay).label("total_holyday_pay"),
+                func.sum(Time.sick_pay).label("total_sick_pay"),
+                func.sum(Time.meal_pay).label("total_meal_pay"),
+                func.sum(Time.over_pay).label("total_over_pay"),
+                func.sum(Time.regular_pay).label("total_regular_pay"),
+                func.sum(Time.donation).label("total_donation"),
+                func.sum(Time.tips).label("total_tips"),
+                func.sum(Time.aflac).label("total_aflac"),
+                func.sum(Time.inability).label("total_inability"),
+                func.sum(Time.choferil).label("total_choferil"),
+                func.sum(Time.social_tips).label("total_social_tips"),
+                func.sum(Time.asume).label("total_asume"),
+                func.sum(Time.concessions).label("total_concessions"),
+                func.sum(Time.commissions).label("total_commissions"),
+                func.sum(Time.bonus).label("total_bonus"),
+                func.sum(Time.refund).label("total_refund"),
+                func.sum(Time.medicare).label("total_medicare"),
+                func.sum(Time.secure_social).label("total_ss"),
+                func.sum(Time.tax_pr).label("total_tax_pr")
+                ).join(Companies, onclause=Companies.id == company_id)
+                .select_from(Period).join(
+                    Time, Period.id == Time.period_id 
+                    ).filter(Period.id == period_id).group_by(Period.year).all()            
+        )
+        
+        companies_query = (
+            session.query(Employers, Companies)
+            .join(Companies, onclause=Companies.id == company_id)
+            .filter(Employers.company_id == company_id)
+            .first()
+        )
+        
+        employer, company = companies_query  # Desempaquetar la tupla
+        time_query = (
+            session.query(Time)
+            .join(Companies, onclause=Companies.id == company_id)
+            .filter(Time.period_id == period_id)
+            .all()
+        )
+        
+        if time_query:
+            taxes_query = session.query(Payments).join(Time).join(Employers).filter(Employers.company_id == company_id, Time.period_id == period_id).all()
+        else:
+            taxes_query = []
+
+        return {
+            "ok": True,
+            "msg": "",
+            "result": {
+                "company": company,
+                "employer": employer,
+                "time": time_query,
+                "taxes": taxes_query,
+            },
+        }
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()

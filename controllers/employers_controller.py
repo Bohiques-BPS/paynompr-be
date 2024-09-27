@@ -101,12 +101,12 @@ def create_employer_controller(employer_data: Employers, company_id):
         session.add(employer_query)
         session.commit()
         session.refresh(employer_query)   
-        return {"ok": True, "msg": "user was successfully created", "result": employer_query}
+        return {"ok": True, "msg": "Empleado creado con exito", "result": employer_query}
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()
@@ -118,14 +118,14 @@ def get_all_employers_by_company_id_controller(company_id, user):
 
         return {
             "ok": True,
-            "msg": "Employers were successfully retrieved",
+            "msg": "Los empleadores fueron recuperados con éxito",
             "result": employer_query,
         }
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()
@@ -135,14 +135,14 @@ def get_employer_by_id_controller(employers_id,company_id,user):
         employer_query = session.query(Employers).join(Companies).filter(Employers.id == employers_id,Employers.company_id == company_id, Companies.id == Employers.company_id,Companies.code_id == user["code"]).first()
 
         if not employer_query:
-            return {"ok": False, "msg": "user not found", "result": None}
+            return {"ok": False, "msg": "Empleado no encontrado", "result": None}
 
-        return {"ok": True, "msg": "Employer was successfully retrieved", "result": employer_query} 
+        return {"ok": True, "msg": "El empleado fue recuperado con éxito", "result": employer_query} 
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()
@@ -229,12 +229,12 @@ def update_employer_controller(employers_id, employer, user):
         session.commit()
         session.refresh(employer_query)
 
-        return {"ok": True, "msg": "user was successfully updated", "result": employer_query}
+        return {"ok": True, "msg": "El empleado se ha actualizado con exito", "result": employer_query}
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()
@@ -247,12 +247,12 @@ def employers_controller(employers_id, user):
         session.add(employer_query)   
         session.commit()  
         session.refresh(employer_query)   
-        return {"ok": True, "msg": "Employer was change status", "result": employer_query}
+        return {"ok": True, "msg": "El empleador fue el cambio de estado", "result": employer_query}
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()
@@ -277,7 +277,7 @@ def delete_employer_controller(employers_id, user):
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()

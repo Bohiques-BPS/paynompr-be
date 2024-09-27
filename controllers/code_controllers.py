@@ -35,12 +35,12 @@ def create_code_controller(code_data,background_tasks):
         session.commit()
         session.refresh(code_query)
 
-        return {"ok": True, "msg": "user was successfully created", "result": code_query}
+        return {"ok": True, "msg": "El codigo se ha creado con éxito", "result": code_query}
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()
@@ -55,19 +55,19 @@ def update_code_controller(code_data, code_id):
 
         if not is_code:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                                detail="Code not found")
+                                detail="Código no encontrado")
             
         is_code.amount = code_data.amount,
         is_code.owner = code_data.owner,   
         session.add(is_code)
         session.commit()
         session.refresh(is_code)   
-        return {"ok": True, "msg": "user was successfully created", "result": is_code}
+        return {"ok": True, "msg": "El codigo se ha actualizado con éxito", "result": is_code}
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()
@@ -86,7 +86,7 @@ def get_all_codes_controller():
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()
@@ -96,14 +96,14 @@ def get_code_by_id_controller(code_id):
         code_query = session.query(Code).filter_by(id=code_id).first()
 
         if not code_query:
-            return {"ok": False, "msg": "Code not found", "result": None}
+            return {"ok": False, "msg": "Código no encontrado", "result": None}
 
         return {"ok": True, "msg": "Lista de codigos.", "result": code_query}
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()
@@ -116,12 +116,12 @@ def disable_code_controller(id):
         session.add(code_query)   
         session.commit()  
         session.refresh(code_query)   
-        return {"ok": True, "msg": "user was successfully created", "result": code_query}
+        return {"ok": True, "msg": "El codigo se ha deshabilitado con éxito", "result": code_query}
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()

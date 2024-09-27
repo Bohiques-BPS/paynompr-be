@@ -37,12 +37,12 @@ def create_time_controller(time_data, employer_id):
         session.commit()
         session.refresh(time_query) 
         
-        return {"ok": True, "msg": "Time was successfully created", "result": time_query}
+        return {"ok": True, "msg": "El tiempo se creó con éxito", "result": time_query}
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()
@@ -54,14 +54,14 @@ def get_time_by_employer_id_controller(employer_id):
 
         return {
             "ok": True,
-            "msg": "Employers were successfully retrieved",
+            "msg": "Los empleadores fueron recuperados con éxito",
             "result": time_query,
         }
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()
@@ -83,7 +83,7 @@ def delete_employer_controller(time_id, user):
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()
@@ -92,7 +92,7 @@ def update_time_controller(time_id, time):
     try:
         time_query = session.query(TimeOutEmployer).filter_by(id=time_id).first()
         if  not time_query:
-            return {"ok": False, "msg": "Time was error updated", "result": time_query}
+            return {"ok": False, "msg": "El tiempo no se actualizo", "result": time_query}
             
         time_query.regular_hours = time.regular_hours
         time_query.regular_min = time.regular_min
@@ -101,12 +101,12 @@ def update_time_controller(time_id, time):
         session.add(time_query)
         session.commit()
         session.refresh(time_query)
-        return {"ok": True, "msg": "Time was successfully updated", "result": time_query}
+        return {"ok": True, "msg": "El tiempo se actualizó con éxito", "result": time_query}
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()
