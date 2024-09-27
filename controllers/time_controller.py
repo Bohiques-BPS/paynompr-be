@@ -239,7 +239,7 @@ def create_time_controller(time_data, employer_id):
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Se ha producido un error: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()
@@ -257,7 +257,7 @@ def get_time_by_employer_id_controller(employer_id):
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Se ha producido un error: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()
@@ -301,7 +301,7 @@ def get_all_data_time_employer_controller(company_id: int, employer_id: int, tim
         session.rollback()
         raise HTTPException(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        detail=f"Se ha producido un error: {str(e)}"
+        detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()
@@ -321,7 +321,7 @@ def delete_time_controller(time_id, user):
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Se ha producido un error: {str(e)}"
+            detail=f"Se ha producido un error {str(e)}"
         )
     finally:
         session.close()
