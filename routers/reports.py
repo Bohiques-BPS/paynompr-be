@@ -60,7 +60,7 @@ async def form_w2pr_pdf(companyOrEmployer: CompanyOrEmployer):
     return form_w2pr_pdf_controller(companyOrEmployer.company_id, companyOrEmployer.employer_id, companyOrEmployer.year)
 
 
-@report_router.post("/form_unemployment_pdf")
+@report_router.post("/form_unemplo")
 async def form_unemployment_pdf(companyYear: CompanyYear):
     return form_unemployment_pdf_controller(companyYear.company_id, companyYear.year, companyYear.period)
 
@@ -75,6 +75,6 @@ async def form_withheld_499_pdf(companyYear: CompanyYear):
 async def form_choferil_pdf(companyYear: CompanyYear):
     return form_choferil_pdf_controller(companyYear.company_id, companyYear.year, companyYear.period)
 
-@report_router.get("/get_report_cfse_pdf/{company_id}")
-async def get_report_cfse_pdf(company_id: int):
-    return get_report_cfse_pdf_controller(company_id)
+@report_router.post("/get_report_cfse_pdf")
+async def get_report_cfse_pdf(companyYear: CompanyYear):
+    return get_report_cfse_pdf_controller(companyYear.company_id, companyYear.year, companyYear.period)

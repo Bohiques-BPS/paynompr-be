@@ -26,8 +26,8 @@ def queryFormW2pr(employer_id, year = None):
     rounded_amount_aflac = roundedAmount(amountVarios.aflac if amountVarios.aflac is not None else 0)
     rounded_amount_commissions = roundedAmount(amountVarios.commissions if amountVarios.commissions is not None else 0)
     rounded_amount_bonus = roundedAmount(amountVarios.bonus if amountVarios.bonus is not None else 0)
-    rounded_amount_wages = roundedAmount(amountVarios.wages if amountVarios.wages is not None else 0 + rounded_amount_bonus) if age > 26 else 0
-    rounded_amount_wages_26 = roundedAmount(amountVarios.wages if amountVarios.wages is not None else 0 + rounded_amount_bonus) if age <= 26 else 0.00
+    rounded_amount_wages = roundedAmount(amountVarios.wages if amountVarios.wages is not None else 0 ) if age > 26 else 0
+    rounded_amount_wages_26 = roundedAmount(amountVarios.wages if amountVarios.wages is not None else 0) if age <= 26 else 0.00
     rounded_amount_concessions = roundedAmount(amountVarios.concessions if amountVarios.concessions is not None else 0)
     rounded_amount_tips = roundedAmount(amountVarios.tips if amountVarios.tips is not None else 0)
     rounded_amount_donation = roundedAmount(amountVarios.donation if amountVarios.donation is not None else 0)

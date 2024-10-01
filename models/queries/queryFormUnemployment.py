@@ -14,6 +14,7 @@ def queryFormUnemployment (company_id, year, period):
     tmpEmployees = []
     index = 1
     totalAmount = 0
+    print("-----------------employees2----------------"+str(employees))
     for value in employees:
         data = {
             f'text_social_security_{index}': value.social_security_number,
@@ -29,6 +30,7 @@ def queryFormUnemployment (company_id, year, period):
         #     arrayEmployees.append(tmpEmployees)
         #     tmpEmployees = []
         #     index = 1
+    print("-----------------tmpEmployees----------------"+str(tmpEmployees))
 
     # Address Company
     physicalAddressCompany = company.physical_address if company.physical_address is not None else ''
@@ -58,7 +60,7 @@ def queryFormUnemployment (company_id, year, period):
         'text_address_company': company.physical_address if company.physical_address is not None else '',
         'text_address_company_2': f'{physicalAddressCompany}, {statePhysicalAddressCompany}',
         'text_zipcode_company': f'{ countryPhysicalAddressCompany } { zipCodeAddressCompany }',
-        'employees': arrayEmployees,
+        'employees': tmpEmployees,
         'text_total_wages_a': str(totalAmount),
         'text_total_wages_b': str(totalAmount),
         'text_wages_contributions_a': str(totalAmount),

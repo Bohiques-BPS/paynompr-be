@@ -22,7 +22,7 @@ def queryForm940(company_id, year = None):
 
 
     # Total amount employees
-    total_amount_employers_number = roundedAmount(amount_varios.wages + amount_varios.commissions + amount_varios.concessions + amount_varios.bonus)
+    total_amount_employers_number = roundedAmount(amount_varios.wages + amount_varios.commissions + amount_varios.concessions )
     total_amount_employers = addDecimal(total_amount_employers_number)
     # total exceeded 7000
     payment_exceeded_7000_number = roundedAmount(getEmployers7000(company.id, date_period))

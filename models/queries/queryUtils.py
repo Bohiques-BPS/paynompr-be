@@ -121,6 +121,12 @@ def getAmountVariosCompany(company_id, year, period = None):
 
     result = session.query(
       func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay).label('wages'),
+      func.sum(Time.regular_pay).label('regular_pay'),
+      func.sum( Time.over_pay ).label('over_pay'),
+      func.sum( Time.vacation_pay ).label('vacation_pay'),
+      func.sum( Time.meal_pay ).label('meal_pay'),
+      func.sum( Time.sick_pay ).label('sick_pay'),
+      func.sum(Time.holyday_pay).label('holyday_pay'),
       func.sum(Time.commissions).label('commissions'),
       func.sum(Time.concessions).label('concessions'),
       func.sum(Time.tips).label('tips'),
@@ -131,7 +137,7 @@ def getAmountVariosCompany(company_id, year, period = None):
       func.sum(Time.social_tips).label('social_tips'),
       func.sum(Time.secure_social).label('secure_social'),
       func.sum(Time.tax_pr).label('taxes_pr')
-      ).join(Employers, Time.employer_id == Employers.id).join(Period, Period.id == Time.period_id ).filter( Employers.company_id == company_id,  Period.year == year ).all()
+      ).select_from(Period).join(Time, Period.id == Time.period_id ).join(Employers, Time.employer_id == Employers.id).filter( Employers.company_id == company_id,  Period.year == year ).all()
       
     return result[0]
 
@@ -191,8 +197,8 @@ def getEmployersAmount(company_id, date_period):
       Employers.licence,
       Employers.social_security_number,
       func.count(Time.period_id).label('total_weeks'),
-      ).join(Employers, Time.employer_id == Employers.id
-      ).join(Period, Period.id == Time.period_id ).filter(
+      ).select_from(Period).join(Time, Period.id == Time.period_id ).join(Employers, Time.employer_id == Employers.id
+      ).filter(
         Employers.company_id == company_id,
         Period.period_start >= date_period['start'],
         Period.period_end <= date_period['end']

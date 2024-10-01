@@ -17,7 +17,7 @@ def queryForm943(company_id, year, period):
         amount_varios_number = getAmountVariosCompany(company_id, year, period)
 
         # Calculate total
-        total_wages = amount_varios_number.wages + amount_varios_number.commissions + amount_varios_number.concessions + amount_varios_number.bonus + amount_varios_number.tips
+        total_wages = amount_varios_number.wages + amount_varios_number.commissions + amount_varios_number.concessions  + amount_varios_number.tips
         salary_security_social = addDecimal(roundedAmount(total_wages))
         tax_medicares = addDecimal(roundedAmount(amount_varios_number.medicares))
         # Calculate * 0.124 + 0.029

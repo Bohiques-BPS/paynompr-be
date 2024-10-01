@@ -914,25 +914,19 @@ def form_940_pdf_controller(company_id, year):
 
 
 def form_941_pdf_controller(company_id, year, period):
-    try:
-        pdf = form_941_pdf_generator(company_id, year, period)
-        if pdf is None:
-            return Response(status_code=status.HTTP_404_NOT_FOUND, content="No data found")
+    
+    pdf = form_941_pdf_generator(company_id, year, period)
+    if pdf is None:
+        return Response(status_code=status.HTTP_404_NOT_FOUND, content="No data found")
 
-        if pdf:
-            return FileResponse(
-                pdf,
-                media_type="application/pdf",
-                filename="form_940.pdf"
-            )
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Se ha producido un error {str(e)}"
+    if pdf:
+        return FileResponse(
+            pdf,
+            media_type="application/pdf",
+            filename="form_940.pdf"
         )
-    finally:
-        session.close()
+
+    
 
 def form_943_pdf_controller(company_id, year, period):
     try:
@@ -957,25 +951,20 @@ def form_943_pdf_controller(company_id, year, period):
 
 
 def form_unemployment_pdf_controller(company_id, year, period):
-    try:
-        pdf = form_unemployment_pdf_generator(company_id, year, period)
-        if pdf is None:
-            return Response(status_code=status.HTTP_404_NOT_FOUND, content="No data found")
+    
+    pdf = form_unemployment_pdf_generator(company_id, year, period)
+    if pdf is None:
+        return Response(status_code=status.HTTP_404_NOT_FOUND, content="No data found")
 
-        if pdf:
-            return FileResponse(
-                pdf,
-                media_type="application/pdf",
-                filename="form_unemployment.pdf"
-            )
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Se ha producido un error {str(e)}"
+    if pdf:
+        return FileResponse(
+            pdf,
+            media_type="application/pdf",
+            filename="form_unemployment.pdf"
         )
-    finally:
-        session.close()
+        
+
+    
 
 
 
@@ -1020,7 +1009,7 @@ def form_withheld_499_pdf_controller(company_id, year, period):
         session.close()
 
 
-def get_report_cfse_pdf_controller(company_id):
+def get_report_cfse_pdf_controller(company_id, year, period):
 
     company = session.query(Companies).filter(Companies.id == company_id).first()
     employees = session.query(Employers).filter(Employers.company_id == company_id).all()
@@ -1107,36 +1096,10 @@ def get_report_cfse_pdf_controller(company_id):
                     </thead>
                     <tbody>
                         <!-- Aquí puedes iterar sobre tus datos para generar las filas de la tabla -->
-                        <tr>
-                            <td>Juan</td>
-                            <td>Pérez</td>
-                            <td>A</td>
-                            <td>500</td>
-                            <td>600</td>
-                            <td>700</td>
-                            <td>800</td>
-                            <td>2600</td>
-                        </tr>
-                        <tr>
-                            <td>María</td>
-                            <td>González</td>
-                            <td>B</td>
-                            <td>400</td>
-                            <td>500</td>
-                            <td>600</td>
-                            <td>700</td>
-                            <td>2200</td>
-                        </tr>
+                       
                         <!-- Agrega más filas según sea necesario -->
                         <!-- Fila de totales -->
-                        <tr class="total-row">
-                            <td colspan="3">Total</td>
-                            <td>900</td> <!-- Suma del Tercer Trimestre -->
-                            <td>1100</td> <!-- Suma del Cuarto Trimestre -->
-                            <td>1300</td> <!-- Suma del Primer Trimestre -->
-                            <td>1500</td> <!-- Suma del Segundo Trimestre -->
-                            <td>4800</td> <!-- Total General -->
-                        </tr>
+                       
                     </tbody>
                 </table>
             </body>
@@ -1170,410 +1133,404 @@ def get_report_cfse_pdf_controller(company_id):
         
 
 def all_counterfoil_controller(company_id, period_id ):
-    try:        
-        # calculo del overtime_pay
-        def convertir_horas_decimales(hh_mm_str):
-            hours, minutes = map(int, hh_mm_str.split(':'))
-            return hours + minutes / 60.0
-
-        def regular_pay(regular_amount , regular_time, salary, others, bonus):
-            time_hours = convertir_horas_decimales(regular_time)
-            return regular_amount * time_hours + salary + others +bonus
-
-
-        def calculate_payment(payment_type, regular_amount):
-            payment_hours = convertir_horas_decimales(payment_type)
-            payment_pay = payment_hours * regular_amount
-            return Decimal(payment_pay).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-
-
-        def calculate_year_curr(period_type, regular_pay):
-            if period_type == "monthly":
-                return regular_pay * 12
-            elif period_type == "biweekly":
-                return regular_pay * 24
-            elif period_type == "weekly":
-                return regular_pay * 52
-
-        def calculate_income():
-            regu_pay = regular_pay(time_query.regular_amount, time_query.regular_time,time_query.salary,time_query.others,time_query.bonus)
-            overtime_pay = calculate_payment(time_query.over_time, time_query.over_amount)
-            meal_time_pay= calculate_payment(time_query.meal_time, time_query.meal_amount)
-            holiday_time_pay = calculate_payment(time_query.holiday_time, time_query.regular_amount)
-            sick_pay = calculate_payment(time_query.sick_time, time_query.regular_amount)
-            vacation_pay = calculate_payment(time_query.vacation_time, time_query.regular_amount)
-            tips_pay = time_query.tips
-            commission_pay = time_query.commissions
-            concessions = time_query.concessions
-            return float(regu_pay)+ float(overtime_pay) + float(meal_time_pay) + float(holiday_time_pay) + float(sick_pay) + float(vacation_pay) + float(tips_pay) + float(commission_pay) + float(concessions) + float(time_query.refund)
-
-        def calculate_egress():
-            secure_social = time_query.secure_social
-            ss_tips = time_query.social_tips
-            medicare = time_query.medicare
-            inability = time_query.inability
-            choferil = time_query.choferil
-            tax_pr = time_query.tax_pr
-
-            aflac = time_query.aflac
-
-            return float(secure_social) + float(ss_tips) + float(medicare) + float(inability) + float(choferil) + float(tax_pr)  + float(aflac) + float(time_query.asume) + float(time_query.donation)
-
-        def calculate_payments():
-            amount = 0
-            for payment in payment_query:
-                if (payment.time_id == time_id):
-                    if payment.type_taxe == 1 and payment.amount > 0:
-                        amount -= payment.amount
-                    else:
-                        amount += payment.amount
-
-            return amount
-
-        def calculate_total():
-            income = calculate_income()
-            egress = calculate_egress()
-            adicional_amount = calculate_payments()
-
-            return round(income - egress + adicional_amount, 2)
-
-        # Función para convertir una cadena de tiempo a minutos
-        def time_to_minutes(time_str):
-            print("-------------------"+time_str)
-            hours, minutes = map(int, time_str.split(':'))
-            return hours * 60 + minutes
-        
-        # Obtener la información de la empresa
-        company = session.query(Companies).filter(Companies.id == company_id).first()
-        if not company:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Compañoa no encontrada"
-            )
-
-        # Obtener la información del empleado
-        employer = session.query(Employers).filter(Employers.company_id == company_id).first()
-        if not employer:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Empleado no encontrado"
-            )
-
-
-        # Obtener la información del periodo
-        period = session.query(Period).filter(Period.id == period_id).first()
-        if not period:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Periodo no encontrado"
-            )        
-
-        all_time_query_sums = session.query(Employers.id.label("employer_id"), Time.id.label("time_id"),
-                        func.sum(Time.salary).label("total_salary"),
-                        func.sum(Time.others).label("total_others"),
-                        func.sum(Time.vacation_pay).label("total_vacation_pay"),
-                        func.sum(Time.holyday_pay).label("total_holyday_pay"),
-                        func.sum(Time.sick_pay).label("total_sick_pay"),
-                        func.sum(Time.meal_pay).label("total_meal_pay"),
-                        func.sum(Time.over_pay).label("total_over_pay"),
-                        func.sum(Time.regular_pay).label("total_regular_pay"),
-                        func.sum(Time.donation).label("total_donation"),
-                        func.sum(Time.tips).label("total_tips"),
-                        func.sum(Time.aflac).label("total_aflac"),
-                        func.sum(Time.inability).label("total_inability"),
-                        func.sum(Time.choferil).label("total_choferil"),
-                        func.sum(Time.social_tips).label("total_social_tips"),
-                        func.sum(Time.asume).label("total_asume"),
-                        func.sum(Time.concessions).label("total_concessions"),
-                        func.sum(Time.commissions).label("total_commissions"),
-                        func.sum(Time.bonus).label("total_bonus"),
-                        func.sum(Time.refund).label("total_refund"),
-                        func.sum(Time.medicare).label("total_medicare"),
-                        func.sum(Time.secure_social).label("total_ss"),
-                        func.sum(Time.tax_pr).label("total_tax_pr")).select_from(Period).join(Time, onclause=Time.period_id == period_id
-                        ).join(Employers, onclause=Employers.company_id == company_id
-                        ).filter(Period.year == datetime.now().year ,Period.id == period.id
-                        ).group_by(Employers.id, Time.id)
-
-
-        pdf_files = []
-        index = 0 
-        for all_time_query in all_time_query_sums:
-            index += 1
-            employer_id = all_time_query.employer_id
-            time_id = all_time_query.time_id
-            
-            all_times_query = session.query(Time).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id).filter(Period.year == datetime.now().year,Time.employer_id == employer_id,Period.period_start <= period.period_start).all()
-
-            total_regular_time  = "00:00"
-            total_regular_time_seconds = 0
-
-            total_over_time  = "00:00"
-            total_over_time_seconds = 0
-
-            total_mealt_time  = "00:00"
-            total_mealt_time_seconds = 0
-
-            total_vacation_time  = "00:00"
-            total_vacation_time_seconds = 0
-
-            total_sick_time  = "00:00"
-            total_sick_time_seconds = 0
-
-            total_holiday_time  = "00:00"
-            total_holiday_time_seconds = 0
-            for time_entry in all_times_query:
-                regular_time = time_entry.regular_time
-                over_time = time_entry.over_time
-                mealt_time = time_entry.meal_time
-                vacation_time = time_entry.vacation_time
-                sick_time = time_entry.sick_time
-                holiday_time = time_entry.holiday_time
-
-
-
-                try:
-                    # Convertir la cadena a horas y minutos
-                    regular_hours, regular_minutes = map(int, regular_time.split(':'))
-
-                    # Convertir a segundos
-                    regular_total_seconds = regular_hours * 3600 + regular_minutes * 60
-
-                    # Convertir la cadena a horas y minutos
-                    over_hours, over_minutes = map(int, over_time.split(':'))
-
-                    # Convertir a segundos
-                    over_total_seconds = over_hours * 3600 + over_minutes * 60
-
-                    # Convertir la cadena a horas y minutos
-                    mealt_hours, mealt_minutes = map(int, mealt_time.split(':'))
-
-                    # Convertir a segundos
-                    mealt_total_seconds = mealt_hours * 3600 + mealt_minutes * 60
-
-                    # Convertir la cadena a horas y minutos
-                    vacation_hours, vacation_minutes = map(int, vacation_time.split(':'))
-
-                    # Convertir a segundos
-                    vacation_total_seconds = vacation_hours * 3600 + vacation_minutes * 60
-
-                    # Convertir la cadena a horas y minutos
-                    sick_hours, sick_minutes = map(int, sick_time.split(':'))
-
-                    # Convertir a segundos
-                    sick_total_seconds = sick_hours * 3600 + sick_minutes * 60
-
-                    # Convertir la cadena a horas y minutos
-                    holiday_hours, holiday_minutes = map(int, holiday_time.split(':'))
-
-                    # Convertir a segundos
-                    holiday_total_seconds = holiday_hours * 3600 + holiday_minutes * 60
-
-                except ValueError:
-                    # Manejar formatos de tiempo inválidos (opcional)
-                    print(f"Formato de tiempo inválido: {regular_time}")
-                    continue  # Saltar a la siguiente entrada
-
-                # Sumar los segundos al total
-                total_regular_time_seconds += regular_total_seconds
-                total_mealt_time_seconds += mealt_total_seconds
-                total_over_time_seconds += over_total_seconds
-                total_sick_time_seconds += sick_total_seconds
-                total_vacation_time_seconds += vacation_total_seconds
-                total_holiday_time_seconds += holiday_total_seconds
-
-
-                # Convertir los segundos totales a horas y minutos
-                regular_hours, remaining_seconds = divmod(total_regular_time_seconds, 3600)
-                regular_minutes, regular_seconds = divmod(remaining_seconds, 60)
-                total_regular_time = f"{regular_hours:02d}:{regular_minutes:02d}"
-                # Convertir los segundos totales a horas y minutos
-                over_hours, remaining_seconds = divmod(total_over_time_seconds, 3600)
-                over_minutes, over_seconds = divmod(remaining_seconds, 60)
-                total_over_time = f"{over_hours:02d}:{over_minutes:02d}"
-                # Convertir los segundos totales a horas y minutos
-                sick_hours, remaining_seconds = divmod(total_sick_time_seconds, 3600)
-                sick_minutes, sick_seconds = divmod(remaining_seconds, 60)
-                total_sick_time = f"{sick_hours:02d}:{sick_minutes:02d}"
-                # Convertir los segundos totales a horas y minutos
-                mealt_hours, remaining_seconds = divmod(total_mealt_time_seconds, 3600)
-                mealt_minutes, mealt_seconds = divmod(remaining_seconds, 60)
-                total_mealt_time = f"{mealt_hours:02d}:{mealt_minutes:02d}"
-                # Convertir los segundos totales a horas y minutos
-                vacation_hours, remaining_seconds = divmod(total_vacation_time_seconds, 3600)
-                vacation_minutes, vacation_seconds = divmod(remaining_seconds, 60)
-                total_vacation_time = f"{vacation_hours:02d}:{vacation_minutes:02d}"
-                # Convertir los segundos totales a horas y minutos
-                holiday_hours, remaining_seconds = divmod(total_holiday_time_seconds, 3600)
-                holiday_minutes, holiday_seconds = divmod(remaining_seconds, 60)
-                total_holiday_time = f"{holiday_hours:02d}:{holiday_minutes:02d}"
-
-
-            payment_query = session.query(Payments).select_from(Period).join(Time, Period.id == Time.period_id ).join(Payments, Payments.time_id == Time.id).filter(Payments.is_active == True,Payments.is_active == True,Period.year == 2024,Period.period_start <= period.period_start,Time.employer_id == employer_id).all()
-            payment_texts = ""
-            # Crear lista de textos de pagos
-            total_payment_amount = 0
-            payment_amount = 0
-            total_amount_by_tax_id = defaultdict(int)  # Dictionary to store total per tax_id
-
-            # Calculate total amount by tax_id
-            for payment in payment_query:
-                total_amount_by_tax_id[payment.taxe_id] += payment.amount
-
-            for payment in payment_query:
-                total_payment_amount += payment.amount
-                if payment.time_id == time_id:
-                    amount = payment.amount;
-                    if (payment.amount< 0):
-                        amount = payment.amount * -1
-                    total_for_current_tax_id = total_amount_by_tax_id.get(payment.taxe_id, 0)
-
-                    payment_texts += f" <tr><td>{payment.name}:</td><td>${amount}</td><td>${total_for_current_tax_id}</td></tr>"
-
-
-            time_query = session.query(Time).filter(Time.id == time_id).first()
-            if not time_query:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Time not found"
-                )
-
-            payment_amount = calculate_payments()
-            if (payment_amount < 0 ):
-                payment_amount = payment_amount * -1
-            info = {
-                # EMPLOYERS INFO
-                "first_name": employer.first_name,
-                "salary": time_query.salary,
-                "others": time_query.others,
-                "total_ss":round(all_time_query.total_ss, 2) ,
-                "total_tax_pr":round(all_time_query.total_tax_pr, 2) ,
-                "total_medicare":round(all_time_query.total_medicare, 2) ,
-                "total_refund":round(all_time_query.total_refund, 2) ,
-                "total_bonus":round(all_time_query.total_bonus, 2) ,
-                "total_commissions" : round(all_time_query.total_commissions, 2) ,
-                "total_tips" : round(all_time_query.total_tips, 2) ,
-                "total_choferil" : round(all_time_query.total_choferil, 2) ,
-                "total_inability" : round(all_time_query.total_inability, 2) ,
-                "total_others" : round(all_time_query.total_others, 2) ,
-                "total_asume" : round(all_time_query.total_asume, 2) ,
-                "total_aflac" : round(all_time_query.total_aflac, 2) ,
-                "total_donation" : round(all_time_query.total_donation, 2) ,
-                "total_concessions" : round(all_time_query.total_concessions, 2) ,
-                "total_social_tips" : round(all_time_query.total_social_tips, 2) ,
-                "total_regular_pay": round(all_time_query.total_regular_pay, 2) ,
-                "total_over_pay": round(all_time_query.total_over_pay, 2) ,
-                "total_meal_pay": round(all_time_query.total_meal_pay, 2) ,
-                "total_holyday_pay": round(all_time_query.total_holyday_pay, 2) ,
-                "total_sick_pay": round(all_time_query.total_sick_pay, 2) ,
-                "total_vacation_pay": round(all_time_query.total_vacation_pay, 2) ,
-                "total_salary" : round(all_time_query.total_salary, 2) ,
-                "total_regular_time" : total_regular_time ,
-                "total_over_time" : total_over_time ,
-                "total_meal_time" : total_mealt_time ,
-                "holiday_time_pay" : time_query.holyday_pay,
-                "total_holiday_pay" : all_time_query.total_holyday_pay ,
-
-                "total_holiday_time" : total_holiday_time ,
-                "total_sick_time" : total_sick_time ,
-                "total_vacation_time" : total_vacation_time ,
-                "total_col_1" : round(time_query.regular_pay+time_query.over_pay+time_query.meal_pay+time_query.holyday_pay+time_query.sick_pay+time_query.vacation_pay+ time_query.tips+ time_query.commissions+ time_query.concessions, 2) ,
-                "total_col_1_year" : round(all_time_query.total_regular_pay+all_time_query.total_over_pay+all_time_query.total_meal_pay+all_time_query.total_holyday_pay+all_time_query.total_sick_pay+all_time_query.total_vacation_pay+ all_time_query.total_tips+ all_time_query.total_commissions+ all_time_query.total_concessions, 2) ,
-
-                "total_col_2" : round(time_query.asume+time_query.refund+time_query.donation+payment_amount, 2) ,
-                "total_col_2_year" : round(all_time_query.total_asume+all_time_query.total_refund+all_time_query.total_donation+all_time_query.total_aflac+total_payment_amount, 2) ,
-
-                "total_col_3" : round(time_query.tax_pr+time_query.secure_social+time_query.choferil+time_query.inability+time_query.medicare+time_query.social_tips+time_query.aflac, 2) ,
-                "total_col_3_year" : round(all_time_query.total_tax_pr+all_time_query.total_ss+all_time_query.total_tips+all_time_query.total_choferil+all_time_query.total_inability+all_time_query.total_medicare+all_time_query.total_social_tips, 2) ,
-
-                "asume" : time_query.asume,
-
-                "bonus": time_query.bonus,
-                "aflac": time_query.aflac,
-
-                "refund": time_query.refund,
-                "donation": time_query.donation,
-                "last_name": employer.last_name,
-                "employer_address": employer.address,
-                "employer_state": employer.address_state,
-                "employer_address_number": employer.address_number,
-                "employer_phone": employer.phone_number,
-                "social_security_number": employer.social_security_number,
-                #PERIOD INFO
-                "actual_date": datetime.now().strftime("%d-%m-%Y"),
-                "start_date": period.period_start,
-                "end_date": period.period_end,
-                "period_type": period.period_type.value,
-                # COMPANY INFO
-                "company": company.name,
-                # TIME INFO
-                "regular_hours": time_query.regular_time,
-                "over_hours": time_query.over_time,
-                "meal_hours": time_query.meal_time,
-                "holiday_hours": time_query.holiday_time,
-                "sick_hours": time_query.sick_time,
-
-
-                "vacation_hours": time_query.vacation_time,
-                # PAY INFO
-                "regular_pay": regular_pay(time_query.regular_amount, time_query.regular_time,time_query.salary,time_query.others,time_query.bonus),
-                "overtime_pay": calculate_payment(time_query.over_time, time_query.over_amount),
-                "meal_time_pay": calculate_payment(time_query.meal_time, time_query.meal_amount),
-                "sick_pay": calculate_payment(time_query.sick_time, time_query.regular_amount),
-                "vacation_pay": calculate_payment(time_query.vacation_time, time_query.regular_amount),
-                "tips_pay": time_query.tips,
-                "comissions": time_query.commissions,
-                "income": calculate_income(),
-                "concessions" : time_query.concessions,
-                "payment_texts" : payment_texts,
-                # YEAR INFO
-                "year_curr":calculate_year_curr(period.period_type.value, regular_pay(time_query.regular_amount, time_query.regular_time,time_query.salary,time_query.others,time_query.bonus)),
-                #RATE
-                "regular_rate": time_query.regular_amount,
-                "over_rate": time_query.over_amount,
-                # DESCUENTOS INFO
-                "secure_social": time_query.secure_social,
-                "ss_tips": time_query.social_tips,
-                "medicare": time_query.medicare,
-                "inability": time_query.inability,
-                "choferil": time_query.choferil,
-                "egress": calculate_egress(),
-                "tax_pr": time_query.tax_pr,
-                # TOTAL INFO
-                "total": calculate_total()
-            }
-
-
-
-            template = Template(voucherTemplate())
-            rendered_html = template.render(info)
-
-
-            pdf_file = f"./output_files/voucher_pago_{index}.pdf"
-            HTML(string=rendered_html).write_pdf(pdf_file)
-            pdf_files.append(pdf_file)
-
-
-        doc3 = fitz.open()
-        for file in pdf_files:
-            doc3.insert_file(file)
-
-        pdf_file = "./output_files/voucher_pago.pdf"
-        doc3.save(pdf_file)
-
-
-        return FileResponse(
-            pdf_file,
-            media_type="application/pdf",
-            filename="Talonario_de_Pagos.pdf"
-        )
-    except Exception as e:
+    
+    # calculo del overtime_pay
+    def convertir_horas_decimales(hh_mm_str):
+        hours, minutes = map(int, hh_mm_str.split(':'))
+        return hours + minutes / 60.0
+
+    def regular_pay(regular_amount , regular_time, salary, others, bonus):
+        time_hours = convertir_horas_decimales(regular_time)
+        return regular_amount * time_hours + salary + others +bonus
+
+
+    def calculate_payment(payment_type, regular_amount):
+        payment_hours = convertir_horas_decimales(payment_type)
+        payment_pay = payment_hours * regular_amount
+        return Decimal(payment_pay).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+
+    def calculate_year_curr(period_type, regular_pay):
+        if period_type == "monthly":
+            return regular_pay * 12
+        elif period_type == "biweekly":
+            return regular_pay * 24
+        elif period_type == "weekly":
+            return regular_pay * 52
+
+    def calculate_income():
+        regu_pay = regular_pay(time_query.regular_amount, time_query.regular_time,time_query.salary,time_query.others,time_query.bonus)
+        overtime_pay = calculate_payment(time_query.over_time, time_query.over_amount)
+        meal_time_pay= calculate_payment(time_query.meal_time, time_query.meal_amount)
+        holiday_time_pay = calculate_payment(time_query.holiday_time, time_query.regular_amount)
+        sick_pay = calculate_payment(time_query.sick_time, time_query.regular_amount)
+        vacation_pay = calculate_payment(time_query.vacation_time, time_query.regular_amount)
+        tips_pay = time_query.tips
+        commission_pay = time_query.commissions
+        concessions = time_query.concessions
+        return float(regu_pay)+ float(overtime_pay) + float(meal_time_pay) + float(holiday_time_pay) + float(sick_pay) + float(vacation_pay) + float(tips_pay) + float(commission_pay) + float(concessions) + float(time_query.refund)
+
+    def calculate_egress():
+        secure_social = time_query.secure_social
+        ss_tips = time_query.social_tips
+        medicare = time_query.medicare
+        inability = time_query.inability
+        choferil = time_query.choferil
+        tax_pr = time_query.tax_pr
+
+        aflac = time_query.aflac
+
+        return float(secure_social) + float(ss_tips) + float(medicare) + float(inability) + float(choferil) + float(tax_pr)  + float(aflac) + float(time_query.asume) + float(time_query.donation)
+
+    def calculate_payments():
+        amount = 0
+        for payment in payment_query:
+            if (payment.time_id == time_id):
+                if payment.type_taxe == 1 and payment.amount > 0:
+                    amount -= payment.amount
+                else:
+                    amount += payment.amount
+
+        return amount
+
+    def calculate_total():
+        income = calculate_income()
+        egress = calculate_egress()
+        adicional_amount = calculate_payments()
+
+        return round(income - egress + adicional_amount, 2)
+
+    # Función para convertir una cadena de tiempo a minutos
+    def time_to_minutes(time_str):
+        print("-------------------"+time_str)
+        hours, minutes = map(int, time_str.split(':'))
+        return hours * 60 + minutes
+    
+    # Obtener la información de la empresa
+    company = session.query(Companies).filter(Companies.id == company_id).first()
+    if not company:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Se ha producido un error {str(e)}"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Compañoa no encontrada"
         )
-    finally:
-        session.close()        
+
+    # Obtener la información del empleado
+    employer = session.query(Employers).filter(Employers.company_id == company_id).first()
+    if not employer:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Empleado no encontrado"
+        )
+
+
+    # Obtener la información del periodo
+    period = session.query(Period).filter(Period.id == period_id).first()
+    if not period:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Periodo no encontrado"
+        )        
+
+    all_time_query_sums = session.query(Employers.id.label("employer_id"), Time.id.label("time_id"),
+                    func.sum(Time.salary).label("total_salary"),
+                    func.sum(Time.others).label("total_others"),
+                    func.sum(Time.vacation_pay).label("total_vacation_pay"),
+                    func.sum(Time.holyday_pay).label("total_holyday_pay"),
+                    func.sum(Time.sick_pay).label("total_sick_pay"),
+                    func.sum(Time.meal_pay).label("total_meal_pay"),
+                    func.sum(Time.over_pay).label("total_over_pay"),
+                    func.sum(Time.regular_pay).label("total_regular_pay"),
+                    func.sum(Time.donation).label("total_donation"),
+                    func.sum(Time.tips).label("total_tips"),
+                    func.sum(Time.aflac).label("total_aflac"),
+                    func.sum(Time.inability).label("total_inability"),
+                    func.sum(Time.choferil).label("total_choferil"),
+                    func.sum(Time.social_tips).label("total_social_tips"),
+                    func.sum(Time.asume).label("total_asume"),
+                    func.sum(Time.concessions).label("total_concessions"),
+                    func.sum(Time.commissions).label("total_commissions"),
+                    func.sum(Time.bonus).label("total_bonus"),
+                    func.sum(Time.refund).label("total_refund"),
+                    func.sum(Time.medicare).label("total_medicare"),
+                    func.sum(Time.secure_social).label("total_ss"),
+                    func.sum(Time.tax_pr).label("total_tax_pr")).select_from(Period).join(Time, onclause=Time.period_id == period_id
+                    ).join(Employers, onclause=Employers.company_id == company_id
+                    ).filter(Period.year == datetime.now().year ,Period.id == period.id
+                    ).group_by(Employers.id, Time.id)
+
+
+    pdf_files = []
+    index = 0 
+    for all_time_query in all_time_query_sums:
+        index += 1
+        employer_id = all_time_query.employer_id
+        time_id = all_time_query.time_id
+        
+        all_times_query = session.query(Time).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id).filter(Period.year == datetime.now().year,Time.employer_id == employer_id,Period.period_start <= period.period_start).all()
+
+        total_regular_time  = "00:00"
+        total_regular_time_seconds = 0
+
+        total_over_time  = "00:00"
+        total_over_time_seconds = 0
+
+        total_mealt_time  = "00:00"
+        total_mealt_time_seconds = 0
+
+        total_vacation_time  = "00:00"
+        total_vacation_time_seconds = 0
+
+        total_sick_time  = "00:00"
+        total_sick_time_seconds = 0
+
+        total_holiday_time  = "00:00"
+        total_holiday_time_seconds = 0
+        for time_entry in all_times_query:
+            regular_time = time_entry.regular_time
+            over_time = time_entry.over_time
+            mealt_time = time_entry.meal_time
+            vacation_time = time_entry.vacation_time
+            sick_time = time_entry.sick_time
+            holiday_time = time_entry.holiday_time
+
+
+
+            try:
+                # Convertir la cadena a horas y minutos
+                regular_hours, regular_minutes = map(int, regular_time.split(':'))
+
+                # Convertir a segundos
+                regular_total_seconds = regular_hours * 3600 + regular_minutes * 60
+
+                # Convertir la cadena a horas y minutos
+                over_hours, over_minutes = map(int, over_time.split(':'))
+
+                # Convertir a segundos
+                over_total_seconds = over_hours * 3600 + over_minutes * 60
+
+                # Convertir la cadena a horas y minutos
+                mealt_hours, mealt_minutes = map(int, mealt_time.split(':'))
+
+                # Convertir a segundos
+                mealt_total_seconds = mealt_hours * 3600 + mealt_minutes * 60
+
+                # Convertir la cadena a horas y minutos
+                vacation_hours, vacation_minutes = map(int, vacation_time.split(':'))
+
+                # Convertir a segundos
+                vacation_total_seconds = vacation_hours * 3600 + vacation_minutes * 60
+
+                # Convertir la cadena a horas y minutos
+                sick_hours, sick_minutes = map(int, sick_time.split(':'))
+
+                # Convertir a segundos
+                sick_total_seconds = sick_hours * 3600 + sick_minutes * 60
+
+                # Convertir la cadena a horas y minutos
+                holiday_hours, holiday_minutes = map(int, holiday_time.split(':'))
+
+                # Convertir a segundos
+                holiday_total_seconds = holiday_hours * 3600 + holiday_minutes * 60
+
+            except ValueError:
+                # Manejar formatos de tiempo inválidos (opcional)
+                print(f"Formato de tiempo inválido: {regular_time}")
+                continue  # Saltar a la siguiente entrada
+
+            # Sumar los segundos al total
+            total_regular_time_seconds += regular_total_seconds
+            total_mealt_time_seconds += mealt_total_seconds
+            total_over_time_seconds += over_total_seconds
+            total_sick_time_seconds += sick_total_seconds
+            total_vacation_time_seconds += vacation_total_seconds
+            total_holiday_time_seconds += holiday_total_seconds
+
+
+            # Convertir los segundos totales a horas y minutos
+            regular_hours, remaining_seconds = divmod(total_regular_time_seconds, 3600)
+            regular_minutes, regular_seconds = divmod(remaining_seconds, 60)
+            total_regular_time = f"{regular_hours:02d}:{regular_minutes:02d}"
+            # Convertir los segundos totales a horas y minutos
+            over_hours, remaining_seconds = divmod(total_over_time_seconds, 3600)
+            over_minutes, over_seconds = divmod(remaining_seconds, 60)
+            total_over_time = f"{over_hours:02d}:{over_minutes:02d}"
+            # Convertir los segundos totales a horas y minutos
+            sick_hours, remaining_seconds = divmod(total_sick_time_seconds, 3600)
+            sick_minutes, sick_seconds = divmod(remaining_seconds, 60)
+            total_sick_time = f"{sick_hours:02d}:{sick_minutes:02d}"
+            # Convertir los segundos totales a horas y minutos
+            mealt_hours, remaining_seconds = divmod(total_mealt_time_seconds, 3600)
+            mealt_minutes, mealt_seconds = divmod(remaining_seconds, 60)
+            total_mealt_time = f"{mealt_hours:02d}:{mealt_minutes:02d}"
+            # Convertir los segundos totales a horas y minutos
+            vacation_hours, remaining_seconds = divmod(total_vacation_time_seconds, 3600)
+            vacation_minutes, vacation_seconds = divmod(remaining_seconds, 60)
+            total_vacation_time = f"{vacation_hours:02d}:{vacation_minutes:02d}"
+            # Convertir los segundos totales a horas y minutos
+            holiday_hours, remaining_seconds = divmod(total_holiday_time_seconds, 3600)
+            holiday_minutes, holiday_seconds = divmod(remaining_seconds, 60)
+            total_holiday_time = f"{holiday_hours:02d}:{holiday_minutes:02d}"
+
+
+        payment_query = session.query(Payments).select_from(Period).join(Time, Period.id == Time.period_id ).join(Payments, Payments.time_id == Time.id).filter(Payments.is_active == True,Payments.is_active == True,Period.year == 2024,Period.period_start <= period.period_start,Time.employer_id == employer_id).all()
+        payment_texts = ""
+        # Crear lista de textos de pagos
+        total_payment_amount = 0
+        payment_amount = 0
+        total_amount_by_tax_id = defaultdict(int)  # Dictionary to store total per tax_id
+
+        # Calculate total amount by tax_id
+        for payment in payment_query:
+            total_amount_by_tax_id[payment.taxe_id] += payment.amount
+
+        for payment in payment_query:
+            total_payment_amount += payment.amount
+            if payment.time_id == time_id:
+                amount = payment.amount;
+                if (payment.amount< 0):
+                    amount = payment.amount * -1
+                total_for_current_tax_id = total_amount_by_tax_id.get(payment.taxe_id, 0)
+
+                payment_texts += f" <tr><td>{payment.name}:</td><td>${amount}</td><td>${total_for_current_tax_id}</td></tr>"
+
+
+        time_query = session.query(Time).filter(Time.id == time_id).first()
+        if not time_query:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Time not found"
+            )
+
+        payment_amount = calculate_payments()
+        if (payment_amount < 0 ):
+            payment_amount = payment_amount * -1
+        info = {
+            # EMPLOYERS INFO
+            "first_name": employer.first_name,
+            "salary": time_query.salary,
+            "others": time_query.others,
+            "total_ss":round(all_time_query.total_ss, 2) ,
+            "total_tax_pr":round(all_time_query.total_tax_pr, 2) ,
+            "total_medicare":round(all_time_query.total_medicare, 2) ,
+            "total_refund":round(all_time_query.total_refund, 2) ,
+            "total_bonus":round(all_time_query.total_bonus, 2) ,
+            "total_commissions" : round(all_time_query.total_commissions, 2) ,
+            "total_tips" : round(all_time_query.total_tips, 2) ,
+            "total_choferil" : round(all_time_query.total_choferil, 2) ,
+            "total_inability" : round(all_time_query.total_inability, 2) ,
+            "total_others" : round(all_time_query.total_others, 2) ,
+            "total_asume" : round(all_time_query.total_asume, 2) ,
+            "total_aflac" : round(all_time_query.total_aflac, 2) ,
+            "total_donation" : round(all_time_query.total_donation, 2) ,
+            "total_concessions" : round(all_time_query.total_concessions, 2) ,
+            "total_social_tips" : round(all_time_query.total_social_tips, 2) ,
+            "total_regular_pay": round(all_time_query.total_regular_pay, 2) ,
+            "total_over_pay": round(all_time_query.total_over_pay, 2) ,
+            "total_meal_pay": round(all_time_query.total_meal_pay, 2) ,
+            "total_holyday_pay": round(all_time_query.total_holyday_pay, 2) ,
+            "total_sick_pay": round(all_time_query.total_sick_pay, 2) ,
+            "total_vacation_pay": round(all_time_query.total_vacation_pay, 2) ,
+            "total_salary" : round(all_time_query.total_salary, 2) ,
+            "total_regular_time" : total_regular_time ,
+            "total_over_time" : total_over_time ,
+            "total_meal_time" : total_mealt_time ,
+            "holiday_time_pay" : time_query.holyday_pay,
+            "total_holiday_pay" : all_time_query.total_holyday_pay ,
+
+            "total_holiday_time" : total_holiday_time ,
+            "total_sick_time" : total_sick_time ,
+            "total_vacation_time" : total_vacation_time ,
+            "total_col_1" : round(time_query.regular_pay+time_query.over_pay+time_query.meal_pay+time_query.holyday_pay+time_query.sick_pay+time_query.vacation_pay+ time_query.tips+ time_query.commissions+ time_query.concessions, 2) ,
+            "total_col_1_year" : round(all_time_query.total_regular_pay+all_time_query.total_over_pay+all_time_query.total_meal_pay+all_time_query.total_holyday_pay+all_time_query.total_sick_pay+all_time_query.total_vacation_pay+ all_time_query.total_tips+ all_time_query.total_commissions+ all_time_query.total_concessions, 2) ,
+
+            "total_col_2" : round(time_query.asume+time_query.refund+time_query.donation+payment_amount, 2) ,
+            "total_col_2_year" : round(all_time_query.total_asume+all_time_query.total_refund+all_time_query.total_donation+all_time_query.total_aflac+total_payment_amount, 2) ,
+
+            "total_col_3" : round(time_query.tax_pr+time_query.secure_social+time_query.choferil+time_query.inability+time_query.medicare+time_query.social_tips+time_query.aflac, 2) ,
+            "total_col_3_year" : round(all_time_query.total_tax_pr+all_time_query.total_ss+all_time_query.total_tips+all_time_query.total_choferil+all_time_query.total_inability+all_time_query.total_medicare+all_time_query.total_social_tips, 2) ,
+
+            "asume" : time_query.asume,
+
+            "bonus": time_query.bonus,
+            "aflac": time_query.aflac,
+
+            "refund": time_query.refund,
+            "donation": time_query.donation,
+            "last_name": employer.last_name,
+            "employer_address": employer.address,
+            "employer_state": employer.address_state,
+            "employer_address_number": employer.address_number,
+            "employer_phone": employer.phone_number,
+            "social_security_number": employer.social_security_number,
+            #PERIOD INFO
+            "actual_date": datetime.now().strftime("%d-%m-%Y"),
+            "start_date": period.period_start,
+            "end_date": period.period_end,
+            "period_type": period.period_type.value,
+            # COMPANY INFO
+            "company": company.name,
+            # TIME INFO
+            "regular_hours": time_query.regular_time,
+            "over_hours": time_query.over_time,
+            "meal_hours": time_query.meal_time,
+            "holiday_hours": time_query.holiday_time,
+            "sick_hours": time_query.sick_time,
+
+
+            "vacation_hours": time_query.vacation_time,
+            # PAY INFO
+            "regular_pay": regular_pay(time_query.regular_amount, time_query.regular_time,time_query.salary,time_query.others,time_query.bonus),
+            "overtime_pay": calculate_payment(time_query.over_time, time_query.over_amount),
+            "meal_time_pay": calculate_payment(time_query.meal_time, time_query.meal_amount),
+            "sick_pay": calculate_payment(time_query.sick_time, time_query.regular_amount),
+            "vacation_pay": calculate_payment(time_query.vacation_time, time_query.regular_amount),
+            "tips_pay": time_query.tips,
+            "comissions": time_query.commissions,
+            "income": calculate_income(),
+            "concessions" : time_query.concessions,
+            "payment_texts" : payment_texts,
+            # YEAR INFO
+            "year_curr":calculate_year_curr(period.period_type.value, regular_pay(time_query.regular_amount, time_query.regular_time,time_query.salary,time_query.others,time_query.bonus)),
+            #RATE
+            "regular_rate": time_query.regular_amount,
+            "over_rate": time_query.over_amount,
+            # DESCUENTOS INFO
+            "secure_social": time_query.secure_social,
+            "ss_tips": time_query.social_tips,
+            "medicare": time_query.medicare,
+            "inability": time_query.inability,
+            "choferil": time_query.choferil,
+            "egress": calculate_egress(),
+            "tax_pr": time_query.tax_pr,
+            # TOTAL INFO
+            "total": calculate_total()
+        }
+
+
+
+        template = Template(voucherTemplate())
+        rendered_html = template.render(info)
+
+
+        pdf_file = f"./output_files/voucher_pago_{index}.pdf"
+        HTML(string=rendered_html).write_pdf(pdf_file)
+        pdf_files.append(pdf_file)
+
+
+    doc3 = fitz.open()
+    for file in pdf_files:
+        doc3.insert_file(file)
+
+    pdf_file = "./output_files/voucher_pago.pdf"
+    doc3.save(pdf_file)
+
+
+    return FileResponse(
+        pdf_file,
+        media_type="application/pdf",
+        filename="Talonario_de_Pagos.pdf"
+    )
+     
         
         
 def voucherTemplate():
