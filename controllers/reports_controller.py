@@ -319,8 +319,8 @@ def counterfoil_controller(company_id, employer_id, time_id):
             "first_name": employer.first_name,
             "salary": time_query.salary,
             "others": time_query.others,
-            "vacation_time": employer.vacation_time,
-            "sick_time": employer.sick_time,
+            "vacation_time": time_query.vacation_acum_hours,
+            "sick_time": time_query.sicks_acum_hours,
             "others": time_query.others,
             "total_ss":round(all_time_query[0].total_ss, 2) ,
             "total_tax_pr":round(all_time_query[0].total_tax_pr, 2) ,
@@ -816,8 +816,8 @@ Gastos Reembolsados:</td>
                             </div>
                             <div class="column" style="text-align: right;width: 30%;">
                              <p>Fecha: {{ actual_date }}</p>
-                                <p   style="margin-top: 56px;">Total: ${{ total }}</p>
-                                <p style="margin-top: 24px;">FOR: ________________</p>
+                                <p   style="margin-top: 48px;">Total: ${{ total }}</p>
+                                <p style="margin-top: 32px;">FOR: ________________</p>
                             </div>
                         </div>
                     </div>

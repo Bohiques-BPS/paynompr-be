@@ -39,6 +39,8 @@ class Time(Base):
     regular_pay: Mapped[float] = mapped_column(nullable=True, default=0)
     over_pay: Mapped[float] = mapped_column(nullable=True, default=0)
     vacation_pay: Mapped[float] = mapped_column(nullable=True, default=0)
+    vacation_acum_hours: Mapped[str] = mapped_column(nullable=True, default=0)
+    sicks_acum_hours: Mapped[str] = mapped_column(nullable=True, default=0)
 
     meal_pay: Mapped[float] = mapped_column(nullable=True, default=0)
     sick_pay: Mapped[float] = mapped_column(nullable=True, default=0)

@@ -210,6 +210,11 @@ def create_time_controller(time_data, employer_id):
 
         update_vaction_time(time_query.employer_id,times, employers, vacation_time, year,month)
         update_sicks_time(time_query.employer_id,times,employers,vacation_time, year, month)
+        time_query.vacation_acum_hours = employers.vacation_acum_hours
+        time_query.sicks_acum_hours = employers.sicks_acum_hours
+
+        session.commit()
+        session.refresh(time_query)
 
         for item in time_data.payment:
             is_active =  item.is_active
@@ -266,7 +271,7 @@ def get_time_by_employer_id_controller(employer_id):
         session.close()
     
 def get_sum_taxes_by_employer_id_controller(employer_id):
-    print("sum taces jejejeje")
+    
     try:
         
 
@@ -481,6 +486,9 @@ def update_time_controller(time_id, time):
 
     update_vaction_time(time_query.employer_id,times, employer, vacation_time, year,month)
     update_sicks_time(time_query.employer_id,times,employer,vacation_time, year, month)
+
+    time_query.vacation_acum_hours = employer.vacation_acum_hours
+    time_query.sicks_acum_hours = employer.sicks_acum_hours
     for item in time.payment:
         payment_query = session.query(Payments).filter_by(id=item.id).first()
         is_active =  item.is_active
@@ -509,7 +517,7 @@ def update_vaction_time(employer_id, times, employer,vacation_time, year, month)
     if times:
         hours_worked = 0
         for time in times:
-            hours_worked += time_to_minutes(time.regular_time) / 60
+            hours_worked += (time_to_minutes(time.regular_time) / 60) + (time_to_minutes(time.over_time) / 60) + (time_to_minutes(time.meal_time) / 60) + (time_to_minutes(time.sick_time) / 60) + (time_to_minutes(time.holiday_time) / 60) + (time_to_minutes(time.vacation_time) / 60)
        
         hours_worked = int(hours_worked // 1)
         if not employer.date_admission:
@@ -531,25 +539,25 @@ def update_vaction_time(employer_id, times, employer,vacation_time, year, month)
                     month = month
 
                 )
-                employer_vacation = time_to_minutes(employer.vacation_time) 
+                employer_vacation = time_to_minutes(employer.vacation_acum_hours) 
                 minutes_employer = vacation_hours * 60
-                employer.vacation_time = minutes_to_time(employer_vacation + minutes_employer)
+                employer.vacation_acum_hours = minutes_to_time(employer_vacation + minutes_employer)
                 session.add(vacation_query)
                 session.commit()
                 session.refresh(vacation_query)
             
             elif not vacation_time.paid_vacation:     
-                employer_vacation = time_to_minutes(employer.vacation_time) 
+                employer_vacation = time_to_minutes(employer.vacation_acum_hours) 
                 minutes_employer = vacation_hours * 60
                 vacation_time.paid_vacation = True
-                employer.vacation_time = minutes_to_time(employer_vacation + minutes_employer)
+                employer.vacation_acum_hours = minutes_to_time(employer_vacation + minutes_employer)
                 session.commit()
        
         else:
             if vacation_time and vacation_time.paid_vacation:
-                employer_vacation = time_to_minutes(employer.vacation_time) 
+                employer_vacation = time_to_minutes(employer.vacation_acum_hours) 
                 minutes_employer = vacation_hours * 60
-                employer.vacation_time = minutes_to_time(employer_vacation - minutes_employer)
+                employer.vacation_acum_hours = minutes_to_time(employer_vacation - minutes_employer)
                 vacation_time.paid_vacation = False
                 session.commit()
 
@@ -561,7 +569,7 @@ def update_sicks_time(employer_id, times, employer: Employers,vacation_time, yea
     if times:
         hours_worked = 0
         for time in times:
-            hours_worked += time_to_minutes(time.sick_time) / 60
+            hours_worked += (time_to_minutes(time.regular_time) / 60) + (time_to_minutes(time.over_time) / 60) + (time_to_minutes(time.meal_time) / 60) + (time_to_minutes(time.sick_time) / 60) + (time_to_minutes(time.holiday_time) / 60) + (time_to_minutes(time.vacation_time) / 60)
         
         hours_worked = int(hours_worked // 1)
           
@@ -576,30 +584,30 @@ def update_sicks_time(employer_id, times, employer: Employers,vacation_time, yea
                     month = month
 
                 )
-                employer_sick = time_to_minutes(employer.sick_time) 
+                employer_sick = time_to_minutes(employer.sicks_acum_hours) 
                 minutes_employer = employer.sicks_hours * 60
-                employer.sick_time = minutes_to_time(employer_sick + minutes_employer)
+                employer.sicks_acum_hours = minutes_to_time(employer_sick + minutes_employer)
                 session.add(vacation_query)
                 session.commit()
                 session.refresh(vacation_query)                
 
             elif not vacation_time.paid_sick:  
                    
-                employer_sick = time_to_minutes(employer.sick_time)
+                employer_sick = time_to_minutes(employer.sicks_acum_hours)
                    
                 minutes_employer = employer.sicks_hours * 60
                 vacation_time.paid_sick = True
                 if employer_sick > 7.200:
-                    employer.sick_time = minutes_to_time(7200)
+                    employer.sicks_acum_hours = minutes_to_time(7200)
                 else:
-                    employer.sick_time = minutes_to_time(employer_sick+minutes_employer)
+                    employer.sicks_acum_hours = minutes_to_time(employer_sick+minutes_employer)
                 session.commit()
        
         else:
             if vacation_time and vacation_time.paid_sick:
-                employer_vacation = time_to_minutes(employer.sick_time) 
+                employer_vacation = time_to_minutes(employer.sicks_acum_hours) 
                 minutes_employer = employer.sicks_hours * 60
-                employer.sick_time = minutes_to_time(employer_vacation - minutes_employer)
+                employer.sicks_acum_hours = minutes_to_time(employer_vacation - minutes_employer)
                 vacation_time.paod_sicks = False
                 session.commit()
 
@@ -607,7 +615,7 @@ def update_sicks_time(employer_id, times, employer: Employers,vacation_time, yea
 def subtract_vacation_time(employer, time_vacation_time, new_vacation_time):
 
     minutes_new_vacation_time = time_to_minutes(new_vacation_time)
-    minutes_employer = time_to_minutes(employer.vacation_time)
+    minutes_employer = time_to_minutes(employer.vacation_acum_hours)
 
     # Convert the old vacation time to minutes if it exists
     minutes_vacation_time = time_to_minutes(time_vacation_time) if time_vacation_time else 0
@@ -616,14 +624,14 @@ def subtract_vacation_time(employer, time_vacation_time, new_vacation_time):
     difference_in_minutes = minutes_new_vacation_time - minutes_vacation_time
 
     # Update the employer's vacation time based on the difference
-    employer.vacation_time = minutes_to_time(minutes_employer - difference_in_minutes)
+    employer.vacation_acum_hours = minutes_to_time(minutes_employer - difference_in_minutes)
     session.commit()
 
 
 def subtract_sick_time(employer, time_sick_time, new_sick_time):
     
     minutes_new_sick_time = time_to_minutes(new_sick_time)
-    minutes_employer = time_to_minutes(employer.sick_time)
+    minutes_employer = time_to_minutes(employer.sicks_acum_hours)
 
     # Convert the old vacation time to minutes if it exists
     minutes_sick_time = time_to_minutes(time_sick_time) if time_sick_time else 0
@@ -632,5 +640,5 @@ def subtract_sick_time(employer, time_sick_time, new_sick_time):
     difference_in_minutes = minutes_new_sick_time - minutes_sick_time
 
     # Update the employer's vacation time based on the difference
-    employer.sick_time = minutes_to_time(minutes_employer - difference_in_minutes)
+    employer.sicks_acum_hours = minutes_to_time(minutes_employer - difference_in_minutes)
     session.commit()

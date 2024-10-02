@@ -11,7 +11,7 @@ from models.employers import Employers
 from models.companies import Companies
 from models.time import Time
 from utils.time_func import calculete_service_year
-
+from utils.time_func import minutes_to_time, time_to_minutes
 from schemas.employee import EmployersSchema
 from passlib.context import CryptContext
 
@@ -81,6 +81,8 @@ def create_employer_controller(employer_data: Employers, company_id):
             date_egress=employer_data.date_egress,
             overtime=employer_data.overtime,
             mealtime=employer_data.mealtime,
+            vacation_acum_hours = employer_data.vacation_time,
+            sicks_acum_hours = employer_data.sick_time,
             vacation_time=employer_data.vacation_time,
             sick_time=employer_data.sick_time,
             vacation_hours=vacation_hours,
@@ -152,6 +154,14 @@ def update_employer_controller(employers_id, employer, user):
         employer_query = session.query(Employers).filter_by(id=employers_id).first() 
         vacation_hours = employer.vacation_hours
         vacation_hours_monthly = employer.vacation_hours_monthly
+        vacation_acum_hours = employer_query.vacation_acum_hours
+        if ( time_to_minutes(employer_query.vacation_time)  > (time_to_minutes(employer.vacation_time)) ):
+            employer_query.vacation_acum_hours = minutes_to_time(time_to_minutes(employer_query.vacation_acum_hours) - (time_to_minutes(employer_query.vacation_time) - time_to_minutes(employer.vacation_time)))
+        if ( time_to_minutes(employer_query.vacation_time)  < time_to_minutes(employer.vacation_time) ):
+            employer_query.vacation_acum_hours = minutes_to_time(time_to_minutes(employer_query.vacation_acum_hours) + (time_to_minutes(employer.vacation_time) - time_to_minutes(employer_query.vacation_time)))
+
+
+       
         
         if employer_query.date_admission != employer.date_admission:
             date_admission = datetime(2017, 1, 26)

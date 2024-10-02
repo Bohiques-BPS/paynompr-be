@@ -47,7 +47,8 @@ class Employers(Base):
     date_egress: Mapped[TIMESTAMP] = mapped_column(Date(), nullable=True)
     overtime: Mapped[float] = mapped_column(nullable=True)
     mealtime: Mapped[float] = mapped_column(nullable=True)
-
+    vacation_acum_hours: Mapped[str] = mapped_column(nullable=True, default="00:00")
+    sicks_acum_hours: Mapped[str] = mapped_column(nullable=True, default="00:00")
     vacation_time: Mapped[str] = mapped_column(String, nullable=True, default="00:00")    
     sick_time: Mapped[str] = mapped_column(String, nullable=True, default="00:00")
     vacation_hours: Mapped[int] = mapped_column(nullable=True)
