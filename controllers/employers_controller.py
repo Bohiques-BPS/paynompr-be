@@ -154,11 +154,7 @@ def update_employer_controller(employers_id, employer, user):
         employer_query = session.query(Employers).filter_by(id=employers_id).first() 
         vacation_hours = employer.vacation_hours
         vacation_hours_monthly = employer.vacation_hours_monthly
-        vacation_acum_hours = employer_query.vacation_acum_hours
-        if ( time_to_minutes(employer_query.vacation_time)  > (time_to_minutes(employer.vacation_time)) ):
-            employer_query.vacation_acum_hours = minutes_to_time(time_to_minutes(employer_query.vacation_acum_hours) - (time_to_minutes(employer_query.vacation_time) - time_to_minutes(employer.vacation_time)))
-        if ( time_to_minutes(employer_query.vacation_time)  < time_to_minutes(employer.vacation_time) ):
-            employer_query.vacation_acum_hours = minutes_to_time(time_to_minutes(employer_query.vacation_acum_hours) + (time_to_minutes(employer.vacation_time) - time_to_minutes(employer_query.vacation_time)))
+        
 
 
        

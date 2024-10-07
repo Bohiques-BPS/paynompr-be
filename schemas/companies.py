@@ -14,6 +14,13 @@ class CompaniesSchema(BaseModel):
     accountant_id: Optional[int] = Field(None, ge=0)
     email: Optional[EmailStr] = None  # Validación automática de email
     contact: Optional[str] = Field(None, max_length=100)
+
+    w2_first_control: Optional[str] = Field(None, max_length=50)
+    w2_last_control: Optional[str] = Field(None, max_length=50)
+    sp_first_control: Optional[str] = Field(None, max_length=50)
+    sp_last_control: Optional[str] = Field(None, max_length=50)
+
+
     contact_number: Optional[str] = Field(None, max_length=20)
     website: Optional[str] = Field(None, max_length=100)
     vacation_hours: Optional[int] = Field(None, ge=0)

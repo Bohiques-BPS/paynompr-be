@@ -19,5 +19,6 @@ class VacationTimes(Base):
     paid_sick: Mapped[bool] = mapped_column(Boolean, default=False)
     year: Mapped[str] = mapped_column(String, nullable=True,default=0)
     month: Mapped[str] = mapped_column(String, nullable=True,default=0)
+    period_id: Mapped[int] = mapped_column(Integer, nullable=True)
     
     
