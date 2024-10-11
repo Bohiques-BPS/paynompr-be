@@ -42,7 +42,7 @@ def queryFormW2pr(employer_id, year = None):
     statePhysicalAddressCompany = company.state_physical_address if company.state_physical_address is not None else ''
     countryPhysicalAddressCompany = company.country_physical_address if company.country_physical_address is not None else ''
 
-    n_control = f'{datetime.now().year}{timegm(datetime.now().timetuple())}'
+    n_control = company.w2_first_control
 
     data = {
       'name_first_user': employer.first_name if employer.first_name is not None else '',

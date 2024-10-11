@@ -40,6 +40,10 @@ def queryFormUnemployment (company_id, year, period):
 
     # Calculate Total
     unemployment_percentage = company.unemployment_percentage.split('%')[0] if company.unemployment_percentage is not None else 0
+
+    # A % DE Incapacitados +  Aportación Patronal
+    # B % DE Desempleo
+
     employed_contribution = company.employed_contribution if company.employed_contribution is not None else 0
     compensation_pay_a = roundedAmount(totalAmount * (float(employed_contribution) / 100))
     compensation_pay_b = roundedAmount(totalAmount * (1 / 100))

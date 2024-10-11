@@ -10,7 +10,7 @@ from sqlalchemy.sql import func
 from models.vacation_times import VacationTimes
 
 from sqlalchemy import cast, Integer
-
+from datetime import date
 
 from database.config import session
 from models.companies import Companies
@@ -31,7 +31,7 @@ from utils.form_493 import form_943_pdf_generator
 from utils.unemployment import form_unemployment_pdf_generator
 from utils.form_w2pr import form_w2pr_pdf_generate
 from collections import defaultdict
-
+from models.queries.queryUtils import   getAmountCSFECompany
 
 report_router = APIRouter()
 
@@ -67,7 +67,16 @@ def counterfoil_controller(company_id, employer_id, time_id):
     year = time_period_query.Period.period_end.year
     month = time_period_query.Period.period_end.month
 
-    vacation_time_query = session.query(func.sum(VacationTimes.vacation_hours).label("vacation_hours"),func.sum(VacationTimes.sicks_hours).label("sicks_hours")).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id).join(VacationTimes, Period.id == VacationTimes.period_id and VacationTimes.employer_id == employer_id).filter(Period.period_end <= time_period_query.Period.period_start,VacationTimes.employer_id == employer_id,Time.employer_id == employer_id,cast(VacationTimes.month, Integer) < month, cast(VacationTimes.year, Integer) <= year).group_by(Period.year).all()
+    vacation_time_query = session.query(
+        func.sum(VacationTimes.vacation_hours).label("vacation_hours"),
+        func.sum(VacationTimes.sicks_hours).label("sicks_hours")
+    ).select_from(VacationTimes).filter(     
+        VacationTimes.employer_id == employer_id,        
+        cast(VacationTimes.month, Integer) < month,
+        cast(VacationTimes.year, Integer) <= year
+    ).group_by(VacationTimes.year).all()
+
+    
 
     # employer time
     time_query = session.query(Time).filter(Time.id == time_id).first()
@@ -908,25 +917,19 @@ def form_w2pr_pdf_controller(company_id, employer_id, year):
 
 
 def form_940_pdf_controller(company_id, year):
-    try:
-        pdf = form_940_pdf_generator(company_id, year)
-        if pdf is None:
-            return Response(status_code=status.HTTP_404_NOT_FOUND, content="No data found")
+    
+    pdf = form_940_pdf_generator(company_id, year)
+    if pdf is None:
+        return Response(status_code=status.HTTP_404_NOT_FOUND, content="No data found")
 
-        if pdf:
-            return FileResponse(
-                pdf,
-                media_type="application/pdf",
-                filename="form_940.pdf"
-            )
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Se ha producido un error {str(e)}"
+    if pdf:
+        return FileResponse(
+            pdf,
+            media_type="application/pdf",
+            filename="form_940.pdf"
         )
-    finally:
-        session.close()
+
+    
 
 
 def form_941_pdf_controller(company_id, year, period):
@@ -1030,120 +1033,153 @@ def get_report_cfse_pdf_controller(company_id, year, period):
     company = session.query(Companies).filter(Companies.id == company_id).first()
     employees = session.query(Employers).filter(Employers.company_id == company_id).all()
 
-    try:
-        info = {
-            "employer_name": company.name,
-            "commercial_register": company.commercial_register,
-            "telefono": company.contact_number,
+    # Calculate quarterly amounts
+    quarter_amounts = []
+    for start_month in [7, 10, 1, 4]:  # Months for each quarter start
+        date_start = date(year if start_month <= 12 else year - 1, start_month, 1)
+        date_end = date(year if start_month + 2 <= 12 else year + 1, start_month + 2, 1)
+        quarter_amounts.append(getAmountCSFECompany(company_id, date_start, date_end))
+
+    employee_data = []
+    for employee in employees:
+        employee_dict = {
+            "nombre": employee.first_name,
+            "apellido": employee.last_name,
+            "categoria": "",  # Assuming these fields exist
+            "trimestre_3": 0,
+            "trimestre_4": 0,
+            "trimestre_1": 0,
+            "trimestre2": 0,
+            "Total": 0,
         }
-        #plantilla html
-        template_html = """
 
-            <!DOCTYPE html>
-            <html lang="es">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Reporte Planilla CFSE</title>
-                <style>
-                    @page {
-                        size: A4 landscape; /* Configura la página en orientación horizontal */
-                        margin: 20mm;
-                    }
+        for i, quarter_amount in enumerate(quarter_amounts):
+            if quarter_amount and quarter_amount[0]:  # Check if quarter_amount and its first element exist
+                if quarter_amount[0].employer_id == employee.id:
+                    employee_dict[f"trimestre_{i+1}"] = quarter_amount[i].wages
+                    employee_dict["Total"] += quarter_amount[i].wages
 
-                    body {
-                        font-family: Arial, sans-serif;
-                        margin: 20px;
-                    }
+        employee_data.append(employee_dict)
+    
+    
+   
+    info = {
+        "employer_name": company.name,
+        "commercial_register": company.commercial_register,
+        "data": employee_data ,
 
-                    .header {
-                        text-align: center;
-                        margin-bottom: 40px;
-                    }
+        "telefono": company.contact_number,
+    }
+    #plantilla html
+    template_html = """
 
-                    .header h1, .header h2 {
-                        margin: 0;
-                    }
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Reporte Planilla CFSE</title>
+            <style>
+                @page {
+                    size: A4 landscape; /* Configura la página en orientación horizontal */
+                    margin: 20mm;
+                }
 
-                    table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        margin-top: 20px;
-                    }
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 20px;
+                }
 
-                    table, th, td {
-                        border: 1px solid black;
-                    }
+                .header {
+                    text-align: center;
+                    margin-bottom: 40px;
+                }
 
-                    th, td {
-                        padding: 8px;
-                        text-align: left;
-                    }
+                .header h1, .header h2 {
+                    margin: 0;
+                }
 
-                    th {
-                        background-color: #f2f2f2;
-                        font-size: 10px;
-                    }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 20px;
+                }
 
-                    .total-row {
-                        font-weight: bold;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="header">
-                    <h4>{{ employer_name }}</h4>
-                    <h4>Número de Registro: {{ commercial_register }}</h4>
-                    <h4>Teléfono: {{ telefono }}</h4>
-                </div>
+                table, th, td {
+                    border: 1px solid black;
+                }
 
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Apellido</th>
-                            <th>Categoría</th>
-                            <th>Tercer Trimestre</th>
-                            <th>Cuarto Trimestre</th>
-                            <th>Primer Trimestre</th>
-                            <th>Segundo Trimestre</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Aquí puedes iterar sobre tus datos para generar las filas de la tabla -->
-                       
-                        <!-- Agrega más filas según sea necesario -->
-                        <!-- Fila de totales -->
-                       
-                    </tbody>
-                </table>
-            </body>
-            </html>
+                th, td {
+                    padding: 8px;
+                    text-align: left;
+                }
+
+                th {
+                    background-color: #f2f2f2;
+                    font-size: 10px;
+                }
+
+                .total-row {
+                    font-weight: bold;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h4>{{ employer_name }}</h4>
+                <h4>Número de Registro: {{ commercial_register }}</h4>
+                <h4>Teléfono: {{ telefono }}</h4>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Categoría</th>
+                        <th>Tercer Trimestre</th>
+                        <th>Cuarto Trimestre</th>
+                        <th>Primer Trimestre</th>
+                        <th>Segundo Trimestre</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for employee in data %}
+<tr>
+    <td>{{ employee.nombre }}</td>
+    <td>{{ employee.apellido }}</td>
+    <td>{{ employee.categoria }}</td>
+    <td>{{ employee.trimestre_3  }}</td>
+    <td>{{ employee.trimestre_4  }}</td>
+    <td>{{ employee.trimestre_1  }}</td>
+    <td>{{ employee.trimestre_2  }}</td>
+    <td>{{ employee.Total }}</td>
+</tr>
+{% endfor %}
+                    
+                </tbody>
+            </table>
+        </body>
+        </html>
 
 
-        """
+    """
 
-        template = Template(template_html)
-        rendered_html = template.render(info)
+    template = Template(template_html)
+    rendered_html = template.render(info)
 
-        # Generar el PDF usando WeasyPrint
-        pdf_file = "pdf_cfse.pdf"
-        HTML(string=rendered_html).write_pdf(pdf_file)
+    # Generar el PDF usando WeasyPrint
+    pdf_file = "pdf_cfse.pdf"
+    HTML(string=rendered_html).write_pdf(pdf_file)
 
-        return FileResponse(
-            pdf_file,
-            media_type="application/pdf",
-            filename="pdf_cfse.pdf"
-        )
+    return FileResponse(
+        pdf_file,
+        media_type="application/pdf",
+        filename="pdf_cfse.pdf"
+    )
 
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Se ha producido un error {str(e)}"
-        )
-    finally:
-        session.close()
+    
         
         
         

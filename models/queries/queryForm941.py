@@ -45,6 +45,8 @@ def queryForm941(company_id, year, period):
         data = {
             ## Page 1
             ## Header fields
+            f'topmostSubform[0].Page1[0].c1_1[{period-1}]': True,
+                      
             'topmostSubform[0].Page1[0].EntityArea[0].f1_1[0]': ein_part_1, # identification ein part 1
             'topmostSubform[0].Page1[0].EntityArea[0].f1_2[0]': ein_part_2, # identification ein part 2
             'topmostSubform[0].Page1[0].EntityArea[0].f1_3[0]': company.name, # Name company

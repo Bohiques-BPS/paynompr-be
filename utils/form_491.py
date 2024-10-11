@@ -17,11 +17,11 @@ def form_941_pdf_generator(company_id, year, period):
         with fitz.open(document_dir / source_file_name) as doc:
             for page_number in range(len(doc)):
                 page = doc[page_number]
-                for field in page.widgets():
-                    if field.field_type == fitz.PDF_WIDGET_TYPE_TEXT:
-                        if field.field_name in data_entry_data:
-                            field.field_value = data_entry_data[field.field_name]
-                            field.update()
+                for field in page.widgets():                    
+                    if field.field_name in data_entry_data:
+                        field.field_value = data_entry_data[field.field_name]
+                        field.update()
+                    
 
 
 

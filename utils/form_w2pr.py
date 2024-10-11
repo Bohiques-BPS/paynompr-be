@@ -231,7 +231,7 @@ def form_w2pr_pdf_generate():
                   Numero Confirmación de Radicación Electronica <br />
                   Electronic Filling Confirmation Number:
                 </p>
-                <p class="uppercase text-sm">W845784564587855</p>
+                <p class="uppercase text-sm"></p>
               </div>
               <div class="border-b-2 py-1 border-black px-2">
                 <p class="text-xs">Numero Control - Control Number:</p>
