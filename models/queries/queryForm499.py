@@ -47,6 +47,7 @@ def queryForm499(company_id, year, period):
 
         # Data for PDF
         data = {
+            'text_code_naics' : company.industrial_code,
             'text_name_company': company.name if company.name is not None else '', # company name
             'text_ein': company.number_patronal if company.number_patronal is not None else '', # company ein
             'text_name_contact' : company.contact if company.contact is not None else '', # contact name

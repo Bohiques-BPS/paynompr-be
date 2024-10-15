@@ -43,24 +43,28 @@ def queryFormUnemployment (company_id, year, period):
 
     # A % DE Incapacitados +  Aportación Patronal
     # B % DE Desempleo
-
+    disabled_percent = float(company.disabled_percent.strip('%')) 
+    text_value_porcentage_b = float(company.unemployment_percentage.strip('%')) 
     employed_contribution = company.employed_contribution if company.employed_contribution is not None else 0
-    compensation_pay_a = roundedAmount(totalAmount * (float(employed_contribution) / 100))
-    compensation_pay_b = roundedAmount(totalAmount * (1 / 100))
-    total_special = roundedAmount((totalAmount / 100) * float(unemployment_percentage))
+    compensation_pay_a = roundedAmount(totalAmount * (disabled_percent+ float(company.driver_code) / 100))
+    compensation_pay_b = roundedAmount(totalAmount * (text_value_porcentage_b / 100))
+    total_special = roundedAmount((totalAmount / 100) * float(company.special_contribution.strip('%')))
     total_cheque_a = roundedAmount(total_special + compensation_pay_a)
 
     # Employers
     # employers =  getEmployersAmount(company_id)
 
+    
 
     data = {
+        'text_quater' : str(year)+"-"+str(period),
+        'text_quarter_ended' : str(year)+"-"+str(period),
         'text_ein': company.number_patronal if company.number_patronal is not None else '',
         'text_ein_2': company.number_patronal if company.number_patronal is not None else '',
         'text_ein_3': company.number_patronal if company.number_patronal is not None else '',
-        'text_name_company': company.name if company.name is not None else '',
-        'textarea_name_company_2': company.name if company.name is not None else '',
-        'textarea_company_name_3': company.name if company.name is not None else '',
+        'text_name_company': company.name +"\n" + company.postal_address if company.name is not None else '',
+        'textarea_name_company_2': company.name +"\n" + company.postal_address if company.name is not None else '',
+        'textarea_company_name_3': company.name +"\n" + company.postal_address if company.name is not None else '',
         'text_address_company': company.physical_address if company.physical_address is not None else '',
         'text_address_company_2': f'{physicalAddressCompany}, {statePhysicalAddressCompany}',
         'text_zipcode_company': f'{ countryPhysicalAddressCompany } { zipCodeAddressCompany }',
@@ -69,9 +73,9 @@ def queryFormUnemployment (company_id, year, period):
         'text_total_wages_b': str(totalAmount),
         'text_wages_contributions_a': str(totalAmount),
         'text_wages_contributions_b': str(totalAmount),
-        'text_value_porcentage_a': employed_contribution if employed_contribution != 0 else '',
-        'text_value_porcentage_b': '1.00',
-        'text_value_porcentage_special': unemployment_percentage if unemployment_percentage != 0 else '',
+        'text_value_porcentage_a': str(disabled_percent+ float(company.driver_code)),
+        'text_value_porcentage_b': str(company.unemployment_percentage),
+        'text_value_porcentage_special': company.special_contribution,
         'text_compensation_pay_a': str(compensation_pay_a),
         'text_compensation_pay_b': str(compensation_pay_b),
         'text_total_special': str(total_special),

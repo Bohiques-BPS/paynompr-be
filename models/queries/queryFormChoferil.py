@@ -1,4 +1,4 @@
-from models.queries.queryUtils import getCompany, getEmployersAmount, roundedAmount
+from models.queries.queryUtils import getCompany, getEmployersChoferilAmount, roundedAmount
 from utils.time_func import getPeriodTime
 from datetime import datetime, date
 
@@ -9,7 +9,7 @@ def queryFormChoferil (company_id, year, periodo):
     date_period = getPeriodTime(periodo, year)
     dateToday = datetime.now()
 
-    employees = getEmployersAmount(company.id, date_period)
+    employees = getEmployersChoferilAmount(company.id, date_period)
 
     index = 1
     totalAmount = 0

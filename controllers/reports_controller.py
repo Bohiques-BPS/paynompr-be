@@ -2,6 +2,7 @@ from datetime import datetime
 from decimal import ROUND_HALF_UP, Decimal
 import fitz  # PyMuPDF
 
+import calendar
 
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import FileResponse, Response
@@ -877,7 +878,7 @@ def form_w2pr_pdf_controller(company_id, employer_id, year):
     try:
         employers = []
         pdf_files = []
-        if company_id is not None:
+        if employer_id == 0 :
             employers = session.query(Employers.id).filter(Employers.company_id == company_id).all()
         else:
             employers = session.query(Employers.id).filter(Employers.id == employer_id).all()
@@ -1035,39 +1036,57 @@ def get_report_cfse_pdf_controller(company_id, year, period):
 
     # Calculate quarterly amounts
     quarter_amounts = []
-    for start_month in [7, 10, 1, 4]:  # Months for each quarter start
-        date_start = date(year if start_month <= 12 else year - 1, start_month, 1)
-        date_end = date(year if start_month + 2 <= 12 else year + 1, start_month + 2, 1)
-        quarter_amounts.append(getAmountCSFECompany(company_id, date_start, date_end))
+    quarter_starts = [7, 10, 1,4]
+    
+    for i, start_month in enumerate(quarter_starts):
+        
+        if (start_month >= 7):
+            date_start = date( year - 1, start_month, 1)
+        else:
+            date_start = date( year, start_month, 1)
+        if (start_month  >= 7):
+            date_end = date( year -1 , start_month + 2, calendar.monthrange(year-1, start_month + 2)[1])
+        else:
+            date_end = date( year , start_month + 2, calendar.monthrange(year, start_month + 2)[1])
+        
+        quarter_amount = getAmountCSFECompany(company_id, date_start, date_end)
 
+        if quarter_amount:   
+            for element in quarter_amount:
+                element_dict = element._asdict()  # Convert SQLAlchemy result to dictionary
+                element_dict['period'] = i + 1
+                quarter_amounts.append(element_dict)
+            
+    
     employee_data = []
+    
     for employee in employees:
         employee_dict = {
             "nombre": employee.first_name,
             "apellido": employee.last_name,
             "categoria": "",  # Assuming these fields exist
+            "trimestre_1": 0,
+            "trimestre_2": 0,
             "trimestre_3": 0,
             "trimestre_4": 0,
-            "trimestre_1": 0,
-            "trimestre2": 0,
             "Total": 0,
         }
+        
+        # Find matching quarter_amount for this employee
+        for quarter_amount in quarter_amounts:
+            
+            if quarter_amount['employer_id'] == employee.id:
+                employee_dict[f"trimestre_{quarter_amount['period']}"] += quarter_amount['wages']
+                employee_dict["Total"] += quarter_amount['wages']
 
-        for i, quarter_amount in enumerate(quarter_amounts):
-            if quarter_amount and quarter_amount[0]:  # Check if quarter_amount and its first element exist
-                if quarter_amount[0].employer_id == employee.id:
-                    employee_dict[f"trimestre_{i+1}"] = quarter_amount[i].wages
-                    employee_dict["Total"] += quarter_amount[i].wages
+                employee_data.append(employee_dict)
 
-        employee_data.append(employee_dict)
-    
-    
-   
+        
+
     info = {
         "employer_name": company.name,
         "commercial_register": company.commercial_register,
-        "data": employee_data ,
-
+        "data": employee_data,
         "telefono": company.contact_number,
     }
     #plantilla html
@@ -1150,10 +1169,10 @@ def get_report_cfse_pdf_controller(company_id, year, period):
     <td>{{ employee.nombre }}</td>
     <td>{{ employee.apellido }}</td>
     <td>{{ employee.categoria }}</td>
-    <td>{{ employee.trimestre_3  }}</td>
-    <td>{{ employee.trimestre_4  }}</td>
     <td>{{ employee.trimestre_1  }}</td>
     <td>{{ employee.trimestre_2  }}</td>
+    <td>{{ employee.trimestre_3  }}</td>
+    <td>{{ employee.trimestre_4  }}</td>
     <td>{{ employee.Total }}</td>
 </tr>
 {% endfor %}

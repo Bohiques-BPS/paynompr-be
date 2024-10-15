@@ -70,7 +70,7 @@ def queryFormW2pr(employer_id, year = None):
       'total_20': rounded_amount_11-rounded_amount_tips,
       'total_22': (rounded_amount_11 + rounded_amount_wages_26),
       'total_refunds': rounded_amount_refunds,
-      'total_secures_social' : rounded_amount_secures_social,
+      'total_secures_social' : rounded_amount_secures_social+rounded_amount_social_tips,
       'total_social_tips': rounded_amount_social_tips,
       'total_taxes_pr': rounded_amount_taxes_pr,
       'total_time_worker': 0,

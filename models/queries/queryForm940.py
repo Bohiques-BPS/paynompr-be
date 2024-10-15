@@ -46,7 +46,7 @@ def queryForm940(company_id, year = None):
   subTotalLinea8_number = roundedAmount((salaryFuta_number * 0.006))
   subtotalLinea8 = addDecimal(subTotalLinea8_number)
   # Linea 9
-  subtotalLinea9_number = roundedAmount((salaryFuta_number * 0.054))
+  subtotalLinea9_number = 0
   subtotalLinea9 = addDecimal(subtotalLinea9_number)
   # Linea 10
   subtotalLinea10_number = 0
@@ -61,7 +61,7 @@ def queryForm940(company_id, year = None):
   subtotalLinea13_number = 0
   subtotalLinea13 = addDecimal(subtotalLinea13_number)
   # Linea 14
-  subtotalLinea14_number = roundedAmount((subtotalLinea13_number - subtotalLinea12_number)) if subtotalLinea13_number > subtotalLinea12_number else 0
+  subtotalLinea14_number = subtotalLinea12_number
   subtotalLinea14 = addDecimal(subtotalLinea14_number)
   # Linea 15
   subtotalLinea15_number = roundedAmount((subtotalLinea13_number - subtotalLinea12_number)) if subtotalLinea13_number > subtotalLinea12_number else 0

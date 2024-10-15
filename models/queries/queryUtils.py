@@ -143,9 +143,10 @@ def getAmountVariosCompany(company_id, year, period = None):
 
 def getAmountCSFECompany(company_id, date_start, date_end ):
     result = session.query(
+      
       func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay+ Time.commissions +Time.concessions).label('wages'),
       
-      func.sum(Time.employer_id).label('employer_id'),
+     Time.employer_id.label('employer_id'),
       func.sum(Time.regular_pay).label('regular_pay'),
       func.sum( Time.over_pay ).label('over_pay'),
       func.sum( Time.vacation_pay ).label('vacation_pay'),
@@ -157,14 +158,18 @@ def getAmountCSFECompany(company_id, date_start, date_end ):
       func.sum(Time.tips).label('tips'),
       func.sum(Time.donation).label('donation'),
       func.sum(Time.refund).label('refunds'),
+      
       func.sum(Time.medicare).label('medicares'),
       func.sum(Time.bonus).label('bonus'),
       func.sum(Time.social_tips).label('social_tips'),
       func.sum(Time.secure_social).label('secure_social'),
       func.sum(Time.tax_pr).label('taxes_pr')
       ).select_from(Period).join(Time, Period.id == Time.period_id ).join(Employers, Time.employer_id == Employers.id).filter( Employers.company_id == company_id,  Period.period_end >= date_start , Period.period_end <= date_end ).group_by(Time.employer_id).all()
-      
-    return result
+    
+    return result or []  # Return an empty list if result is None
+
+    
+       
 
 def getByEmployerAmountCompany(company_id, year, period = None):
     date_start = date(year, 1, 1)
@@ -263,6 +268,25 @@ def getEmployersAmount(company_id, date_period):
 
     return arrayTotal
 
+def getEmployersChoferilAmount(company_id, date_period):
+    arrayTotal = session.query(
+      func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay  + Time.commissions + Time.concessions).label('total'),
+      Employers.id,
+      Employers.first_name,
+      Employers.last_name,
+      Employers.licence,
+      Employers.social_security_number,
+      func.count(Time.period_id).label('total_weeks'),
+      ).select_from(Period).join(Time, Period.id == Time.period_id ).join(Employers, Time.employer_id == Employers.id
+      ).filter(
+         Employers.choferil == "SI",
+        Employers.company_id == company_id,
+        Period.period_start >= date_period['start'],
+        Period.period_end <= date_period['end']
+        
+    ).group_by(Employers.id).all()
+
+    return arrayTotal
 def roundedAmount(amount, decimal = 2):
     return round(amount, decimal)
 
