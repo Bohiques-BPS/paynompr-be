@@ -31,7 +31,7 @@ def getTotalAmountAndExemptAmount(company_id, date_period):
       ).join(Employers, Employers.id == Time.employer_id
       ).join(Period, Period.id == Time.period_id).filter(     
         Employers.company_id == company_id,
-        Period.period_start >= date_period['start'],
+        Period.period_end >= date_period['start'],
         Period.period_end <= date_period['end']
     ).group_by(Employers.id).all()
 
@@ -137,7 +137,7 @@ def getAmountVariosCompany(company_id, year, period = None):
       func.sum(Time.social_tips).label('social_tips'),
       func.sum(Time.secure_social).label('secure_social'),
       func.sum(Time.tax_pr).label('taxes_pr')
-      ).select_from(Period).join(Time, Period.id == Time.period_id ).join(Employers, Time.employer_id == Employers.id).filter( Employers.company_id == company_id,  Period.year == year ).all()
+      ).select_from(Period).join(Time, Period.id == Time.period_id ).join(Employers, Time.employer_id == Employers.id).filter( Employers.company_id == company_id,  Period.period_end >= date_start ,Period.period_end <= date_end ).all()
       
     return result[0]
 
@@ -228,7 +228,7 @@ def getAmountVariosCompanyGroupByMonth(company_id, year, period = None):
       ).join(Employers, Time.employer_id == Employers.id
       ).join(Period, Period.id == Time.period_id 
       
-      ).filter( Employers.company_id == company_id, Period.period_start >= date_start, Period.period_end <= date_end 
+      ).filter( Employers.company_id == company_id, Period.period_end >= date_start, Period.period_end <= date_end 
       ).group_by(func.date_trunc('month', Period.period_end)).order_by(func.date_trunc('month', Period.period_end)).all()
 
     return result
@@ -261,7 +261,7 @@ def getEmployersAmount(company_id, date_period):
       ).select_from(Period).join(Time, Period.id == Time.period_id ).join(Employers, Time.employer_id == Employers.id
       ).filter(
         Employers.company_id == company_id,
-        Period.period_start >= date_period['start'],
+        Period.period_end >= date_period['start'],
         Period.period_end <= date_period['end']
         
     ).group_by(Employers.id).all()
@@ -281,7 +281,7 @@ def getEmployersChoferilAmount(company_id, date_period):
       ).filter(
          Employers.choferil == "SI",
         Employers.company_id == company_id,
-        Period.period_start >= date_period['start'],
+        Period.period_end >= date_period['start'],
         Period.period_end <= date_period['end']
         
     ).group_by(Employers.id).all()
