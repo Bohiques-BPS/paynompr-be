@@ -115,7 +115,7 @@ def create_employer_controller(employer_data: Employers, company_id):
 
 def get_all_employers_by_company_id_controller(company_id, user):
     try:
-        employer_query = session.query(Employers).filter(Employers.company_id == company_id).all()
+        employer_query = session.query(Employers).filter(Employers.company_id == company_id).order_by(Employers.first_name).all()
 
 
         return {

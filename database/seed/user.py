@@ -9,7 +9,7 @@ INITIAL_DATA = {
     "fixed_taxes":[ 
         {
             "id":1,
-            "name":"inability",
+            "name":"disability",
             "amount":"0.3",
             "limit":10000
         },

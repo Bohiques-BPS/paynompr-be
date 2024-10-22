@@ -144,7 +144,7 @@ def getAmountVariosCompany(company_id, year, period = None):
 def getAmountCSFECompany(company_id, date_start, date_end ):
     result = session.query(
       
-      func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay+ Time.commissions +Time.concessions).label('wages'),
+      func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay+ Time.commissions +Time.concessions+Time.tips).label('wages'),
       
      Time.employer_id.label('employer_id'),
       func.sum(Time.regular_pay).label('regular_pay'),
@@ -301,6 +301,8 @@ def getCompany(company_id):
 def getEmployees(company_id):
     employers = session.query(Employers).filter(Employers.company_id == company_id).all()
     return employers
+
+
 
 def getEmployer(employer_id):
     employer = session.query(Employers).filter(Employers.id == employer_id).first()

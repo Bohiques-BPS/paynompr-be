@@ -6,7 +6,7 @@ from fastapi import APIRouter
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-from controllers.reports_controller import all_counterfoil_controller, counterfoil_controller, form_940_pdf_controller, form_choferil_pdf_controller, form_unemployment_pdf_controller, form_withheld_499_pdf_controller, get_report_cfse_pdf_controller, form_w2pr_pdf_controller, form_941_pdf_controller, form_943_pdf_controller
+from controllers.reports_controller import counterfoil_by_range_controller,all_counterfoil_controller, counterfoil_controller, form_940_pdf_controller, form_choferil_pdf_controller, form_unemployment_pdf_controller, form_withheld_499_pdf_controller, get_report_cfse_pdf_controller, form_w2pr_pdf_controller, form_941_pdf_controller, form_943_pdf_controller
 from database.config import session
 from models.companies import Companies
 from models.employers import Employers
@@ -33,10 +33,21 @@ class CompanyOrEmployer(BaseModel):
     employer_id: int | None
     year: int
 
+class CompanyRange(BaseModel):
+    company_id: int | None
+    employer_id: int | None
+    start: datetime
+    end: datetime
+
+
 
 @report_router.get("/counterfoil1/{company_id}/{period_id}")
 async def all_counterfoil(company_id: int, period_id: int):
     return all_counterfoil_controller(company_id, period_id)
+
+@report_router.post("/counterfoil/range")
+async def counterfoil_by_range(companyRange: CompanyRange):
+    return counterfoil_by_range_controller(companyRange.company_id, companyRange.employer_id,companyRange.start,companyRange.end)
 
 @report_router.get("/counterfoil/{company_id}/{employer_id}/{time_id}")
 async def counterfoil(company_id: int, employer_id: int, time_id: int):

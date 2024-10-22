@@ -91,7 +91,7 @@ def get_all_companies_controller(user):
         companies_query = (
             session.query(Companies)
             .options(joinedload(Companies.employers).joinedload(Employers.time))
-            .filter(Companies.code_id == user["id"])
+            .filter(Companies.code_id == user["id"]).order_by(Companies.name)
             .all()
         )
 

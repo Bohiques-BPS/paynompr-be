@@ -26,7 +26,7 @@ def queryForm940(company_id, year = None):
       player_total = player.wages + player.commissions + player.concessions
       if player_total > 7000:
           total_wages_commissions_concessions += player_total
-          print(f"Player with ID {player.id} has wages+commissions+concessions exceeding 7000: {player_total}")  # Optional: Print details
+        
 
   print("-------------------")
   print(f"Total wages+commissions+concessions exceeding 7000: {total_wages_commissions_concessions}")
