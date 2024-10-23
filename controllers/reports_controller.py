@@ -470,7 +470,7 @@ def counterfoil_by_range_controller(company_id, employer_id,start,end):
                     <tr>
                         <th>WAGES</th>
                   
-                        <th>YEAR</th>
+                        <th>AMOUNT</th>
                     </tr>
                     <tr>
                         <td>REG. PAY:</td>
@@ -544,7 +544,7 @@ def counterfoil_by_range_controller(company_id, employer_id,start,end):
                     <tr>
                         <th></th>
                        
-                        <th>YEAR</th>
+                        <th>AMOUNT</th>
                     </tr>
                     <tr>
                         <td>
@@ -603,7 +603,7 @@ Gastos Reembolsados:</td>
                     <tr>
                         <th></th>
                      
-                        <th>YEAR</th>
+                        <th>AMOUNT</th>
                     </tr>
                     <tr>
                         <td>INC TAX:</td>
@@ -1732,8 +1732,7 @@ def get_report_cfse_pdf_controller(company_id, year, period):
             
     
     employee_data = []
-    print("----------------------")
-    print(employees)
+    
 
     for employee in employees:
         employee_dict = {

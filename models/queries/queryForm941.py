@@ -1,6 +1,6 @@
-from models.queries.queryUtils import getCompany, getEmployees, getAmountVariosCompany, addDecimal,roundedAmount, getRandomIrs
+from models.queries.queryUtils import getCompany, getEmployees,getAmountByMonth, getAmountVariosCompany, addDecimal,roundedAmount, getRandomIrs
 from utils.country import COUNTRY
-
+from utils.time_func import getPeriodTime
 def queryForm941(company_id, year, period):
 
 
@@ -15,8 +15,26 @@ def queryForm941(company_id, year, period):
     ein_part_1 = ein[0] if (len(ein) >= 1) else ''
     ein_part_2 = ein[1] if (len(ein) >= 2) else ''
 
+    date_period = getPeriodTime(period, year)
+    date_start = date_period['start']
+    month = date_start.month
+    
+
     # Calculate total amount
     amount_varios_number = getAmountVariosCompany(company_id, year, period)
+    amount_by_month_1 =  getAmountByMonth(company_id, year,month)[0].wages
+    amount_by_month_2 =  getAmountByMonth(company_id, year,month+1)[0].wages
+    amount_by_month_3 =  getAmountByMonth(company_id, year,month+2)[0].wages
+
+    amount_by_month_1_number = roundedAmount(amount_by_month_1)
+    amount_by_month_1_decimal = addDecimal(amount_by_month_1)
+
+    amount_by_month_2_number = roundedAmount(amount_by_month_2)
+    amount_by_month_2_decimal = addDecimal(amount_by_month_2_number)
+
+    amount_by_month_3_number = roundedAmount(amount_by_month_3)
+    amount_by_month_3_decimal = addDecimal(amount_by_month_3_number)
+
 
     # Calculate column 1
     total_wages = amount_varios_number.wages + amount_varios_number.commissions + amount_varios_number.concessions 
@@ -53,10 +71,10 @@ def queryForm941(company_id, year, period):
         'topmostSubform[0].Page1[0].EntityArea[0].f1_2[0]': ein_part_2, # identification ein part 2
         'topmostSubform[0].Page1[0].EntityArea[0].f1_3[0]': company.name, # Name company
         'topmostSubform[0].Page1[0].EntityArea[0].f1_4[0]': '', # Commercial name company
-        'topmostSubform[0].Page1[0].EntityArea[0].f1_5[0]': company.physical_address, # Address company
+        'topmostSubform[0].Page1[0].EntityArea[0].f1_5[0]': company.postal_address, # Address company
         'topmostSubform[0].Page1[0].EntityArea[0].f1_6[0]':  COUNTRY[int(company.country_postal_address)-1],
-        'topmostSubform[0].Page1[0].EntityArea[0].f1_7[0]': company.state_physical_address, # State company
-        'topmostSubform[0].Page1[0].EntityArea[0].f1_8[0]': company.zipcode_physical_address, # ZipCode company
+        'topmostSubform[0].Page1[0].EntityArea[0].f1_7[0]': company.state_postal_addess, # State company
+        'topmostSubform[0].Page1[0].EntityArea[0].f1_8[0]': company.zipcode_postal_address, # ZipCode company
         'topmostSubform[0].Page1[0].EntityArea[0].f1_9[0]': '', # Name country foreign
         'topmostSubform[0].Page1[0].EntityArea[0].f1_10[0]': '', # Provincia foreign
         'topmostSubform[0].Page1[0].EntityArea[0].f1_11[0]': '', # Zip code foreign
@@ -146,12 +164,12 @@ def queryForm941(company_id, year, period):
         'topmostSubform[0].Page2[0].f2_32[0]': '0', # part 1 - Line 15
         'topmostSubform[0].Page2[0].f2_33[0]': '00', # part 2 - Line 15
         ### Part 2
-        'topmostSubform[0].Page2[0].f2_34[0]': '0', # mes 1 part 1 - Line 16
-        'topmostSubform[0].Page2[0].f2_35[0]': '00', # mes 1 part 2 - Line 16
-        'topmostSubform[0].Page2[0].f2_36[0]': '0', # mes 2 part 1 - Line 16
-        'topmostSubform[0].Page2[0].f2_37[0]': '00', # mes 2 part 2 - Line 16
-        'topmostSubform[0].Page2[0].f2_38[0]': '0', # mes 3 part 1 - Line 16
-        'topmostSubform[0].Page2[0].f2_39[0]': '00', # mes 3 part 2 - Line 16
+        'topmostSubform[0].Page2[0].f2_34[0]': str(amount_by_month_1_decimal[0]), # mes 1 part 1 - Line 16
+        'topmostSubform[0].Page2[0].f2_35[0]': str(amount_by_month_1_decimal[1]), # mes 1 part 2 - Line 16
+        'topmostSubform[0].Page2[0].f2_36[0]': str(amount_by_month_2_decimal[0]), # mes 2 part 1 - Line 16
+        'topmostSubform[0].Page2[0].f2_37[0]': str(amount_by_month_2_decimal[1]), # mes 2 part 2 - Line 16
+        'topmostSubform[0].Page2[0].f2_38[0]': str(amount_by_month_3_decimal[0]), # mes 3 part 1 - Line 16
+        'topmostSubform[0].Page2[0].f2_39[0]': str(amount_by_month_3_decimal[1]), # mes 3 part 2 - Line 16
         'topmostSubform[0].Page2[0].f2_40[0]': '0', # total mes part 1 - Line 16
         'topmostSubform[0].Page2[0].f2_41[0]': '00', # total mes part 2 - Line 16
         ## Page 3

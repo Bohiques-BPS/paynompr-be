@@ -1,5 +1,6 @@
-from models.queries.queryUtils import getCompany, getEmployersAmount, roundedAmount
+from models.queries.queryUtils import getCompany, getEmployersAmount, roundedAmount, getAmountGroupEmployer
 from utils.time_func import getPeriodTime
+from utils.country import COUNTRY
 
 
 def queryFormUnemployment (company_id, year, period):
@@ -7,6 +8,15 @@ def queryFormUnemployment (company_id, year, period):
 
     # Data Active
     date_period = getPeriodTime(period, year)
+    date_start = date_period['start']
+    month = date_start.month
+    
+
+    # Calculate total amount
+    
+    amount_count_1 =  len(getAmountGroupEmployer(company_id, year,month))
+    amount_count_2 =  len(getAmountGroupEmployer(company_id, year,month+1))
+    amount_count_3 =  len(getAmountGroupEmployer(company_id, year,month+2))
 
     employees = getEmployersAmount(company.id, date_period)
 
@@ -31,7 +41,10 @@ def queryFormUnemployment (company_id, year, period):
         #     tmpEmployees = []
         #     index = 1
     print("-----------------tmpEmployees----------------"+str(tmpEmployees))
-
+    # Address Company
+    postalAddressCompany = company.postal_address if company.postal_address is not None else ''
+    statePostalAddressCompany = company.state_postal_addess if company.state_postal_addess is not None else ''
+    countryPostalAddressCompany = COUNTRY[int(company.country_postal_address)-1] if COUNTRY[int(company.country_postal_address)-1] is not None else ''
     # Address Company
     physicalAddressCompany = company.physical_address if company.physical_address is not None else ''
     statePhysicalAddressCompany = company.state_physical_address if company.state_physical_address is not None else ''
@@ -46,8 +59,8 @@ def queryFormUnemployment (company_id, year, period):
     disabled_percent = float(company.disabled_percent.strip('%')) 
     text_value_porcentage_b = float(company.unemployment_percentage.strip('%')) 
     employed_contribution = company.employed_contribution if company.employed_contribution is not None else 0
-    compensation_pay_a = roundedAmount(totalAmount * (disabled_percent+ float(company.driver_code) / 100))
-    compensation_pay_b = roundedAmount(totalAmount * (text_value_porcentage_b / 100))
+    compensation_pay_a = roundedAmount(totalAmount * (text_value_porcentage_b / 100))
+    compensation_pay_b = roundedAmount(totalAmount * ((disabled_percent+ float(company.driver_code)) / 100))
     total_special = roundedAmount((totalAmount / 100) * float(company.special_contribution.strip('%')))
     total_cheque_a = roundedAmount(total_special + compensation_pay_a)
 
@@ -62,19 +75,21 @@ def queryFormUnemployment (company_id, year, period):
         'text_ein': company.number_patronal if company.number_patronal is not None else '',
         'text_ein_2': company.number_patronal if company.number_patronal is not None else '',
         'text_ein_3': company.number_patronal if company.number_patronal is not None else '',
-        'text_name_company': company.name +"\n" + company.postal_address if company.name is not None else '',
-        'textarea_name_company_2': company.name +"\n" + company.postal_address if company.name is not None else '',
-        'textarea_company_name_3': company.name +"\n" + company.postal_address if company.name is not None else '',
-        'text_address_company': company.physical_address if company.physical_address is not None else '',
-        'text_address_company_2': f'{physicalAddressCompany}, {statePhysicalAddressCompany}',
-        'text_zipcode_company': f'{ countryPhysicalAddressCompany } { zipCodeAddressCompany }',
+        'text_name_company': company.name +"\n" + postalAddressCompany +", " + statePostalAddressCompany +", " + countryPostalAddressCompany if company.name is not None else '',
+        'textarea_name_company_2': company.name +"\n" + postalAddressCompany +", " + statePostalAddressCompany +", " + countryPostalAddressCompany if company.name is not None else '',
+        'textarea_company_name_3': company.name +"\n" + postalAddressCompany +", " + statePostalAddressCompany +", " + countryPostalAddressCompany if company.name is not None else '',
+       
+
+        'text_first_month': str(amount_count_1),
+        'text_second_month': str(amount_count_2),
+        'text_third_month': str(amount_count_3),
         'employees': tmpEmployees,
         'text_total_wages_a': str(totalAmount),
         'text_total_wages_b': str(totalAmount),
         'text_wages_contributions_a': str(totalAmount),
         'text_wages_contributions_b': str(totalAmount),
-        'text_value_porcentage_a': str(disabled_percent+ float(company.driver_code)),
-        'text_value_porcentage_b': str(company.unemployment_percentage),
+        'text_value_porcentage_a': str(company.unemployment_percentage),
+        'text_value_porcentage_b': str(disabled_percent+ float(company.driver_code)),
         'text_value_porcentage_special': company.special_contribution,
         'text_compensation_pay_a': str(compensation_pay_a),
         'text_compensation_pay_b': str(compensation_pay_b),

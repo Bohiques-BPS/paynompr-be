@@ -5,9 +5,10 @@ from models.time import Time
 from database.config import session
 from random import randint
 from models.accountant import Accountant
-from sqlalchemy import func, and_
+from sqlalchemy import func, and_ , distinct
 from datetime import date
 from utils.time_func import getPeriodTime, getAgeEmployer
+import calendar
 
 def addZeroNumber(value):
     return f'{value}0' if len(value) == 1 else value
@@ -37,16 +38,25 @@ def getTotalAmountAndExemptAmount(company_id, date_period):
 
     total = 0
     exempt_amount = 0
+    count = 0
+    not_exempt_amount = 0
     for payment in result:
+      count = count +1
       total += payment[0]
       if payment[2] is not None:
         birthday = str(payment[2]).split('-') if payment[2] is not None else '0000-00-00'.split('-')
+        print("---------------------")
+        print(payment[2])
         age = getAgeEmployer(birthday)
-        if age > 26:
+        if age < 26:
           exempt_amount += payment[0]
+        else:
+          not_exempt_amount  += payment[0]
+           
 
     total_amount = total - exempt_amount
     return {
+      'count' : count,
       'total': total_amount,
       'exempt': exempt_amount
     }
@@ -110,6 +120,34 @@ def getAmountVarios(employer_id, year, period = None):
 
     return result[0]
 
+def getAmountByTrimestre(company_id, year):
+    quarter_amounts = {'1': 0, '2': 0, '3': 0, '4': 0}
+    quarter_starts = [1, 4, 7, 10]
+
+    for i, start_month in enumerate(quarter_starts):
+        date_start = date(year, start_month, 1)
+        # Calculate end date based on the actual number of days in the month
+        date_end = date(year, start_month + 2, calendar.monthrange(year, start_month + 2)[1])
+        quarter_amount = getAmountByCompany(company_id, date_start, date_end)
+
+        if quarter_amount:
+            quarter_amounts[str(i + 1)] = quarter_amount[0].wages
+        else:
+            quarter_amounts[str(i + 1)] = 0
+
+    return quarter_amounts
+
+
+def getAmountByMonth(company_id, year,month): 
+    date_start = date(year, month, 1)
+    date_end = date(year, month, calendar.monthrange(year, month )[1]) 
+    
+    quarter_amount = getAmountByCompany(company_id, date_start, date_end)
+    if quarter_amount:
+      return quarter_amount
+    else:
+      return 0
+
 def getAmountVariosCompany(company_id, year, period = None):
     date_start = date(year, 1, 1)
     date_end = date(year, 12, 31)
@@ -168,7 +206,62 @@ def getAmountCSFECompany(company_id, date_start, date_end ):
     
     return result or []  # Return an empty list if result is None
 
+
+def getAmountByCompany(company_id, date_start, date_end ):
+    result = session.query(
+      
+      func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay+ Time.commissions +Time.concessions+Time.tips).label('wages'),
+      Employers.company_id,
     
+      func.sum(Time.regular_pay).label('regular_pay'),
+      func.sum( Time.over_pay ).label('over_pay'),
+      func.sum( Time.vacation_pay ).label('vacation_pay'),
+      func.sum( Time.meal_pay ).label('meal_pay'),
+      func.sum( Time.sick_pay ).label('sick_pay'),
+      func.sum(Time.holyday_pay).label('holyday_pay'),
+      func.sum(Time.commissions).label('commissions'),
+      func.sum(Time.concessions).label('concessions'),
+      func.sum(Time.tips).label('tips'),
+      func.sum(Time.donation).label('donation'),
+      func.sum(Time.refund).label('refunds'),
+      
+      func.sum(Time.medicare).label('medicares'),
+      func.sum(Time.bonus).label('bonus'),
+      func.sum(Time.social_tips).label('social_tips'),
+      func.sum(Time.secure_social).label('secure_social'),
+      func.sum(Time.tax_pr).label('taxes_pr')
+      ).select_from(Period).join(Time, Period.id == Time.period_id ).join(Employers, Time.employer_id == Employers.id).filter( Employers.company_id == company_id,  Period.period_end >= date_start , Period.period_end <= date_end ).group_by(Employers.company_id).all()
+    
+    return result or []  # Return an empty list if result is None
+
+def getAmountGroupEmployer(company_id, year , month ):
+    date_start = date(year, month, 1)
+    date_end = date(year, month, calendar.monthrange(year, month )[1])
+    result = session.query(
+      
+      func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay+ Time.commissions +Time.concessions+Time.tips).label('wages'),
+      Employers.id,
+    
+      func.sum(Time.regular_pay).label('regular_pay'),
+      func.sum( Time.over_pay ).label('over_pay'),
+      func.sum( Time.vacation_pay ).label('vacation_pay'),
+      func.sum( Time.meal_pay ).label('meal_pay'),
+      func.sum( Time.sick_pay ).label('sick_pay'),
+      func.sum(Time.holyday_pay).label('holyday_pay'),
+      func.sum(Time.commissions).label('commissions'),
+      func.sum(Time.concessions).label('concessions'),
+      func.sum(Time.tips).label('tips'),
+      func.sum(Time.donation).label('donation'),
+      func.sum(Time.refund).label('refunds'),
+      
+      func.sum(Time.medicare).label('medicares'),
+      func.sum(Time.bonus).label('bonus'),
+      func.sum(Time.social_tips).label('social_tips'),
+      func.sum(Time.secure_social).label('secure_social'),
+      func.sum(Time.tax_pr).label('taxes_pr')
+      ).select_from(Period).join(Time, Period.id == Time.period_id ).join(Employers, Time.employer_id == Employers.id).filter( Employers.company_id == company_id,  Period.period_end >= date_start , Period.period_end <= date_end ).group_by(Employers.id).all()
+    
+    return result or []  # Return an empty list if result is None
        
 
 def getByEmployerAmountCompany(company_id, year, period = None):
@@ -276,7 +369,7 @@ def getEmployersChoferilAmount(company_id, date_period):
       Employers.last_name,
       Employers.licence,
       Employers.social_security_number,
-      func.count(Time.period_id).label('total_weeks'),
+      func.count(distinct(Time.period_id)).label('total_weeks'),
       ).select_from(Period).join(Time, Period.id == Time.period_id ).join(Employers, Time.employer_id == Employers.id
       ).filter(
          Employers.choferil == "SI",

@@ -29,9 +29,9 @@ def queryFormChoferil (company_id, year, periodo):
         index += 1
 
     data = {
-        'text_date_end': str(date_period['end']),
+        'text_date_end': company.number_patronal+" "+str(date_period['end']),
         'text_total_weeks_paid': str(totalWeeks),
-        'text_total_tax_due': str(totalAmount),
+        'text_total_tax_due': str(float(totalWeeks) * float(company.driver_rate)),
         'text_payment_ampunt': '0',
         'text_position': '--',
         'text_phone': company.phone_number if company.phone_number is not None else '',

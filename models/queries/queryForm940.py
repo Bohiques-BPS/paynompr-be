@@ -1,5 +1,6 @@
 from datetime import date
-from models.queries.queryUtils import addDecimal, roundedAmount, getAmountVariosCompany, getEmployers7000, getCompany, getRandomIrs, getByEmployerAmountCompany
+from models.queries.queryUtils import addDecimal, roundedAmount, getAmountVariosCompany, getAmountByTrimestre,getEmployers7000, getCompany, getRandomIrs, getByEmployerAmountCompany
+from utils.country import COUNTRY
 
 
 def queryForm940(company_id, year = None):
@@ -20,6 +21,7 @@ def queryForm940(company_id, year = None):
 
   amount_varios = getAmountVariosCompany(company.id, year)
   amount_by_players = getByEmployerAmountCompany(company.id, year)
+  
 
   total_wages_commissions_concessions = 0
   for player in amount_by_players:
@@ -88,9 +90,9 @@ def queryForm940(company_id, year = None):
     'legal_name': company.name,
     'comercial_name': '',
     'address': company.postal_address,
-    'city': company.state_postal_addess,
-    'state': company.state_physical_address,
-    'zip': company.zipcode_physical_address,
+    'city': COUNTRY[int(company.country_postal_address)-1],
+    'state': company.state_postal_addess,
+    'zip': company.zipcode_postal_address,
     'foering_country_name': company.country_physical_address,
     'province_name': company.state_physical_address,
     'postal_code': company.zipcode_postal_address,
