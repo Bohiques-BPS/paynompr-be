@@ -1,6 +1,7 @@
 from datetime import date
 from models.queries.queryUtils import addDecimal, roundedAmount, getAmountVariosCompany, getAmountByTrimestre,getEmployers7000, getCompany, getRandomIrs, getByEmployerAmountCompany
 from utils.country import COUNTRY
+from datetime import datetime
 
 
 def queryForm940(company_id, year = None):
@@ -25,15 +26,15 @@ def queryForm940(company_id, year = None):
 
   total_wages_commissions_concessions = 0
   for player in amount_by_players:
-      player_total = player.wages + player.commissions + player.concessions
+      player_total = player.wages + player.commissions + player.concessions   
       if player_total > 7000:
-          total_wages_commissions_concessions += player_total
+          total_wages_commissions_concessions += player_total - 7000
         
 
   print("-------------------")
   print(f"Total wages+commissions+concessions exceeding 7000: {total_wages_commissions_concessions}")
   # Total amount employees
-  total_amount_employers_number = roundedAmount(amount_varios.wages + amount_varios.commissions + amount_varios.concessions )
+  total_amount_employers_number = roundedAmount(amount_varios.wages + amount_varios.commissions + amount_varios.concessions + amount_varios.tips )
   total_amount_employers = addDecimal(total_amount_employers_number)
   # total exceeded 7000
   payment_exceeded_7000_number = roundedAmount(getEmployers7000(company.id, date_period))
@@ -129,6 +130,8 @@ def queryForm940(company_id, year = None):
     'futa_ovepayments_1': subtotalLinea15[0],
     'futa_ovepayments_2': subtotalLinea15[1],
     ## part 5
+    'date_1' : datetime.now().strftime("%d-%m-%Y"),
+    'date_2' : datetime.now().strftime("%d-%m-%Y"),
     'futa_trimest_1_1': trimestre1[0],
     'futa_trimest_1_2': trimestre1[1],
     'futa_trimest_2_1': trimestre2[0],
@@ -140,14 +143,22 @@ def queryForm940(company_id, year = None):
     'total_tax_obligation_1': subtotalLinea17[0],
     'total_tax_obligation_2': subtotalLinea17[1],
     ## part 6
-    'autorizated_person': company.contact,
-    'authorized_person_phone': company.contact_number,
+    'autorizated_person': account.name+ ""+ account.first_last_name,
+    'authorized_person_phone': account.phone,
     'personal_number_id_1': personal_number_id[0],
     'personal_number_id_2': personal_number_id[1],
     'personal_number_id_3': personal_number_id[2],
     'personal_number_id_4': personal_number_id[3],
     'personal_number_id_5': personal_number_id[4],
-    'employer_personal_name': f'{account.name} {account.first_last_name}',
+    'accountant_city': COUNTRY[int(account.country)-1],
+    'accountant_state': account.state,
+    'accountant_ptin': account.identidad_ssa,
+    'accountant_ein': account.employer_insurance_number,
+    'accountant_phone' :account.phone,
+    'accountant_addres' : account.address,
+    'accountant_postal' : account.zip_code,
+    'accountant_personal_name': f'{account.name} {account.first_last_name}',
+    'employer_personal_name' : f'{company.contact}' ,
     'employer_position': 'Manager',
     'employer_diurn_number': account.phone,
   }

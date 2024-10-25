@@ -24,6 +24,8 @@ def queryFormUnemployment (company_id, year, period):
     tmpEmployees = []
     index = 1
     totalAmount = 0
+    totalAmount_taxeable_a = 0
+    totalAmount_taxeable_b = 0
     print("-----------------employees2----------------"+str(employees))
     for value in employees:
         data = {
@@ -34,6 +36,15 @@ def queryFormUnemployment (company_id, year, period):
         }
 
         tmpEmployees.append(data)
+        if (value.total > 7000):
+            totalAmount_taxeable_a += 7000
+        else:
+            totalAmount_taxeable_a += roundedAmount(value.total)
+
+        if (value.total > 9000):
+            totalAmount_taxeable_b += 9000
+        else:
+            totalAmount_taxeable_b += roundedAmount(value.total)
         totalAmount += roundedAmount(value.total)
         index += 1
         # if len(tmpEmployees) == 24:
@@ -59,9 +70,9 @@ def queryFormUnemployment (company_id, year, period):
     disabled_percent = float(company.disabled_percent.strip('%')) 
     text_value_porcentage_b = float(company.unemployment_percentage.strip('%')) 
     employed_contribution = company.employed_contribution if company.employed_contribution is not None else 0
-    compensation_pay_a = roundedAmount(totalAmount * (text_value_porcentage_b / 100))
-    compensation_pay_b = roundedAmount(totalAmount * ((disabled_percent+ float(company.driver_code)) / 100))
-    total_special = roundedAmount((totalAmount / 100) * float(company.special_contribution.strip('%')))
+    compensation_pay_a = roundedAmount(totalAmount_taxeable_a * (text_value_porcentage_b / 100))
+    compensation_pay_b = roundedAmount(totalAmount_taxeable_b * ((disabled_percent+ float(company.driver_code)) / 100))
+    total_special = roundedAmount((totalAmount_taxeable_a / 100) * float(company.special_contribution.strip('%')))
     total_cheque_a = roundedAmount(total_special + compensation_pay_a)
 
     # Employers
@@ -86,8 +97,8 @@ def queryFormUnemployment (company_id, year, period):
         'employees': tmpEmployees,
         'text_total_wages_a': str(totalAmount),
         'text_total_wages_b': str(totalAmount),
-        'text_wages_contributions_a': str(totalAmount),
-        'text_wages_contributions_b': str(totalAmount),
+        'text_wages_contributions_a': str(totalAmount_taxeable_a),
+        'text_wages_contributions_b': str(totalAmount_taxeable_b),
         'text_value_porcentage_a': str(company.unemployment_percentage),
         'text_value_porcentage_b': str(disabled_percent+ float(company.driver_code)),
         'text_value_porcentage_special': company.special_contribution,

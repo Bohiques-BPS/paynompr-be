@@ -22,19 +22,21 @@ def queryForm941(company_id, year, period):
 
     # Calculate total amount
     amount_varios_number = getAmountVariosCompany(company_id, year, period)
-    amount_by_month_1 =  getAmountByMonth(company_id, year,month)[0].wages
-    amount_by_month_2 =  getAmountByMonth(company_id, year,month+1)[0].wages
-    amount_by_month_3 =  getAmountByMonth(company_id, year,month+2)[0].wages
+    amount_by_month_1 =  getAmountByMonth(company_id, year,month)[0]
+    amount_by_month_2 =  getAmountByMonth(company_id, year,month+1)[0]
+    amount_by_month_3 =  getAmountByMonth(company_id, year,month+2)[0]
 
-    amount_by_month_1_number = roundedAmount(amount_by_month_1)
-    amount_by_month_1_decimal = addDecimal(amount_by_month_1)
+    amount_by_month_1_number = roundedAmount(amount_by_month_1.social_tips + amount_by_month_1.secure_social + amount_by_month_1.medicares)
+    amount_by_month_1_decimal = addDecimal(amount_by_month_1_number)
 
-    amount_by_month_2_number = roundedAmount(amount_by_month_2)
+    amount_by_month_2_number = roundedAmount(amount_by_month_2.social_tips + amount_by_month_2.secure_social+ amount_by_month_2.medicares)
     amount_by_month_2_decimal = addDecimal(amount_by_month_2_number)
 
-    amount_by_month_3_number = roundedAmount(amount_by_month_3)
+    amount_by_month_3_number = roundedAmount(amount_by_month_3.social_tips + amount_by_month_3.secure_social+ amount_by_month_3.medicares)
     amount_by_month_3_decimal = addDecimal(amount_by_month_3_number)
 
+    amount_by_month_total_number = amount_by_month_1_number +amount_by_month_2_number  +amount_by_month_3_number
+    amount_by_month_total_decimal = addDecimal(amount_by_month_total_number)
 
     # Calculate column 1
     total_wages = amount_varios_number.wages + amount_varios_number.commissions + amount_varios_number.concessions 
@@ -170,13 +172,21 @@ def queryForm941(company_id, year, period):
         'topmostSubform[0].Page2[0].f2_37[0]': str(amount_by_month_2_decimal[1]), # mes 2 part 2 - Line 16
         'topmostSubform[0].Page2[0].f2_38[0]': str(amount_by_month_3_decimal[0]), # mes 3 part 1 - Line 16
         'topmostSubform[0].Page2[0].f2_39[0]': str(amount_by_month_3_decimal[1]), # mes 3 part 2 - Line 16
-        'topmostSubform[0].Page2[0].f2_40[0]': '0', # total mes part 1 - Line 16
-        'topmostSubform[0].Page2[0].f2_41[0]': '00', # total mes part 2 - Line 16
-        ## Page 3
+        'topmostSubform[0].Page2[0].f2_40[0]': str(amount_by_month_total_decimal[0]), # total mes part 1 - Line 16
+        'topmostSubform[0].Page2[0].f2_41[0]': str(amount_by_month_total_decimal[1]), # total mes part 2 - Line 16
+       
         ### Part 3
         'topmostSubform[0].Page3[0].Name_ReadOrder[0].f1_3[0]': company.name, # name company
         'topmostSubform[0].Page3[0].EIN_Number[0].f1_1[0]': ein_part_1, # identification ein part 1
         'topmostSubform[0].Page3[0].EIN_Number[0].f1_2[0]': ein_part_2, # identification ein part 2
+        'topmostSubform[0].Page3[0].Ciudad_ReadOrder[0].f3_36[0]': COUNTRY[int(account.country)-1],
+   
+    'topmostSubform[0].Page3[0].f3_31[0]': account.identidad_ssa,
+    'topmostSubform[0].Page3[0].f3_33[0]': account.employer_insurance_number,
+  
+    'accountant_addres' : account.address,
+   
+    'accountant_personal_name': f'{account.name} {account.first_last_name}',
         'topmostSubform[0].Page3[0].f3_3[0]': '01012024', # date - Line 17
         'topmostSubform[0].Page3[0].f3_4[0]': '0', # part 1 - Line 19
         'topmostSubform[0].Page3[0].f3_5[0]': '00', # part 2 - Line 19
@@ -199,6 +209,8 @@ def queryForm941(company_id, year, period):
         'topmostSubform[0].Page3[0].f3_22[0]': '0', # part 1 - Line 28
         'topmostSubform[0].Page3[0].f3_23[0]': '00', # part 2 - Line 28
         ### Part 4
+        'topmostSubform[0].Page3[0].f3_27[0]' : company.contact,
+        'topmostSubform[0].Page3[0].f3_28[0]': "Gerente",
         'topmostSubform[0].Page3[0].f3_24[0]': company.contact, # name personal
         'topmostSubform[0].Page3[0].f3_25[0]': company.contact_number, # phone personal
         'topmostSubform[0].Page3[0].f3_26[0]': personal_number_id, # pin irs

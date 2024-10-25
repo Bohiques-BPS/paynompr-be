@@ -198,9 +198,49 @@ def form_940_pdf_generator(company_id, year):
                     elif field.field_name == 'topmostSubform[0].Page2[0].f2_17[0]':
                         field.field_value = data_entry_data['personal_number_id_5']
                         field.update()
+
+
+                    elif field.field_name == 'topmostSubform[0].Page2[0].f2_27[0]':
+                        field.field_value = data_entry_data['accountant_city']
+                        field.update()
+
+                    elif field.field_name == 'topmostSubform[0].Page2[0].f2_28[0]':
+                        field.field_value = data_entry_data['accountant_state']
+                        field.update()
+                    elif field.field_name == 'topmostSubform[0].Page2[0].f2_25[0]':
+                        field.field_value = data_entry_data['accountant_addres']
+                        field.update()
+                    elif field.field_name == 'date_1':
+                        field.field_value = data_entry_data['date_1']
+                        field.update()
+                    elif field.field_name == 'date_2':
+                        field.field_value = data_entry_data['date_2']
+                        field.update()
+    
+                    elif field.field_name == 'topmostSubform[0].Page2[0].f2_22[0]':
+                        field.field_value = data_entry_data['accountant_ptin']
+                        field.update()
+                    elif field.field_name == 'topmostSubform[0].Page2[0].f2_24[0]':
+                        field.field_value = data_entry_data['accountant_ein']
+                        field.update()
+
+                    elif field.field_name == 'topmostSubform[0].Page2[0].f2_26[0]':
+                        field.field_value = data_entry_data['accountant_phone']
+                        field.update()
+                    elif field.field_name == 'topmostSubform[0].Page2[0].f2_29[0]':
+                        field.field_value = data_entry_data['accountant_postal']
+                        field.update()
+                        
+
+                        
                     elif field.field_name == 'topmostSubform[0].Page2[0].f2_18[0]':
                         field.field_value = data_entry_data['employer_personal_name']
                         field.update()
+                    elif field.field_name == 'topmostSubform[0].Page2[0].f2_21[0]':
+                        field.field_value = data_entry_data['accountant_personal_name']
+                        field.update()
+
+                        
                     elif field.field_name == 'topmostSubform[0].Page2[0].f2_19[0]':
                         field.field_value = data_entry_data['employer_position']
                         field.update()

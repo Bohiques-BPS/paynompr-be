@@ -28,7 +28,7 @@ def addDecimal(number):
 
 def getTotalAmountAndExemptAmount(company_id, date_period):
     result = session.query(
-      func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay  + Time.commissions + Time.concessions + Time.bonus).label('total'), Employers.id, Employers.birthday
+      func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay  + Time.commissions + Time.concessions + Time.tips).label('total'), Employers.id, Employers.birthday
       ).join(Employers, Employers.id == Time.employer_id
       ).join(Period, Period.id == Time.period_id).filter(     
         Employers.company_id == company_id,
@@ -54,10 +54,10 @@ def getTotalAmountAndExemptAmount(company_id, date_period):
           not_exempt_amount  += payment[0]
            
 
-    total_amount = total - exempt_amount
+
     return {
       'count' : count,
-      'total': total_amount,
+      'total': not_exempt_amount,
       'exempt': exempt_amount
     }
 
@@ -274,7 +274,7 @@ def getByEmployerAmountCompany(company_id, year, period = None):
       date_end = period['end']
 
     result = session.query(
-      func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay).label('wages'),
+      func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay+ Time.tips).label('wages'),
       func.sum(Time.regular_pay).label('regular_pay'),
       func.sum( Time.over_pay ).label('over_pay'),
       func.sum( Time.vacation_pay ).label('vacation_pay'),
@@ -344,7 +344,7 @@ def getEmployers7000(company_id, date_period):
 
 def getEmployersAmount(company_id, date_period):
     arrayTotal = session.query(
-      func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay  + Time.commissions + Time.concessions).label('total'),
+      func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay  + Time.commissions + Time.concessions+ Time.tips).label('total'),
       Employers.id,
       Employers.first_name,
       Employers.last_name,

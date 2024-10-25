@@ -1,11 +1,14 @@
 from models.queries.queryUtils import getCompany, getEmployers7000, getEmployees, getAmountVariosCompany, roundedAmount, getAmountVariosCompanyGroupByMonth, getTotalAmountAndExemptAmount
 from utils.time_func import getPeriodTime
 from utils.country import COUNTRY
-
+from datetime import datetime
 def queryForm499(company_id, year, period):
     
     # Data Active
-    company = getCompany(company_id)['company']
+    # Get company and employees
+    data  = getCompany(company_id)
+    company = data['company']
+    account = data['account']
     date_period = getPeriodTime(period, year)
 
     amountVariosExempt = getTotalAmountAndExemptAmount(company.id, date_period)
@@ -60,7 +63,16 @@ def queryForm499(company_id, year, period):
         'personal_contact_number': str(company.contact_number) if company.contact_number is not None else '', # personal contact number
         'textarea_address_company': f'{postalAddressCompany} \n {statePostalAddressCompany} {countryPostalAddressCompany}', # address company
         'textarea_address_business': f'{physicalAddressCompany} \n {statePhysicalAddressCompany} {countryPhysicalAddressCompany}', # address company
-        
+
+        'accountent_name' : account.name + " " + account.first_last_name ,
+        'account_number' : account.identidad_efile ,
+
+        'date' : datetime.now().strftime("%d-%m-%Y"),
+        'address' : account.address ,
+        'text_month_1_day_28':month_total_liabilities[0]['total'] if len(month_total_liabilities) > 0 else '0',
+        'text_month_2_day_28':month_total_liabilities[1]['total'] if len(month_total_liabilities) > 1 else '0',
+
+ 
         'text_total_employees': str(amountVariosExempt['count']), # total number of employees
         'text_total_exempt': str(amountVariosExempt['exempt']), # total exempt
         'text_total_compensation_withholding': str(total_salary_compensation), # total salary compensation

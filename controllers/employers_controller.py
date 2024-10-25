@@ -159,25 +159,7 @@ def update_employer_controller(employers_id, employer, user):
 
        
         
-        if employer_query.date_admission != employer.date_admission:
-            date_admission = datetime(2017, 1, 26)
-            if employer.date_admission <= date_admission.date():
-                vacation_hours = 10
-                vacation_hours_monthly = 130
-            else:
-                vacation_hours_monthly = 130
-                service_years = calculete_service_year(employer.date_admission)
-                print("ENTRE",employer.date_admission)
-                if service_years <= 1:
-                    vacation_hours = 4
-                elif service_years <=5:
-                    vacation_hours = 6               
-                elif service_years <=5:
-                    vacation_hours = 6
-                elif service_years <=15:
-                    vacation_hours = 8
-                else:
-                    vacation_hours = 10                                       
+                                              
         if (employer.salary is None):
             employer.salary = 0
         employer_query.last_name = employer.last_name
@@ -212,8 +194,8 @@ def update_employer_controller(employers_id, employer, user):
         employer_query.date_egress = employer.date_egress
       
         employer_query.sick_time = employer.sick_time,
-        employer_query.vacation_hours = vacation_hours,
-        employer_query.vacation_hours_monthly = vacation_hours_monthly
+        employer_query.vacation_hours = employer.vacation_hours,
+        employer_query.vacation_hours_monthly = employer.vacation_hours_monthly
         employer_query.sicks_hours = employer.sicks_hours
         employer_query.sicks_date =  employer.sicks_date
         employer_query.sicks_hours_monthly = employer.sicks_hours_monthly        
