@@ -43,20 +43,24 @@ def form_wages_txt_generator(company_id, year,period):
     # Open the file in write mode and write your desired content
     with open(output_file_path, 'w') as file:
         for data in amount_varios_number:
-            # Redondear a dos decimales y multiplicar por 100 para convertir a entero
-            salario_redondeado = int(data.wages * 100)
+            
+            try:
+                # Redondear a dos decimales y multiplicar por 100 para convertir a entero
+                salario_redondeado = int(data.wages * 100)
 
-            # Limitar el valor máximo a 999999999 (equivalente a 9999999.99)
-            salario_redondeado = min(salario_redondeado, 999999999)
+                # Limitar el valor máximo a 999999999 (equivalente a 9999999.99)
+                salario_redondeado = min(salario_redondeado, 999999999)
 
-            # Formatear como cadena con relleno de ceros a la izquierda
-            salario_formateado = f"{salario_redondeado:07d}"
-            if data.Employers.type == 1:
-                employer_type = "N"
-            else:
-                employer_type = "S"
+                # Formatear como cadena con relleno de ceros a la izquierda
+                salario_formateado = f"{salario_redondeado:07d}"
+                if data.Employers.type == 1:
+                    employer_type = "N"
+                else:
+                    employer_type = "S"
 
-            file.write(data.Employers.social_security_number.replace("-", "")+" W4"+data.Employers.last_name[:4]+"12345678$WCA"+today+str(period)+"2"+salario_formateado+company.number_patronal.replace("-", "")+"    "+"00000000"+"  "+"1000000"+today+"00000004"+data.Employers.first_name.ljust(16)+data.Employers.middle_name[0]+data.Employers.last_name.upper().ljust(16)+data.Employers.mother_last_name.upper().ljust(16)+employer_type+"     \n")
-        # Add more content as needed, e.g., using formatted strings or loops
+                file.write(data.Employers.social_security_number.replace("-", "")+" W4"+data.Employers.last_name[:4]+"12345678$WCA"+today+str(period)+"2"+salario_formateado+company.number_patronal.replace("-", "")+"    "+"00000000"+"  "+"1000000"+today+"00000004"+data.Employers.first_name.ljust(16)+data.Employers.middle_name[0]+data.Employers.last_name.upper().ljust(16)+data.Employers.mother_last_name.upper().ljust(16)+employer_type+"     \n")
+            except Exception as e:
+                print(f"Error processing data for {data.Employers.social_security_number}: {str(e)}")
+                # Consider logging the error for further analysis
 
     return output_file_path
