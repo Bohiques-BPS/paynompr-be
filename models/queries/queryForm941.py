@@ -211,8 +211,8 @@ def queryForm941(company_id, year, period):
         ### Part 4
         'topmostSubform[0].Page3[0].f3_27[0]' : company.contact,
         'topmostSubform[0].Page3[0].f3_28[0]': "Gerente",
-        'topmostSubform[0].Page3[0].f3_24[0]': company.contact, # name personal
-        'topmostSubform[0].Page3[0].f3_25[0]': company.contact_number, # phone personal
+        'topmostSubform[0].Page3[0].f3_24[0]': account.name + " "+ account.first_last_name, # name personal
+        'topmostSubform[0].Page3[0].f3_25[0]':  account.phone, # phone personal
         'topmostSubform[0].Page3[0].f3_26[0]': personal_number_id, # pin irs
         'topmostSubform[0].Page3[0].f3_30[0]' : account.name + " "+ account.first_last_name,
         'topmostSubform[0].Page3[0].Direccion_ReadOrder[0].f3_34[0]' : account.address,

@@ -24,7 +24,7 @@ def get_all_period():
     return get_all_periods_controller()
 
 
-@period_routes.get("/periods_by_year_and_type",response_model=list[PeriodRead])
+@period_routes.get("/periods_by_year_and_type/{year}/{period_type}",response_model=list[PeriodRead])
 def get_periods_by_year_and_type(year: int, period_type: PeriodType):
     return get_periods_by_year_and_type_controller(year, period_type)
 

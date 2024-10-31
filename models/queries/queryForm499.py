@@ -20,11 +20,12 @@ def queryForm499(company_id, year, period):
     postalAddressCompany = company.postal_address if company.postal_address is not None else ''
     statePostalAddressCompany = company.state_postal_addess if company.state_postal_addess is not None else ''
     countryPostalAddressCompany = COUNTRY[int(company.country_postal_address)-1] if COUNTRY[int(company.country_postal_address)-1] is not None else ''
+    zipcodePostalAddressCompany = company.zipcode_postal_address if company.zipcode_postal_address is not None else ''
 
     physicalAddressCompany = company.physical_address if company.physical_address is not None else ''
     statePhysicalAddressCompany = company.state_physical_address if company.state_physical_address is not None else ''
-    countryPhysicalAddressCompany = company.country_physical_address if company.country_physical_address is not None else ''
-
+    countryPhysicalAddressCompany = COUNTRY[int(company.country_physical_address)-1] if COUNTRY[int(company.country_physical_address)-1] is not None else ''
+    zipcodePhysicalAddressCompany = company.zipcode_physical_address if company.zipcode_physical_address is not None else ''
 
     # Calculate
     rounded_amount_tips = roundedAmount(amountVarios.tips)
@@ -61,9 +62,9 @@ def queryForm499(company_id, year, period):
         'text_name_contact' : company.contact if company.contact is not None else '', # contact name
         'text_phone_company': str(company.phone_number) if company.phone_number is not None else '', # company phone number
         'personal_contact_number': str(company.contact_number) if company.contact_number is not None else '', # personal contact number
-        'textarea_address_company': f'{postalAddressCompany} \n {statePostalAddressCompany} {countryPostalAddressCompany}', # address company
-        'textarea_address_business': f'{physicalAddressCompany} \n {statePhysicalAddressCompany} {countryPhysicalAddressCompany}', # address company
-
+       
+        'textarea_address_business':   company.name +"\n" + physicalAddressCompany  +", " +statePhysicalAddressCompany+", " + countryPhysicalAddressCompany +", " + zipcodePhysicalAddressCompany, # address company
+'textarea_address_company': company.name +"\n" + postalAddressCompany +", " + statePostalAddressCompany +", " + countryPostalAddressCompany + " " +zipcodePostalAddressCompany if company.name is not None else '',
         'accountent_name' : account.name + " " + account.first_last_name ,
         'account_number' : account.identidad_efile ,
 

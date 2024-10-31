@@ -6,7 +6,7 @@ from fastapi import APIRouter
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-from controllers.reports_controller import counterfoil_by_range_controller,all_counterfoil_controller, counterfoil_controller, form_940_pdf_controller, form_choferil_pdf_controller, form_unemployment_pdf_controller, form_withheld_499_pdf_controller, get_report_cfse_pdf_controller, form_w2pr_pdf_controller, form_941_pdf_controller, form_943_pdf_controller
+from controllers.reports_controller import counterfoil_by_range_controller,all_counterfoil_controller, counterfoil_controller, form_940_pdf_controller, form_choferil_pdf_controller, form_unemployment_pdf_controller, form_withheld_499_pdf_controller, get_report_cfse_pdf_controller, form_w2pr_pdf_controller, form_941_pdf_controller, form_943_pdf_controller , form_wages_txt_controller
 from database.config import session
 from models.companies import Companies
 from models.employers import Employers
@@ -57,6 +57,10 @@ async def counterfoil(company_id: int, employer_id: int, time_id: int):
 @report_router.post("/form_940_pdf")
 async def form_940_pdf(companyYear: CompanyYear):
     return form_940_pdf_controller(companyYear.company_id, companyYear.year)
+
+@report_router.post("/wages_txt")
+async def form_wages_txt(companyYear: CompanyYear):
+    return form_wages_txt_controller(companyYear.company_id, companyYear.year, companyYear.period)
 
 @report_router.post("/form_941_pdf")
 async def form_941_pdf(companyYear: CompanyYear):

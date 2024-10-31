@@ -55,6 +55,7 @@ def create_employer_controller(employer_data: Employers, company_id):
             middle_name=employer_data.middle_name,
             salary=employer_data.salary,
             company_id=company_id,
+            work_hours = employer_data.work_hours,
             employee_type=employer_data.employee_type,
             social_security_number=employer_data.social_security_number,
             marital_status=employer_data.marital_status,
@@ -179,7 +180,7 @@ def update_employer_controller(employers_id, employer, user):
         employer_query.marbete = employer.marbete
         employer_query.date_marb = employer.date_marb
         employer_query.salary = employer.salary
-
+        employer_query.work_hours = employer.work_hours
         employer_query.type = employer.type
         employer_query.clipboard = employer.clipboard
         employer_query.exec_personal = employer.exec_personal

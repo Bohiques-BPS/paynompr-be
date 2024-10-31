@@ -209,7 +209,7 @@ def getAmountCSFECompany(company_id, date_start, date_end ):
 
 def getAmountByCompany(company_id, date_start, date_end ):
     result = session.query(
-      
+     
       func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay+ Time.commissions +Time.concessions+Time.tips).label('wages'),
       Employers.company_id,
     
@@ -233,7 +233,33 @@ def getAmountByCompany(company_id, date_start, date_end ):
       ).select_from(Period).join(Time, Period.id == Time.period_id ).join(Employers, Time.employer_id == Employers.id).filter( Employers.company_id == company_id,  Period.period_end >= date_start , Period.period_end <= date_end ).group_by(Employers.company_id).all()
     
     return result or []  # Return an empty list if result is None
-
+def getAmountGroupEmployerWages(company_id, start , end ):
+    
+    result = session.query(
+      
+      func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay+ Time.commissions +Time.concessions+Time.tips).label('wages'),
+      Employers.id,
+     Employers,
+      func.sum(Time.regular_pay).label('regular_pay'),
+      func.sum( Time.over_pay ).label('over_pay'),
+      func.sum( Time.vacation_pay ).label('vacation_pay'),
+      func.sum( Time.meal_pay ).label('meal_pay'),
+      func.sum( Time.sick_pay ).label('sick_pay'),
+      func.sum(Time.holyday_pay).label('holyday_pay'),
+      func.sum(Time.commissions).label('commissions'),
+      func.sum(Time.concessions).label('concessions'),
+      func.sum(Time.tips).label('tips'),
+      func.sum(Time.donation).label('donation'),
+      func.sum(Time.refund).label('refunds'),
+      
+      func.sum(Time.medicare).label('medicares'),
+      func.sum(Time.bonus).label('bonus'),
+      func.sum(Time.social_tips).label('social_tips'),
+      func.sum(Time.secure_social).label('secure_social'),
+      func.sum(Time.tax_pr).label('taxes_pr')
+      ).select_from(Period).join(Time, Period.id == Time.period_id ).join(Employers, Time.employer_id == Employers.id).filter( Employers.company_id == company_id,  Period.period_end >= start , Period.period_end <= end ).group_by(Employers.id).all()
+    
+    return result or []  # Return an empty list if result is None
 def getAmountGroupEmployer(company_id, year , month ):
     date_start = date(year, month, 1)
     date_end = date(year, month, calendar.monthrange(year, month )[1])
@@ -341,7 +367,26 @@ def getEmployers7000(company_id, date_period):
         result += max_7000
 
     return result
+def getEmployersAmountToDate(company_id,year, month):
+    date_start = date(year, 1, 1)
+    date_end = date(year, month, calendar.monthrange(year, month)[1])
+    arrayTotal = session.query(
+      func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay  + Time.commissions + Time.concessions+ Time.tips).label('total'),
+      Employers.id,
+      Employers.first_name,
+      Employers.last_name,
+      Employers.licence,
+      Employers.social_security_number,
+      func.count(Time.period_id).label('total_weeks'),
+      ).select_from(Period).join(Time, Period.id == Time.period_id ).join(Employers, Time.employer_id == Employers.id
+      ).filter(
+        Employers.company_id == company_id,
+        Period.period_end >= date_start,
+        Period.period_end <= date_end
+        
+    ).group_by(Employers.id).all()
 
+    return arrayTotal
 def getEmployersAmount(company_id, date_period):
     arrayTotal = session.query(
       func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay  + Time.commissions + Time.concessions+ Time.tips).label('total'),

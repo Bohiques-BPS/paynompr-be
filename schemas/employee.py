@@ -12,6 +12,7 @@ class EmployersSchema(BaseModel):
     employee_type: Optional[str] = Field(None, max_length=50)
     social_security_number: Optional[str] = Field(None, max_length=11)
     marital_status: Optional[int] = Field(None, ge=0)
+    work_hours: Optional[int] = Field(None, ge=0)
     address: Optional[str] = Field(None, max_length=200)
     address_state: Optional[str] = Field(None, max_length=100)
     address_country: Optional[str] = Field(None, max_length=100)

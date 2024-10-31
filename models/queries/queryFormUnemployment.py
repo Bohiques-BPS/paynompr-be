@@ -1,4 +1,4 @@
-from models.queries.queryUtils import getCompany, getEmployersAmount, roundedAmount, getAmountGroupEmployer
+from models.queries.queryUtils import getCompany, getEmployersAmount, roundedAmount, getAmountGroupEmployer , getEmployersAmountToDate
 from utils.time_func import getPeriodTime
 from utils.country import COUNTRY
 
@@ -17,8 +17,11 @@ def queryFormUnemployment (company_id, year, period):
     amount_count_1 =  len(getAmountGroupEmployer(company_id, year,month))
     amount_count_2 =  len(getAmountGroupEmployer(company_id, year,month+1))
     amount_count_3 =  len(getAmountGroupEmployer(company_id, year,month+2))
-
-    employees = getEmployersAmount(company.id, date_period)
+    accumulated_totals = 0
+    employees = getEmployersAmount(company_id, date_period)
+    if (month > 1):
+        employees_total = getEmployersAmountToDate(company_id,year, month-1) 
+        
 
     arrayEmployees = []
     tmpEmployees = []
@@ -26,36 +29,47 @@ def queryFormUnemployment (company_id, year, period):
     totalAmount = 0
     totalAmount_taxeable_a = 0
     totalAmount_taxeable_b = 0
-    print("-----------------employees2----------------"+str(employees))
+   
     for value in employees:
+        employee_id = value.id
         data = {
             f'text_social_security_{index}': value.social_security_number,
             f'text_name_employers_{index}': f'{value.first_name} {value.last_name}',
             f'text_wages_employer_{index}': str(round(value.total, 2)),
             f'text_yes_or_no_{index}': 'NO',
         }
-
+        target_value = 0
+        # Buscar el total acumulado del empleado en trimestres anteriores
+        if (month > 1):
+            previous_total = next((emp for emp in employees_total if emp.id == employee_id), 0)
+            
+            if previous_total:
+                remaining_limit_a = max(0, 7000 - previous_total[0])
+                totalAmount_taxeable_a += min(value.total, remaining_limit_a)
+                remaining_limit_b = max(0, 9000 - previous_total[0])
+                totalAmount_taxeable_b += min(value.total, remaining_limit_b)
+            else:
+                remaining_limit_a = max(0, 7000 )
+                totalAmount_taxeable_a += min(value.total, remaining_limit_a)
+                remaining_limit_b = max(0, 9000)
+                totalAmount_taxeable_b += min(value.total, remaining_limit_b)
+        else:
+            remaining_limit_a = max(0, 7000 )
+            totalAmount_taxeable_a += min(value.total, remaining_limit_a)
+            remaining_limit_b = max(0, 9000)
+            totalAmount_taxeable_b += min(value.total, remaining_limit_b) 
         tmpEmployees.append(data)
-        if (value.total > 7000):
-            totalAmount_taxeable_a += 7000
-        else:
-            totalAmount_taxeable_a += roundedAmount(value.total)
-
-        if (value.total > 9000):
-            totalAmount_taxeable_b += 9000
-        else:
-            totalAmount_taxeable_b += roundedAmount(value.total)
+        
         totalAmount += roundedAmount(value.total)
         index += 1
-        # if len(tmpEmployees) == 24:
-        #     arrayEmployees.append(tmpEmployees)
-        #     tmpEmployees = []
-        #     index = 1
-    print("-----------------tmpEmployees----------------"+str(tmpEmployees))
+        
+
+    
     # Address Company
     postalAddressCompany = company.postal_address if company.postal_address is not None else ''
     statePostalAddressCompany = company.state_postal_addess if company.state_postal_addess is not None else ''
     countryPostalAddressCompany = COUNTRY[int(company.country_postal_address)-1] if COUNTRY[int(company.country_postal_address)-1] is not None else ''
+    zipcodePostalAddressCompany = company.zipcode_postal_address if company.zipcode_postal_address is not None else ''
     # Address Company
     physicalAddressCompany = company.physical_address if company.physical_address is not None else ''
     statePhysicalAddressCompany = company.state_physical_address if company.state_physical_address is not None else ''
@@ -84,11 +98,12 @@ def queryFormUnemployment (company_id, year, period):
         'text_quater' : str(year)+"-"+str(period),
         'text_quarter_ended' : str(year)+"-"+str(period),
         'text_ein': company.number_patronal if company.number_patronal is not None else '',
-        'text_ein_2': company.number_patronal if company.number_patronal is not None else '',
-        'text_ein_3': company.number_patronal if company.number_patronal is not None else '',
-        'text_name_company': company.name +"\n" + postalAddressCompany +", " + statePostalAddressCompany +", " + countryPostalAddressCompany if company.name is not None else '',
-        'textarea_name_company_2': company.name +"\n" + postalAddressCompany +", " + statePostalAddressCompany +", " + countryPostalAddressCompany if company.name is not None else '',
-        'textarea_company_name_3': company.name +"\n" + postalAddressCompany +", " + statePostalAddressCompany +", " + countryPostalAddressCompany if company.name is not None else '',
+        'number_patronal': company.number_patronal if company.number_patronal is not None else '',
+        'text_ein_2': company.desem if company.desem is not None else '',
+        'text_ein_3': company.desem if company.desem is not None else '',
+        'text_name_company': company.name +"\n" + postalAddressCompany +", " + statePostalAddressCompany +", " + countryPostalAddressCompany + " " +zipcodePostalAddressCompany if company.name is not None else '',
+        'textarea_name_company_2': company.name +"\n" + postalAddressCompany +", " + statePostalAddressCompany +", " + countryPostalAddressCompany + " " +zipcodePostalAddressCompany if company.name is not None else '',
+        'textarea_company_name_3': company.name +"\n" + postalAddressCompany +", " + statePostalAddressCompany +", " + countryPostalAddressCompany + " " + zipcodePostalAddressCompany if company.name is not None else '',
        
 
         'text_first_month': str(amount_count_1),
