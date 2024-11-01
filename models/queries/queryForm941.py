@@ -26,13 +26,13 @@ def queryForm941(company_id, year, period):
     amount_by_month_2 =  getAmountByMonth(company_id, year,month+1)[0]
     amount_by_month_3 =  getAmountByMonth(company_id, year,month+2)[0]
 
-    amount_by_month_1_number = roundedAmount(amount_by_month_1.social_tips + amount_by_month_1.secure_social + amount_by_month_1.medicares)
+    amount_by_month_1_number = roundedAmount(amount_by_month_1.social_tips + amount_by_month_1.secure_social + amount_by_month_1.medicares)*2
     amount_by_month_1_decimal = addDecimal(amount_by_month_1_number)
 
-    amount_by_month_2_number = roundedAmount(amount_by_month_2.social_tips + amount_by_month_2.secure_social+ amount_by_month_2.medicares)
+    amount_by_month_2_number = roundedAmount(amount_by_month_2.social_tips + amount_by_month_2.secure_social+ amount_by_month_2.medicares)*2
     amount_by_month_2_decimal = addDecimal(amount_by_month_2_number)
 
-    amount_by_month_3_number = roundedAmount(amount_by_month_3.social_tips + amount_by_month_3.secure_social+ amount_by_month_3.medicares)
+    amount_by_month_3_number = roundedAmount(amount_by_month_3.social_tips + amount_by_month_3.secure_social+ amount_by_month_3.medicares)*2
     amount_by_month_3_decimal = addDecimal(amount_by_month_3_number)
 
     amount_by_month_total_number = amount_by_month_1_number +amount_by_month_2_number  +amount_by_month_3_number
@@ -68,7 +68,7 @@ def queryForm941(company_id, year, period):
         ## Page 1
         ## Header fields
         f'topmostSubform[0].Page1[0].c1_1[{period-1}]': True,
-                    
+        'topmostSubform[0].Page3[0].f3_32[0]':account.company,            
         'topmostSubform[0].Page1[0].EntityArea[0].f1_1[0]': ein_part_1, # identification ein part 1
         'topmostSubform[0].Page1[0].EntityArea[0].f1_2[0]': ein_part_2, # identification ein part 2
         'topmostSubform[0].Page1[0].EntityArea[0].f1_3[0]': company.name, # Name company

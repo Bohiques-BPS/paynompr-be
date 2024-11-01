@@ -330,7 +330,7 @@ def getAmountVariosCompanyGroupByMonth(company_id, year, period = None):
       period = getPeriodTime(period, year)
       date_start = period['start']
       date_end = period['end']
-
+    
     result = session.query(
       func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay).label('wages'),
       func.sum(Time.commissions).label('commissions'),
@@ -348,7 +348,9 @@ def getAmountVariosCompanyGroupByMonth(company_id, year, period = None):
       ).join(Period, Period.id == Time.period_id 
       
       ).filter( Employers.company_id == company_id, Period.period_end >= date_start, Period.period_end <= date_end 
-      ).group_by(func.date_trunc('month', Period.period_end)).order_by(func.date_trunc('month', Period.period_end)).all()
+      ).group_by(func.date_trunc('month', Period.period_end)) \
+  .having(func.date_trunc('month', Period.period_end) <= date_end) \
+  .order_by(func.date_trunc('month', Period.period_end)).all()
 
     return result
 

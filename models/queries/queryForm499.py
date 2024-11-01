@@ -31,10 +31,23 @@ def queryForm499(company_id, year, period):
     rounded_amount_tips = roundedAmount(amountVarios.tips)
     total_salary_compensation = roundedAmount(amountVariosExempt['total'])
     total_retentions = roundedAmount(amountVarios.taxes_pr)
+    date_period_end = date_period['end']
+    meses_espanol = {
+    1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril", 5: "Mayo", 6: "Junio",
+    7: "Julio", 8: "Agosto", 9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre"}
+    # Obtener el día y el mes en números
+    dia = date_period_end.day
+    mes = date_period_end.month
 
+    # Obtener el nombre del mes en español
+    nombre_mes = meses_espanol[mes]
+    # Formatear la fecha
+    fecha_formateada = f"{dia}  {nombre_mes}  {date_period_end.year}"
     # Part 3 Page 2 calculation
     month_total_liabilities = []
     for index, amount in enumerate(amountVariosByMonth):
+        print("-----------------month-------------------")
+        print(amount.month)
         index += 1
         total = roundedAmount(amount.taxes_pr)
         mitad = total / 2
@@ -56,6 +69,8 @@ def queryForm499(company_id, year, period):
 
     # Data for PDF
     data = {
+        'date_end' : fecha_formateada,
+        'firma_contador' : account.company,
         'text_code_naics' : company.industrial_code,
         'text_name_company': company.name if company.name is not None else '', # company name
         'text_ein': company.number_patronal if company.number_patronal is not None else '', # company ein
