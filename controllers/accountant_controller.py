@@ -73,10 +73,15 @@ def create_accountant_controller(accountants_data, user):
             country = accountants_data.country,
             state = accountants_data.state,
             zip_code = accountants_data.zip_code,
+            physical_address = accountants_data.physical_address,
+            physical_country = accountants_data.physical_country,
+            physical_state = accountants_data.physical_state,
+            physical_zip_code = accountants_data.physical_zip_code,
+            address = accountants_data.address,
             identidad_ssa = accountants_data.identidad_ssa,
             identidad_bso = accountants_data.identidad_bso,
             identidad_efile = accountants_data.identidad_efile,
-            address = accountants_data.address,
+            
             employer_insurance_number = accountants_data.employer_insurance_number    
         )
         code_query = UserCode(
@@ -148,6 +153,10 @@ def update_accountant_controller(accountants_data, user, id):
         accountant_query.country = accountants_data.country,
         accountant_query.state = accountants_data.state,
         accountant_query.zip_code = accountants_data.zip_code,
+        accountant_query.physical_address = accountants_data.physical_address,
+        accountant_query.physical_country = accountants_data.physical_country,
+        accountant_query.physical_state = accountants_data.physical_state,
+        accountant_query.physical_zip_code = accountants_data.physical_zip_code,
         accountant_query.identidad_ssa = accountants_data.identidad_ssa,
         accountant_query.identidad_bso = accountants_data.identidad_bso,
         accountant_query.identidad_efile = accountants_data.identidad_efile,

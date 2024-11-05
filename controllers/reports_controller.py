@@ -31,6 +31,8 @@ from utils.form_491 import form_941_pdf_generator
 from utils.form_wages import form_wages_txt_generator
 from utils.form_493 import form_943_pdf_generator
 from utils.unemployment import form_unemployment_pdf_generator
+from utils.form_w2p_txt import form_w2p_txt_generator
+
 from utils.form_w2pr import form_w2pr_pdf_generate
 from collections import defaultdict
 from models.queries.queryUtils import   getAmountCSFECompany
@@ -2449,7 +2451,15 @@ def form_wages_txt_controller(company_id, year,period):
             filename="form_940.txt"       )
 
     
+def get_w2p_txt_controller(company_id, year):
+    
+    txt = form_w2p_txt_generator(company_id, year)
 
+    if txt:
+        return FileResponse(
+            txt,
+            media_type="application/txt",
+            filename="form_w2p.txt"       )
 
 
 

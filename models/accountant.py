@@ -24,12 +24,17 @@ class Accountant(Base):
     phone: Mapped[str] = mapped_column(String(50))
     country: Mapped[str] = mapped_column(String(50))
     state: Mapped[str] = mapped_column(String(50))
+    address: Mapped[str] = mapped_column(String(50))
     zip_code: Mapped[str] = mapped_column(String(50))
+    physical_country: Mapped[str] = mapped_column(String(50))
+    physical_state: Mapped[str] = mapped_column(String(50))
+    physical_address: Mapped[str] = mapped_column(String(50))
+    physical_zip_code: Mapped[str] = mapped_column(String(50))
     identidad_ssa: Mapped[str] = mapped_column(String(50))
     identidad_bso: Mapped[str] = mapped_column(String(50))
     identidad_efile: Mapped[str] = mapped_column(String(50))
 
-    address: Mapped[str] = mapped_column(String(50))
+    
     employer_insurance_number : Mapped[str] = mapped_column(String(50))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)

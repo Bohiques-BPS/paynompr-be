@@ -94,6 +94,34 @@ def getTotalAmountAndWeeks(company_id, year, periodo):
       'weeks': weeks
     }
 
+def getAmountVariosByCompany(company_id, year, period = None):
+    date_start = date(year, 1, 1)
+    date_end = date(year, 12, 31)
+
+    result = session.query(
+      func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay).label('wages'),
+      func.sum(Time.commissions).label('commissions'),
+      func.sum(Time.concessions).label('concessions'),
+      func.sum(Time.tips).label('tips'),
+      Employers,
+      func.sum(Time.donation).label('donation'),
+      func.sum(Time.refund).label('refunds'),
+      func.sum(Time.aflac).label('aflac'),
+      func.sum(Time.medicare).label('medicares'),
+      func.sum(Time.bonus).label('bonus'),
+      func.sum(Time.social_tips).label('social_tips'),
+      func.sum(Time.secure_social).label('secure_social'),
+      func.sum(Time.tax_pr).label('taxes_pr')
+      ).join(Period, Period.id == Time.period_id
+      ).join(Employers, Employers.id == Time.employer_id
+      ).filter(
+          Employers.company_id == company_id,
+          Period.period_start >= date_start,
+          Period.period_end <= date_end
+      ).group_by(Employers.id).all()
+
+    return result
+
 def getAmountVarios(employer_id, year, period = None):
     date_start = date(year, 1, 1)
     date_end = date(year, 12, 31)
@@ -112,8 +140,9 @@ def getAmountVarios(employer_id, year, period = None):
       func.sum(Time.secure_social).label('secure_social'),
       func.sum(Time.tax_pr).label('taxes_pr')
       ).join(Period, Period.id == Time.period_id
+      ).join(Employers, Employers.id == Time.employer_id
       ).filter(
-          Time.employer_id == employer_id,
+          Employers.company_id == employer_id,
           Period.period_start >= date_start,
           Period.period_end <= date_end
       ).all()
