@@ -168,7 +168,7 @@ def REtxt(year,company):
         payer = "F"
     if (company.payer == 4):
         payer = "H"
-    return "RE"+str(year)+add_to_right(text,1," ")+company.number_patronal.replace("-","")[:9]+add_to_right(text,9," ")+"0"+add_to_right(text,4," ")+add_to_right(text,9," ")+company.name.ljust(57)+company.name.ljust(57)+company.physical_address+company.postal_address.ljust(22)+COUNTRY[int(company.country_physical_address)-1].ljust(22)+company.state_physical_address.ljust(2)+company.zipcode_physical_address.ljust(5)+add_to_right(text,4," ")+add_to_right(text,5," ")+add_to_right(text,23," ")+add_to_right(text,15," ")+add_to_right(text,2," ")+payer+"P"+"0"+company.contact.ljust(27)+company.contact_number.ljust(15)+add_to_right(text,5," ")+add_to_right(text,10," ")+company.email.ljust(40)+add_to_right(text,194," ")
+    return "RE"+str(year)+add_to_right(text,1," ")+company.number_patronal.replace("-","")[:9]+add_to_right(text,9," ")+"0"+add_to_right(text,4," ")+add_to_right(text,9," ")+company.name.ljust(57)+company.physical_address.ljust(22)+company.postal_address.ljust(22)+COUNTRY[int(company.country_physical_address)-1].ljust(22)+company.state_physical_address.ljust(2)+company.zipcode_physical_address.ljust(5)+add_to_right(text,4," ")+add_to_right(text,5," ")+add_to_right(text,23," ")+add_to_right(text,15," ")+add_to_right(text,2," ")+payer+"P"+"0"+company.contact.ljust(27)+company.contact_number.ljust(15)+add_to_right(text,5," ")+add_to_right(text,10," ")+company.email.ljust(40)+add_to_right(text,194," ")
 
 def RWtxt(employer,total_20,total_21,total_22,total_23,total_24):
     total_20 = int(total_20 * 100)
