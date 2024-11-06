@@ -142,7 +142,7 @@ def getAmountVarios(employer_id, year, period = None):
       ).join(Period, Period.id == Time.period_id
       ).join(Employers, Employers.id == Time.employer_id
       ).filter(
-          Employers.company_id == employer_id,
+          Employers.id == employer_id,
           Period.period_start >= date_start,
           Period.period_end <= date_end
       ).all()

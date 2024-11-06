@@ -1,6 +1,6 @@
 from pathlib import Path
 import datetime
-from models.queries.queryUtils import roundedAmount, getAmountVarios, getEmployer, getAmountVariosByCompany ,getCompany
+from models.queries.queryUtils import roundedAmount,  getEmployer, getAmountVariosByCompany ,getCompany
 
 from database.config import session
 from models.queries.queryUtils import getCompany, getEmployees, getAmountVariosByCompany
@@ -160,13 +160,13 @@ def RAtxt(ac,resbmited,resbmited_code):
 def REtxt(year,company):
     text = ""
     payer = " "
-    if (company.payer == 1):
+    if (company.payer == "1"):
         payer = "R"
-    if (company.payer == 2):
+    if (company.payer == "2"):
         payer = "A"
-    if (company.payer == 3):
+    if (company.payer == "3"):
         payer = "F"
-    if (company.payer == 4):
+    if (company.payer == "4"):
         payer = "H"
     return "RE"+str(year)+add_to_right(text,1," ")+company.number_patronal.replace("-","")[:9]+add_to_right(text,9," ")+"0"+add_to_right(text,4," ")+add_to_right(text,9," ")+company.name.ljust(57)+company.physical_address.ljust(22)+company.postal_address.ljust(22)+COUNTRY[int(company.country_physical_address)-1].ljust(22)+company.state_physical_address.ljust(2)+company.zipcode_physical_address.ljust(5)+add_to_right(text,4," ")+add_to_right(text,5," ")+add_to_right(text,23," ")+add_to_right(text,15," ")+add_to_right(text,2," ")+payer+"P"+"0"+company.contact.ljust(27)+company.contact_number.ljust(15)+add_to_right(text,5," ")+add_to_right(text,10," ")+company.email.ljust(40)+add_to_right(text,194," ")
 
@@ -183,7 +183,7 @@ def RWtxt(employer,total_20,total_21,total_22,total_23,total_24):
     total_24 = f"{total_24:011d}"
 
     text = ""    
-    return "RW"+employer.social_security_number.replace("-","")[:9]+employer.first_name.ljust(15)+employer.middle_name.ljust(15)+(employer.last_name+" "+employer.mother_last_name).ljust(20)+add_to_right(text,4," ")+employer.address.ljust(22)+employer.address.ljust(22)+COUNTRY[int(employer.address_country)-1].ljust(22)+employer.address_number.ljust(5)+add_to_right(text,4," ")+add_to_right(text,5," ")+add_to_right(text,23," ")+add_to_right(text,15," ")+add_to_right(text,2," ")+add_to_right(text,22," ")+total_20+total_21+total_22+total_23+total_24+add_to_right(text,11," ")+add_to_right(text,66,"0")+add_to_right(text,11," ")+add_to_right(text,44,"0")+add_to_right(text,11," ")+add_to_right(text,66,"0")+add_to_right(text,12," ")+"0"+add_to_right(text,1," ")+"00"+add_to_right(text,23," ")
+    return "RW"+employer.social_security_number.replace("-","")[:9]+employer.first_name.ljust(15)+employer.middle_name.ljust(15)+(employer.last_name+" "+employer.mother_last_name).ljust(20)+add_to_right(text,4," ")+employer.address.ljust(22)+employer.address.ljust(22)+COUNTRY[int(employer.address_country)-1].ljust(22)+employer.address_state.ljust(2)+employer.address_number.ljust(5)+add_to_right(text,4," ")+add_to_right(text,5," ")+add_to_right(text,23," ")+add_to_right(text,15," ")+add_to_right(text,2," ")+add_to_right(text,22,"0")+total_20+total_21+total_22+total_23+total_24+add_to_right(text,11," ")+add_to_right(text,66,"0")+add_to_right(text,11," ")+add_to_right(text,44,"0")+add_to_right(text,11," ")+add_to_right(text,66,"0")+add_to_right(text,12," ")+"0"+add_to_right(text,1," ")+"00"+add_to_right(text,23," ")
 
 def ROtxt(employer,total_7,total_8,total_9,total_10,total_11,total_13,total_14):
     total_7 = int(total_7 * 100)
