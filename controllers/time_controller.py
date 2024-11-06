@@ -138,7 +138,7 @@ def create_time_controller(time_data, employer_id):
             regular_amount=employers.regular_time,
             over_amount=employers.overtime,
             meal_amount=employers.mealtime,
-            hours_worked_salary = employers.hours_worked,
+            hours_worked_salary = employers.work_hours,
             refund=time_data.refund,
             donation=time_data.donation,
             asume=time_data.asume,

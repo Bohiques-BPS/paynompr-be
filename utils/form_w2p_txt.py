@@ -275,4 +275,4 @@ def RFtxt(count):
     count = f"{count:09d}" 
     
       
-    return "RF"+add_to_right(text,5," ")+count+add_to_right(text,396," ")
+    return "RF"+add_to_right(text,5," ")+count+add_to_right(text,496," ")
