@@ -23,6 +23,13 @@ class CompanyYear(BaseModel):
     year: int
     period: int | None
 
+class CompanyW2P(BaseModel):
+    company_id: int
+    year: int
+    reimbursed: int  
+    code: str  
+
+
 class EmployerYear(BaseModel):
     employer_id: int
     year: int
@@ -103,6 +110,9 @@ async def get_report_cfse_pdf(companyYear: CompanyYear):
     return get_report_cfse_pdf_controller(companyYear.company_id, companyYear.year, companyYear.period)
 
 @report_router.post("/get_w2p_txt")
-async def get_w2p_txt(companyYear: CompanyYear):
-    return get_w2p_txt_controller(companyYear.company_id, companyYear.year)
+async def get_w2p_txt(CompanyW2P: CompanyW2P):
+    return get_w2p_txt_controller(CompanyW2P.company_id, CompanyW2P.year,CompanyW2P.reimbursed,CompanyW2P.code)
 
+@report_router.post("/get_w2psse_txt")
+async def get_w2pSSE_txt(CompanyW2P: CompanyW2P):
+    return get_w2p_txt_controller(CompanyW2P.company_id, CompanyW2P.year,CompanyW2P.reimbursed,CompanyW2P.code)

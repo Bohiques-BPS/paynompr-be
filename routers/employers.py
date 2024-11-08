@@ -50,3 +50,15 @@ async def employers(employers_id: int, user: user_dependency):
 @employers_router.delete("/delete/{employers_id}")
 async def delete_employer(employers_id: int, user: user_dependency):
    return delete_employer_controller(employers_id, user)
+
+
+
+
+
+
+
+
+
+
+
+   

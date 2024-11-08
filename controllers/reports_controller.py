@@ -2451,9 +2451,9 @@ def form_wages_txt_controller(company_id, year,period):
             filename="form_940.txt"       )
 
     
-def get_w2p_txt_controller(company_id, year):
+def get_w2p_txt_controller(company_id, year,reimbursed,code):
     
-    txt = form_w2p_txt_generator(company_id, year)
+    txt = form_w2p_txt_generator(company_id, year,reimbursed,code)
 
     if txt:
         return FileResponse(

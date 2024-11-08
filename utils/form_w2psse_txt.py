@@ -7,7 +7,7 @@ from models.queries.queryUtils import getCompany, getEmployees, getAmountVariosB
 from utils.country import COUNTRY
 from utils.time_func import getPeriodTime , getAgeEmployer
 
-def form_w2p_txt_generator(company_id, year,resbmited = "0",resbmited_code = ""):
+def form_w2psse_txt_generator(company_id, year,resbmited = "0",resbmited_code = ""):
     rute = Path(__file__).parent.absolute()
     document_dir = rute.parent / 'output_files'
     output_file_name = 'form_w2p.txt'
@@ -157,7 +157,7 @@ def RAtxt(ac,resbmited,resbmited_code):
     text = ""
     if (resbmited_code == ""):
         resbmited_code = add_to_right(text,6," ")
-    return "RA"+ac.employer_insurance_number.replace("-", "")[:9]+ac.identidad_ssa[:8]+add_to_right(text,4," ")+add_to_right(text,5," ")+str(resbmited)+str(resbmited_code)+"99"+ac.company.ljust(57)+ac.physical_address.ljust(22)+ac.address.ljust(22)+COUNTRY[int(ac.physical_country)-1].ljust(22)+ac.physical_state+ac.physical_zip_code+add_to_right(text,4," ")+add_to_right(text,5," ")+add_to_right(text,23," ")+add_to_right(text,15," ")+add_to_right(text,2," ")+(ac.name+" "+ac.middle_name+" "+ac.first_last_name).ljust(57)+ac.company.ljust(57)+ac.physical_address.ljust(22)+ac.address.ljust(22)+COUNTRY[int(ac.physical_country)-1].ljust(22)+ac.physical_state+ac.physical_zip_code+add_to_right(text,4," ")+add_to_right(text,5," ")+add_to_right(text,23," ")+add_to_right(text,15," ")+add_to_right(text,2," ")+(ac.name+" "+ac.first_last_name).ljust(27)+ac.phone.replace("-","").ljust(15)+add_to_right(text,5," ")+add_to_right(text,3," ")+ac.email.ljust(40)+add_to_right(text,3," ")+add_to_right(text,10," ")+add_to_right(text,1," ")+"A"+add_to_right(text,12," ")
+    return "RA"+ac.employer_insurance_number.replace("-", "")[:9]+ac.identidad_ssa[:8]+add_to_right(text,4," ")+add_to_right(text,5," ")+str(resbmited)+str(resbmited_code)[:6]+"99"+ac.company.ljust(57)+ac.physical_address.ljust(22)+ac.address.ljust(22)+COUNTRY[int(ac.physical_country)-1].ljust(22)+ac.physical_state+ac.physical_zip_code+add_to_right(text,4," ")+add_to_right(text,5," ")+add_to_right(text,23," ")+add_to_right(text,15," ")+add_to_right(text,2," ")+(ac.name+" "+ac.middle_name+" "+ac.first_last_name).ljust(57)+ac.company.ljust(57)+ac.physical_address.ljust(22)+ac.address.ljust(22)+COUNTRY[int(ac.physical_country)-1].ljust(22)+ac.physical_state+ac.physical_zip_code+add_to_right(text,4," ")+add_to_right(text,5," ")+add_to_right(text,23," ")+add_to_right(text,15," ")+add_to_right(text,2," ")+(ac.name+" "+ac.first_last_name).ljust(27)+ac.phone.replace("-","").ljust(15)+add_to_right(text,5," ")+add_to_right(text,3," ")+ac.email.ljust(40)+add_to_right(text,3," ")+add_to_right(text,10," ")+add_to_right(text,1," ")+"A"+add_to_right(text,12," ")
 
 
 def REtxt(year,company):
@@ -186,7 +186,7 @@ def RWtxt(employer,total_20,total_21,total_22,total_23,total_24):
     total_24 = f"{total_24:011d}"
 
     text = ""    
-    return "RW"+employer.social_security_number.replace("-","")[:9]+employer.first_name.ljust(15)+employer.middle_name.ljust(15)+(employer.last_name+" "+employer.mother_last_name).ljust(20)+add_to_right(text,4," ")+employer.address.ljust(22)+employer.address.ljust(22)+COUNTRY[int(employer.address_country)-1].ljust(22)+employer.address_state.ljust(2)+employer.address_number.ljust(5)+add_to_right(text,4," ")+add_to_right(text,5," ")+add_to_right(text,23," ")+add_to_right(text,15," ")+add_to_right(text,2," ")+add_to_right(text,22,"0")+total_20+total_21+total_22+total_23+total_24+add_to_right(text,11," ")+add_to_right(text,66,"0")+add_to_right(text,11," ")+add_to_right(text,44,"0")+add_to_right(text,11," ")+add_to_right(text,66,"0")+add_to_right(text,12," ")+"0"+add_to_right(text,1," ")+"00"+add_to_right(text,23," ")
+    return "RW"+employer.social_security_number.replace("-","")[:9]+employer.first_name.ljust(15)+employer.middle_name.ljust(15)+(employer.last_name+" "+employer.mother_last_name).ljust(20)+add_to_right(text,4," ")+employer.address.ljust(22)+employer.address.ljust(22)+COUNTRY[int(employer.address_country)-1].ljust(22)+employer.address_state.ljust(2)+employer.address_number.ljust(5)+add_to_right(text,4," ")+add_to_right(text,5," ")+add_to_right(text,23," ")+add_to_right(text,15," ")+add_to_right(text,2," ")+add_to_right(text,22,"0")+total_20+total_21+total_22+total_23+total_24+add_to_right(text,11," ")+add_to_right(text,66,"0")+add_to_right(text,11," ")+add_to_right(text,44,"0")+add_to_right(text,11," ")+add_to_right(text,77,"0")+add_to_right(text,1," ")+"0"+add_to_right(text,1," ")+"00"+add_to_right(text,23," ")
 
 def ROtxt(employer,total_7,total_8,total_9,total_10,total_11,total_13,total_14):
     total_7 = int(total_7 * 100)
@@ -203,7 +203,7 @@ def ROtxt(employer,total_7,total_8,total_9,total_10,total_11,total_13,total_14):
     total_13 = f"{total_13:011d}" 
     
     text = ""    
-    return "RO"+add_to_right(text,9," ")+add_to_right(text,11,"0")+add_to_right(text,11,"0")+add_to_right(text,66,"0")+add_to_right(text,11," ")+add_to_right(text,164," ")+total_7+total_8+total_9+total_10+total_11+total_13+add_to_right(text,11,"0")+add_to_right(text,11," ")+add_to_right(text,22,"0")+add_to_right(text,128," ")
+    return "RO"+add_to_right(text,9," ")+add_to_right(text,11,"0")+add_to_right(text,11,"0")+add_to_right(text,66,"0")+add_to_right(text,11," ")+add_to_right(text,44,"0")+add_to_right(text,120," ")+total_7+total_8+total_9+total_10+total_11+total_13+add_to_right(text,11,"0")+add_to_right(text,11," ")+add_to_right(text,22,"0")+add_to_right(text,128," ")
 
 def RStxt(employer,company,total_6,total_19,total_16,total_12,birthday):
     total_6 = int(total_6 * 100)
@@ -219,7 +219,7 @@ def RStxt(employer,company,total_6,total_19,total_16,total_12,birthday):
     total_16 = int(total_16 * 100)
     total_16 = f"{total_16:011d}" 
       
-    return "RS"+add_to_right(text,2,"0")+add_to_right(text,5,"0")+employer.social_security_number.replace("-","")[:9]+employer.first_name.ljust(15)+employer.middle_name.ljust(15)+(employer.last_name+" "+employer.mother_last_name).ljust(20)+add_to_right(text,4," ")+employer.address.ljust(22)+employer.address.ljust(22)+COUNTRY[int(employer.address_country)-1].ljust(22)+employer.address_state.ljust(2)+employer.address_number.ljust(5)+add_to_right(text,4," ")+add_to_right(text,1," ")+add_to_right(text,1," ")+add_to_right(text,40," ")+add_to_right(text,1," ")+add_to_right(text,1," ")+total_6+total_19+add_to_right(text,15,"0")+add_to_right(text,11,"0")+"  "+add_to_right(text,29," ")+add_to_right(text,34,"0")+add_to_right(text,1," ")+add_to_right(text,22,"0")+add_to_right(text,1," ")+add_to_right(text,9,"0")+add_to_right(text,6,"0")+add_to_right(text,1," ")+add_to_right(text,8,"0")+company.w2_first_control[:9]+add_to_right(text,11,"0")+add_to_right(text,11,"0")+total_12+add_to_right(text,6," ")+add_to_right(text,11,"0")+add_to_right(text,11,"0")+add_to_right(text,5,"0")+total_16+code+add_to_right(text,2,"0")+add_to_right(text,1," ")+add_to_right(text,2," ")+add_to_right(text,23," ")+add_to_right(text,15," ")+add_to_right(text,2," ")+add_to_right(text,11,"0")+add_to_right(text,1," ")+add_to_right(text,1," ")+birthday.strftime("%Y%m%d")+add_to_right(text,4," ")
+    return "RS"+add_to_right(text,2,"0")+add_to_right(text,5,"0")+employer.social_security_number.replace("-","")[:9]+employer.first_name.ljust(15)+employer.middle_name.ljust(15)+(employer.last_name+" "+employer.mother_last_name).ljust(20)+add_to_right(text,4," ")+employer.address.ljust(22)+employer.address.ljust(22)+COUNTRY[int(employer.address_country)-1].ljust(22)+employer.address_state.ljust(2)+employer.address_number.ljust(5)+add_to_right(text,9," ")+add_to_right(text,23," ")+add_to_right(text,15," ")+add_to_right(text,2," ")+add_to_right(text,2," ")+add_to_right(text,6,"0")+add_to_right(text,38,"0")+add_to_right(text,5," ")+add_to_right(text,20,"0")+add_to_right(text,6," ")+add_to_right(text,55,"0")+add_to_right(text,7,"0")+add_to_right(text,75," ")+add_to_right(text,75," ")+add_to_right(text,25," ")
 
 def RTtxt(count,acum_total_20,acum_total_21,acum_total_22,acum_total_23,acum_total_24):
     text = ""  
@@ -239,7 +239,7 @@ def RTtxt(count,acum_total_20,acum_total_21,acum_total_22,acum_total_23,acum_tot
     acum_total_24 = int(acum_total_24 * 100)
     acum_total_24 = f"{acum_total_24:015d}"
       
-    return "RT"+count+add_to_right(text,30,"0")+acum_total_20+acum_total_21+acum_total_22+acum_total_23+acum_total_24+add_to_right(text,180,"0")+add_to_right(text,15,"0")+add_to_right(text,90,"0")+count+add_to_right(text,98," ")
+    return "RT"+count+add_to_right(text,30,"0")+acum_total_20+acum_total_21+acum_total_22+acum_total_23+acum_total_24+add_to_right(text,30,"0")+add_to_right(text,15," ")+add_to_right(text,90,"0")+add_to_right(text,15," ")+add_to_right(text,180,"0")+add_to_right(text,98,"0")
 
 def RUtxt(count,acum_total_7,acum_total_8,acum_total_9,acum_total_10,acum_total_11,acum_total_13,acum_total_14):
     text = ""  
@@ -259,7 +259,7 @@ def RUtxt(count,acum_total_7,acum_total_8,acum_total_9,acum_total_10,acum_total_
     acum_total_14 = int(acum_total_14 * 100)
     acum_total_14 = f"{acum_total_14:015d}"
       
-    return "RU"+count+add_to_right(text,15,"0")+add_to_right(text,15,"0")+add_to_right(text,90,"0")+add_to_right(text,15," ")+add_to_right(text,210," ")+acum_total_7+acum_total_8+acum_total_9+acum_total_10+acum_total_11+acum_total_13+acum_total_14+add_to_right(text,30,"0")+add_to_right(text,23," ")
+    return "RU"+count+add_to_right(text,15,"0")+add_to_right(text,15,"0")+add_to_right(text,90,"0")+add_to_right(text,15," ")+add_to_right(text,60,"0")+add_to_right(text,150," ")+acum_total_7+acum_total_8+acum_total_9+acum_total_10+acum_total_11+acum_total_13+acum_total_14+add_to_right(text,30,"0")+add_to_right(text,23," ")
 
 
 def RVtxt(count,company,acum_total_16,acum_total_6):
