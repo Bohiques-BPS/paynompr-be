@@ -2916,11 +2916,11 @@ def all_counterfoil_controller(company_id, period_id ):
     def calculate_payments():
         amount = 0
         for payment in payment_query:
-            if (payment.time_id == period_id):
-                if payment.type_taxe == 1 and payment.amount > 0:
-                    amount -= payment.amount
+            if payment.Time.period_id == period_id:
+                if payment.Payments.type_taxe == 1 and payment.Payments.amount > 0:
+                    amount -= payment.Payments.amount
                 else:
-                    amount += payment.amount
+                    amount += payment.Payments.amount
 
         return amount
 
