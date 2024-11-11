@@ -32,6 +32,7 @@ from utils.form_wages import form_wages_txt_generator
 from utils.form_493 import form_943_pdf_generator
 from utils.unemployment import form_unemployment_pdf_generator
 from utils.form_w2p_txt import form_w2p_txt_generator
+from utils.form_w2psse_txt import form_w2psse_txt_generator
 
 from utils.form_w2pr import form_w2pr_pdf_generate
 from collections import defaultdict
@@ -2462,7 +2463,15 @@ def get_w2p_txt_controller(company_id, year,reimbursed,code):
             media_type="application/txt",
             filename="form_w2p.txt"       )
 
+def get_w2psse_txt_controller(company_id, year,reimbursed,code):
+    
+    txt = form_w2psse_txt_generator(company_id, year,reimbursed,code)
 
+    if txt:
+        return FileResponse(
+            txt,
+            media_type="application/txt",
+            filename="form_w2p.txt"       )
 
 def form_941_pdf_controller(company_id, year, period):
     
