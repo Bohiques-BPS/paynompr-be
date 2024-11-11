@@ -6,7 +6,7 @@ from fastapi import APIRouter
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-from controllers.reports_controller import counterfoil_by_range_controller,all_counterfoil_controller, counterfoil_controller, form_940_pdf_controller, form_choferil_pdf_controller, form_unemployment_pdf_controller, form_withheld_499_pdf_controller, get_report_cfse_pdf_controller, form_w2pr_pdf_controller, form_941_pdf_controller, form_943_pdf_controller ,counterfoil_by_period_controller, form_wages_txt_controller ,get_w2p_txt_controller
+from controllers.reports_controller import counterfoil_by_range_controller,all_counterfoil_controller, counterfoil_controller, form_940_pdf_controller, form_choferil_pdf_controller, form_unemployment_pdf_controller, form_withheld_499_pdf_controller, get_report_cfse_pdf_controller, form_w2pr_pdf_controller, form_941_pdf_controller, form_943_pdf_controller ,counterfoil_by_period_controller, form_wages_txt_controller ,get_w2p_txt_controller , form_bonus_pdf_controller
 from database.config import session
 from models.companies import Companies
 from models.employers import Employers
@@ -28,6 +28,22 @@ class CompanyW2P(BaseModel):
     year: int
     reimbursed: int  
     code: str  
+
+
+class Bonus(BaseModel):
+    amount_max: int
+    amount_min: int
+    max_employers: int  
+    min_employers: int 
+    percent_to_max: int 
+    percent_to_min: int 
+
+class CompanyBonus(BaseModel):
+    company_id: int
+    year: int
+     
+    bonus: Bonus  
+
 
 
 class EmployerYear(BaseModel):
@@ -80,6 +96,10 @@ async def form_wages_txt(companyYear: CompanyYear):
 @report_router.post("/form_941_pdf")
 async def form_941_pdf(companyYear: CompanyYear):
     return form_941_pdf_controller(companyYear.company_id, companyYear.year, companyYear.period)
+
+@report_router.post("/bonus_pdf")
+async def form_943_pdf(companyBonus: CompanyBonus):
+    return form_bonus_pdf_controller(companyBonus.company_id, companyBonus.year, companyBonus.bonus)
 
 @report_router.post("/form_943_pdf")
 async def form_943_pdf(companyYear: CompanyYear):

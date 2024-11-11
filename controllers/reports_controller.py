@@ -754,7 +754,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
     ).group_by(VacationTimes.year).all()
 
     
-
+    date_start = date(year, 1, 1)
     # employer time
     time_query = session.query(Time).filter(Time.id == time_id).first()
     all_time_query = session.query(func.sum(Time.salary).label("total_salary"),
@@ -779,11 +779,11 @@ def counterfoil_controller(company_id, employer_id, time_id):
                     func.sum(Time.medicare).label("total_medicare"),
                     func.sum(Time.secure_social).label("total_ss"),
                     func.sum(Time.tax_pr).label("total_tax_pr")).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id
-                    ).filter(Period.year == 2024,Time.employer_id == employer_id,Period.period_start <= time_period_query.Period.period_start,Time.employer_id == employer_id
+                    ).filter(Period.year == year,Time.employer_id == employer_id,Period.period_end >= date_start,Period.period_end <= time_period_query.Period.period_end,Time.employer_id == employer_id
                     ).group_by(Period.year).all()
 
 
-    all_times_query = session.query(Time).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id).filter(Period.year == 2024,Time.employer_id == employer_id,Period.period_start <= time_period_query.Period.period_start).all()
+    all_times_query = session.query(Time).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id).filter(Period.year == year,Time.employer_id == employer_id,Period.period_start <= time_period_query.Period.period_start).all()
 
     total_regular_time  = "00:00"
     total_regular_time_seconds = 0
@@ -892,7 +892,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
 
 
 
-    payment_query = session.query(Payments).select_from(Period).join(Time, Period.id == Time.period_id ).join(Payments, Payments.time_id == Time.id).filter(Period.year == 2024,Period.period_start <= time_period_query.Period.period_start,Time.employer_id == employer_id).all()
+    payment_query = session.query(Payments).select_from(Period).join(Time, Period.id == Time.period_id ).join(Payments, Payments.time_id == Time.id).filter(Period.year == year,Period.period_start <= time_period_query.Period.period_start,Time.employer_id == employer_id).all()
     payment_texts = ""
     # Crear lista de textos de pagos
     total_payment_amount = 0
@@ -1589,7 +1589,7 @@ def counterfoil_by_period_controller(company_id, employer_id, period_id):
     ).group_by(VacationTimes.year).all()
 
     
-
+    date_start = date(year, 1, 1)
     # employer time
     time_query = session.query(Time).filter(Time.period_id == period_id).first()
     all_time_query = session.query(func.sum(Time.salary).label("total_salary"),
@@ -1614,11 +1614,11 @@ def counterfoil_by_period_controller(company_id, employer_id, period_id):
                     func.sum(Time.medicare).label("total_medicare"),
                     func.sum(Time.secure_social).label("total_ss"),
                     func.sum(Time.tax_pr).label("total_tax_pr")).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id
-                    ).filter(Period.year == 2024,Time.employer_id == employer_id,Period.period_start <= time_period_query.Period.period_start,Time.employer_id == employer_id
+                    ).filter(Period.year == year,Time.employer_id == employer_id,Period.period_end >= date_start,Period.period_end <= time_period_query.Period.period_end,Time.employer_id == employer_id
                     ).group_by(Period.year).all()
 
 
-    all_times_query = session.query(Time).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id).filter(Period.year == 2024,Time.employer_id == employer_id,Period.period_start <= time_period_query.Period.period_start).all()
+    all_times_query = session.query(Time).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id).filter(Period.year == year,Time.employer_id == employer_id,Period.period_start <= time_period_query.Period.period_start).all()
 
     total_regular_time  = "00:00"
     total_regular_time_seconds = 0
@@ -1727,7 +1727,7 @@ def counterfoil_by_period_controller(company_id, employer_id, period_id):
 
 
 
-    payment_query = session.query(Payments,Time).select_from(Period).join(Time, Period.id == Time.period_id ).join(Payments, Payments.time_id == Time.id).filter(Period.year == 2024,Period.period_start <= time_period_query.Period.period_start,Time.employer_id == employer_id).all()
+    payment_query = session.query(Payments,Time).select_from(Period).join(Time, Period.id == Time.period_id ).join(Payments, Payments.time_id == Time.id).filter(Period.year == year,Period.period_start <= time_period_query.Period.period_start,Time.employer_id == employer_id).all()
     payment_texts = ""
     # Crear lista de textos de pagos
     total_payment_amount = 0
@@ -2384,6 +2384,7 @@ Gastos Reembolsados:</td>
     )
 
 def form_w2pr_pdf_controller(company_id, employer_id, year):
+    
     try:
         employers = []
         pdf_files = []
@@ -2477,6 +2478,124 @@ def form_941_pdf_controller(company_id, year, period):
         )
 
     
+
+
+
+
+
+
+
+def form_bonus_pdf_controller(company_id, year, period):
+
+    start = date(year-1, 10, 1)
+    end = date(year, 9, calendar.monthrange(year, 9)[1])
+    all_times_query = session.query(Time).select_from(Period).join(Time, Period.id == Time.period_id ).join(Employers, Employers.id == Time.employer_id ).filter(Period.period_end >= start,Period.period_end <= end, Employers.company_id == company_id).all()
+
+    
+
+    total_regular_time  = "00:00"
+    total_regular_time_seconds = 0
+
+    total_over_time  = "00:00"
+    total_over_time_seconds = 0
+
+    total_mealt_time  = "00:00"
+    total_mealt_time_seconds = 0
+
+    total_vacation_time  = "00:00"
+    total_vacation_time_seconds = 0
+
+    total_sick_time  = "00:00"
+    total_sick_time_seconds = 0
+
+    total_holiday_time  = "00:00"
+    total_holiday_time_seconds = 0
+    for time_entry in all_times_query:
+        regular_time = time_entry.regular_time
+        over_time = time_entry.over_time
+        mealt_time = time_entry.meal_time
+        vacation_time = time_entry.vacation_time
+        sick_time = time_entry.sick_time
+        holiday_time = time_entry.holiday_time
+
+
+
+        
+        # Convertir la cadena a horas y minutos
+        regular_hours, regular_minutes = map(int, regular_time.split(':'))
+
+        # Convertir a segundos
+        regular_total_seconds = regular_hours * 3600 + regular_minutes * 60
+
+        # Convertir la cadena a horas y minutos
+        over_hours, over_minutes = map(int, over_time.split(':'))
+
+        # Convertir a segundos
+        over_total_seconds = over_hours * 3600 + over_minutes * 60
+
+        # Convertir la cadena a horas y minutos
+        mealt_hours, mealt_minutes = map(int, mealt_time.split(':'))
+
+        # Convertir a segundos
+        mealt_total_seconds = mealt_hours * 3600 + mealt_minutes * 60
+
+        # Convertir la cadena a horas y minutos
+        vacation_hours, vacation_minutes = map(int, vacation_time.split(':'))
+
+        # Convertir a segundos
+        vacation_total_seconds = vacation_hours * 3600 + vacation_minutes * 60
+
+        # Convertir la cadena a horas y minutos
+        sick_hours, sick_minutes = map(int, sick_time.split(':'))
+
+        # Convertir a segundos
+        sick_total_seconds = sick_hours * 3600 + sick_minutes * 60
+
+        # Convertir la cadena a horas y minutos
+        holiday_hours, holiday_minutes = map(int, holiday_time.split(':'))
+
+        # Convertir a segundos
+        holiday_total_seconds = holiday_hours * 3600 + holiday_minutes * 60
+
+        
+
+        # Sumar los segundos al total
+        total_regular_time_seconds += regular_total_seconds
+        total_mealt_time_seconds += mealt_total_seconds
+        total_over_time_seconds += over_total_seconds
+        total_sick_time_seconds += sick_total_seconds
+        total_vacation_time_seconds += vacation_total_seconds
+        total_holiday_time_seconds += holiday_total_seconds
+
+
+        # Convertir los segundos totales a horas y minutos
+        regular_hours, remaining_seconds = divmod(total_regular_time_seconds, 3600)
+        regular_minutes, regular_seconds = divmod(remaining_seconds, 60)
+        total_regular_time = f"{regular_hours:02d}:{regular_minutes:02d}"
+        # Convertir los segundos totales a horas y minutos
+        over_hours, remaining_seconds = divmod(total_over_time_seconds, 3600)
+        over_minutes, over_seconds = divmod(remaining_seconds, 60)
+        total_over_time = f"{over_hours:02d}:{over_minutes:02d}"
+        # Convertir los segundos totales a horas y minutos
+        sick_hours, remaining_seconds = divmod(total_sick_time_seconds, 3600)
+        sick_minutes, sick_seconds = divmod(remaining_seconds, 60)
+        total_sick_time = f"{sick_hours:02d}:{sick_minutes:02d}"
+        # Convertir los segundos totales a horas y minutos
+        mealt_hours, remaining_seconds = divmod(total_mealt_time_seconds, 3600)
+        mealt_minutes, mealt_seconds = divmod(remaining_seconds, 60)
+        total_mealt_time = f"{mealt_hours:02d}:{mealt_minutes:02d}"
+        # Convertir los segundos totales a horas y minutos
+        vacation_hours, remaining_seconds = divmod(total_vacation_time_seconds, 3600)
+        vacation_minutes, vacation_seconds = divmod(remaining_seconds, 60)
+        total_vacation_time = f"{vacation_hours:02d}:{vacation_minutes:02d}"
+        # Convertir los segundos totales a horas y minutos
+        holiday_hours, remaining_seconds = divmod(total_holiday_time_seconds, 3600)
+        holiday_minutes, holiday_seconds = divmod(remaining_seconds, 60)
+        total_holiday_time = f"{holiday_hours:02d}:{holiday_minutes:02d}"
+
+        total_hours = regular_hours +over_hours +sick_hours +mealt_hours+holiday_hours
+    return total_hours
+
 
 def form_943_pdf_controller(company_id, year, period):
     try:
@@ -2861,7 +2980,7 @@ def all_counterfoil_controller(company_id, period_id ):
                     func.sum(Time.medicare).label("total_medicare"),
                     func.sum(Time.secure_social).label("total_ss"),
                     func.sum(Time.tax_pr).label("total_tax_pr")).select_from(Period).join(Time, Period.id == Time.period_id 
-                    ).join(Employers, Employers.id == Time.employer_id).filter(Period.year == 2024,Period.period_end <= time_period_query.period_end, Employers.company_id == company_id
+                    ).join(Employers, Employers.id == Time.employer_id).filter(Period.year == year,Period.period_end <= time_period_query.period_end, Employers.company_id == company_id
                     ).group_by(Time.employer_id).all()
 
     
@@ -2873,7 +2992,7 @@ def all_counterfoil_controller(company_id, period_id ):
        
         
         
-        all_times_query = session.query(Time).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id).filter(Period.year == 2024,Time.employer_id == employer_id,Period.period_end <= period.period_end).all()
+        all_times_query = session.query(Time).select_from(Period).join(Time, Period.id == Time.period_id and Time.employer_id == employer_id).filter(Period.year == year,Time.employer_id == employer_id,Period.period_end <= period.period_end).all()
 
         employer = session.query(Employers).filter_by(id = employer_id ).first()
 
@@ -2978,7 +3097,7 @@ def all_counterfoil_controller(company_id, period_id ):
             total_holiday_time = f"{holiday_hours:02d}:{holiday_minutes:02d}"
 
 
-        payment_query = session.query(Payments,Time).select_from(Period).join(Time, Period.id == Time.period_id ).join(Payments, Payments.time_id == Time.id).filter(Payments.is_active == True,Payments.is_active == True,Period.year == 2024,Period.period_start <= period.period_start,Time.employer_id == employer_id).all()
+        payment_query = session.query(Payments,Time).select_from(Period).join(Time, Period.id == Time.period_id ).join(Payments, Payments.time_id == Time.id).filter(Payments.is_active == True,Payments.is_active == True,Period.year == year,Period.period_start <= period.period_start,Time.employer_id == employer_id).all()
         payment_texts = ""
         # Crear lista de textos de pagos
         total_payment_amount = 0

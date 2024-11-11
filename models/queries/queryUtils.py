@@ -28,7 +28,7 @@ def addDecimal(number):
 
 def getTotalAmountAndExemptAmount(company_id, date_period):
     result = session.query(
-      func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay  + Time.commissions + Time.concessions + Time.tips).label('total'), Employers.id, Employers.birthday
+      func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay  + Time.commissions + Time.concessions ).label('total'), Employers.id, Employers.birthday
       ).join(Employers, Employers.id == Time.employer_id
       ).join(Period, Period.id == Time.period_id).filter(     
         Employers.company_id == company_id,
