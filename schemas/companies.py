@@ -43,6 +43,7 @@ class CompaniesSchema(BaseModel):
     payer: Optional[str] = Field(None, max_length=100)
     desem: Optional[str] = Field(None, max_length=100)
     number_patronal: Optional[str] = Field(None, max_length=100)
+    date_close: Optional[date] = None
     coml: Optional[date] = None
     employed_contribution: Optional[str] = Field(None, max_length=100)
     disabled_percent: Optional[str] = Field(None, max_length=10)

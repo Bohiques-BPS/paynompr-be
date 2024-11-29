@@ -47,6 +47,7 @@ def create_company_controller(companie_data, user):
             sicks_hours = companie_data.sicks_hours,
             sicks_date = companie_data.sicks_date,
             coml=companie_data.coml,
+            date_close=companie_data.date_close,
             postal_address=companie_data.postal_address,
             zipcode_postal_address=companie_data.zipcode_postal_address,
             country_postal_address=companie_data.country_postal_address,
@@ -370,6 +371,7 @@ def update_company_controller(companies_id, company_data):
         company_query.state_postal_addess = company_data.state_postal_addess
         company_query.number_patronal = company_data.number_patronal
         company_query.coml = company_data.coml
+        company_query.date_close= company_data.date_close
         company_query.vacation_hours = company_data.vacation_hours
         company_query.vacation_date = company_data.vacation_date
         company_query.sicks_hours = company_data.sicks_hours

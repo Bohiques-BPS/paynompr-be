@@ -26,6 +26,7 @@ class Companies(Base):
     code_id: Mapped[int] = mapped_column(
         Integer(), ForeignKey("codes.id"), nullable=False, index=True
     )
+    date_close: Mapped[TIMESTAMP] = mapped_column(Date(), nullable=True)
     coml: Mapped[TIMESTAMP] = mapped_column(Date(), nullable=True)
     number_patronal: Mapped[str] = mapped_column(String(50))
     accountant_id: Mapped[int] = mapped_column(

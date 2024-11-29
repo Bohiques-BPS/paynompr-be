@@ -36,7 +36,7 @@ from utils.form_w2psse_txt import form_w2psse_txt_generator
 
 from utils.form_w2pr import form_w2pr_pdf_generate
 from collections import defaultdict
-from models.queries.queryUtils import   getAmountCSFECompany
+from models.queries.queryUtils import   getAmountCSFECompany , getBonusCompany
 
 report_router = APIRouter()
 
@@ -2686,6 +2686,251 @@ def form_withheld_499_pdf_controller(company_id, year, period):
     finally:
         session.close()
 
+
+def get_report_bonus_pdf_controller(company_id, year, bonus):
+    print("----------bonus-------------")
+
+    print(bonus)
+    company = session.query(Companies).filter(Companies.id == company_id).first()
+    employees = session.query(Employers).filter(Employers.company_id == company_id).all()
+    
+    # Calculate quarterly amounts
+    quarter_amounts = []
+    quarter_starts = [10, 1, 4,7]
+    
+    for i, start_month in enumerate(quarter_starts):
+        
+        if (start_month >= 8):
+            date_start = date( year - 1, start_month, 1)
+        else:
+            date_start = date( year, start_month, 1)
+        if (start_month >= 8):
+            date_end = date( year  -1 , start_month + 2, calendar.monthrange(year, start_month + 2)[1])
+        else:
+            date_end = date( year , start_month + 2, calendar.monthrange(year, start_month + 2)[1])
+        
+        quarter_amount = getBonusCompany(company_id, date_start, date_end)
+
+        if quarter_amount:   
+            print("------------------------------------");
+            print(quarter_amount);
+            for element in quarter_amount:
+               
+                element_dict = element
+                element_dict['period'] = i + 1
+                quarter_amounts.append(element_dict)
+            
+    
+    employee_data = []
+    total = 0
+    total_seconds = 0
+    total_hours = ""
+    totals_wages = {           
+        "totals_1": 0,
+        "totals_2": 0,
+        "totals_3": 0,
+        "totals_4": 0,        
+    }
+    total_bonus = 0
+
+    
+    
+    percent = 0
+    max_amount = 0
+    if bonus.max_employers < len(employees):
+        percent = bonus.percent_to_max / 100
+        max_amount = bonus.amount_max
+    else:
+        percent = bonus.percent_to_min / 100
+        max_amount = bonus.amount_min
+    
+    for employee in employees:
+        employee_dict = {
+            "nombre": employee.first_name,
+            "apellido": employee.last_name,
+            "number_ss": employee.social_security_number,
+            "worked_hour": "",
+            "bonus": 0,
+            "categoria": "",  # Assuming these fields exist
+            "trimestre_1": 0,
+            "trimestre_2": 0,
+            "trimestre_3": 0,
+            "trimestre_4": 0,
+            "Total": 0,
+        }
+        total_worked_seconds = 0  # Initialize a variable for total worked seconds
+
+        # Find matching quarter_amount for this employee
+        for quarter_amount in quarter_amounts:
+            
+            if quarter_amount['employer_id'] == employee.id:
+                employee_dict[f"trimestre_{quarter_amount['period']}"] += quarter_amount['wages']
+                employee_dict["Total"] += quarter_amount['wages']
+                total += quarter_amount['wages']
+                totals_wages[f"totals_{quarter_amount['period']}"] += quarter_amount['wages']
+                # Update total_worked_seconds
+                total_worked_seconds += quarter_amount['total_time']
+                
+        employee_dict["bonus"] = round(employee_dict["Total"] * percent,2)    
+        if employee_dict["bonus"] >=  max_amount:
+            employee_dict["bonus"] =  max_amount
+        
+        # Convert total_worked_seconds to hours and minutes
+        hours, remainder = divmod(total_worked_seconds, 3600)
+        minutes = int(remainder / 60)
+        total_seconds += total_worked_seconds
+
+        if hours < 1350:
+            employee_dict["bonus"] = 0
+
+
+        total_bonus  += employee_dict["bonus"]
+
+        # Update worked_hour with the total sum
+        employee_dict["worked_hour"] = f"{hours}:{minutes:02d}"
+        employee_data.append(employee_dict)
+
+    # Convert total_worked_seconds to hours and minutes
+    total_hours, total_remainder = divmod(total_seconds, 3600)
+    total_minutes = int(total_remainder / 60)
+    
+
+    total_hours = f"{total_hours}:{total_minutes:02d}"    
+
+    info = {
+        "employer_name": company.name,
+        "commercial_register": company.commercial_register,
+        "data": employee_data,
+        "telefono": company.contact_number,
+        "total" : total,
+        "totals_wages" : totals_wages,
+        "total_hours": total_hours,
+        "total_bonus": round(total_bonus,2),
+    }
+    #plantilla html
+    template_html = """
+
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Reporte Planilla CFSE</title>
+            <style>
+                @page {
+                    size: A4 landscape; /* Configura la página en orientación horizontal */
+                    margin: 20mm;
+                }
+
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 20px;
+                }
+
+                .header {
+                    text-align: center;
+                    margin-bottom: 40px;
+                }
+
+                .header h1, .header h2 {
+                    margin: 0;
+                }
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 20px;
+                }
+
+                table, th, td {
+                    border: 1px solid black;
+                }
+
+                th, td {
+                    padding: 8px;
+                    text-align: left;
+                }
+
+                th {
+                    background-color: #f2f2f2;
+                    font-size: 10px;
+                }
+
+                .total-row {
+                    font-weight: bold;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h4>{{ employer_name }}</h4>
+                <h4>Número de Registro: {{ commercial_register }}</h4>
+                <h4>Teléfono: {{ telefono }}</h4>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>NOMBRE</th>
+                        <th>APELLIDO</th>
+                        <th>NUMERO SS</th>
+                        <th>HORAS TRABAJADAS</th>
+                        <th>4Q PASADO</th>
+                        <th>1Q </th>
+                        <th>2Q</th>
+                        <th>3Q</th>
+                        <th>TOTAL SALARIOS</th>
+                        <th>BONO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for employee in data %}
+<tr>
+    <td>{{ employee.nombre }}</td>
+    <td>{{ employee.apellido }}</td>
+    <td>{{ employee.number_ss }}</td>
+    <td>{{ employee.worked_hour }}</td>
+    <td>{{ employee.trimestre_1  }}</td>
+    <td>{{ employee.trimestre_2  }}</td>
+    <td>{{ employee.trimestre_3  }}</td>
+    <td>{{ employee.trimestre_4  }}</td>
+    <td>{{ employee.Total }}</td>
+    <td>{{ employee.bonus }}</td>
+</tr>
+{% endfor %}
+<tr>
+    <td>TOTALES</td>
+    <td>---------</td>
+    <td>---------</td>
+    <td>{{ total_hours }}</td>
+    <td>{{ totals_wages.totals_1 }}</td>
+    <td>{{ totals_wages.totals_2 }}</td>
+    <td>{{ totals_wages.totals_3 }}</td>
+    <td>{{ totals_wages.totals_4 }}</td>
+    <td>{{ total }}</td>
+    <td>{{ total_bonus }}</td>
+</tr>
+                    
+                </tbody>
+            </table>
+        </body>
+        </html>
+
+
+    """
+
+    template = Template(template_html)
+    rendered_html = template.render(info)
+
+    # Generar el PDF usando WeasyPrint
+    pdf_file = "pdf_cfse.pdf"
+    HTML(string=rendered_html).write_pdf(pdf_file)
+
+    return FileResponse(
+        pdf_file,
+        media_type="application/pdf",
+        filename="pdf_cfse.pdf"
+    )
 
 def get_report_cfse_pdf_controller(company_id, year, period):
 

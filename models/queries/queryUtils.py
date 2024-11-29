@@ -9,6 +9,7 @@ from sqlalchemy import func, and_ , distinct
 from datetime import date
 from utils.time_func import getPeriodTime, getAgeEmployer
 import calendar
+from sqlalchemy import func, cast, Integer
 
 def addZeroNumber(value):
     return f'{value}0' if len(value) == 1 else value
@@ -207,12 +208,53 @@ def getAmountVariosCompany(company_id, year, period = None):
       ).select_from(Period).join(Time, Period.id == Time.period_id ).join(Employers, Time.employer_id == Employers.id).filter( Employers.company_id == company_id,  Period.period_end >= date_start ,Period.period_end <= date_end ).all()
       
     return result[0]
+   
+def convert_to_seconds(time_string):
+    """Convierte una cadena de tiempo en formato HH:MM a segundos."""
+    hours, minutes = map(int, time_string.split(':'))
+    return hours * 3600 + minutes * 60
 
+    
+def getBonusCompany(company_id, date_start, date_end,bonus):
+    from collections import defaultdict
+
+    # ... (tu código existente)
+
+    # Obtener todos los registros sin agrupar
+    all_times_query = session.query(Time,Employers).select_from(Period).join(Time, Period.id == Time.period_id).join(Employers, Employers.id == Time.employer_id).filter(Period.period_end >= date_start, Period.period_end <= date_end, Employers.company_id == company_id).all()
+
+    # Crear un diccionario para almacenar los totales por empleado
+    employee_totals = defaultdict(lambda: {
+        'total_time': 0,      
+        'wages': 0,
+       
+        # ... (otros campos)
+    })
+
+    # Iterar sobre los registros y acumular los totales
+    for time_entry in all_times_query:
+        employer_id = time_entry.Time.employer_id
+        employee_totals[employer_id]['employer_id'] = employer_id
+        employee_totals[employer_id]['name'] = time_entry.Employers.first_name
+        employee_totals[employer_id]['last_name'] = time_entry.Employers.last_name
+
+
+        employee_totals[employer_id]['total_time'] += convert_to_seconds(time_entry.Time.regular_time) + convert_to_seconds(time_entry.Time.over_time)+ convert_to_seconds(time_entry.Time.holiday_time)+ convert_to_seconds(time_entry.Time.sick_time) + + convert_to_seconds(time_entry.Time.vacation_time) + convert_to_seconds(time_entry.Time.meal_time) 
+
+
+
+        employee_totals[employer_id]['wages'] += time_entry.Time.regular_pay + time_entry.Time.over_pay + time_entry.Time.vacation_pay + time_entry.Time.meal_pay + time_entry.Time.sick_pay + time_entry.Time.holyday_pay + time_entry.Time.commissions + time_entry.Time.concessions + time_entry.Time.tips
+        # ... (sumar otros campos)
+   
+
+    # Return the employee totals as a list of dictionaries
+    return list(employee_totals.values())
+   
 def getAmountCSFECompany(company_id, date_start, date_end ):
     result = session.query(
       
       func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay+ Time.commissions +Time.concessions+Time.tips).label('wages'),
-      
+     
      Time.employer_id.label('employer_id'),
       func.sum(Time.regular_pay).label('regular_pay'),
       func.sum( Time.over_pay ).label('over_pay'),
