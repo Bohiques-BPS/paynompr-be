@@ -2709,7 +2709,7 @@ def get_report_bonus_pdf_controller(company_id, year, bonus):
         else:
             date_end = date( year , start_month + 2, calendar.monthrange(year, start_month + 2)[1])
         
-        quarter_amount = getBonusCompany(company_id, date_start, date_end)
+        quarter_amount = getBonusCompany(company_id, date_start, date_end,bonus)
 
         if quarter_amount:   
             print("------------------------------------");

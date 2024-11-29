@@ -238,8 +238,15 @@ def getBonusCompany(company_id, date_start, date_end,bonus):
         employee_totals[employer_id]['name'] = time_entry.Employers.first_name
         employee_totals[employer_id]['last_name'] = time_entry.Employers.last_name
 
-
-        employee_totals[employer_id]['total_time'] += convert_to_seconds(time_entry.Time.regular_time) + convert_to_seconds(time_entry.Time.over_time)+ convert_to_seconds(time_entry.Time.holiday_time)+ convert_to_seconds(time_entry.Time.sick_time) + + convert_to_seconds(time_entry.Time.vacation_time) + convert_to_seconds(time_entry.Time.meal_time) 
+        if bonus.reg:
+          employee_totals[employer_id]['total_time'] += convert_to_seconds(time_entry.Time.regular_time)
+        if bonus.over:
+          employee_totals[employer_id]['total_time'] += convert_to_seconds(time_entry.Time.over_time)
+        if bonus.vacations:
+          employee_totals[employer_id]['total_time'] += convert_to_seconds(time_entry.Time.vacation_time)
+        if bonus.sick:
+          employee_totals[employer_id]['total_time'] += convert_to_seconds(time_entry.Time.sick_time)
+           
 
 
 
