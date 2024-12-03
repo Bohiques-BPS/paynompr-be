@@ -107,7 +107,7 @@ async def form_943_pdf(companyBonus: CompanyBonus):
 
 @report_router.post("/form_943_pdf")
 async def form_943_pdf(companyYear: CompanyYear):
-    return form_943_pdf_controller(companyYear.company_id, companyYear.year, companyYear.period)
+    return form_943_pdf_controller(companyYear.company_id, companyYear.year)
 
 @report_router.post("/form_w2pr_pdf")
 async def form_w2pr_pdf(companyOrEmployer: CompanyOrEmployer):

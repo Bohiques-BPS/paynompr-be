@@ -60,6 +60,7 @@ def create_employer_controller(employer_data: Employers, company_id):
             social_security_number=employer_data.social_security_number,
             marital_status=employer_data.marital_status,
             address=employer_data.address,
+            retention_type = employer_data.retention_type,
             address_state=employer_data.address_state,
             address_country=employer_data.address_country,
             address_number=employer_data.address_number,
@@ -171,7 +172,7 @@ def update_employer_controller(employers_id, employer, user):
         employer_query.social_security_number = employer.social_security_number
         employer_query.marital_status = employer.marital_status
         employer_query.address = employer.address
-        
+        employer_query.retention_type = employer.retention_type
         employer_query.address_state = employer.address_state
         employer_query.address_country = employer.address_country
         employer_query.address_number = employer.address_number

@@ -6,13 +6,13 @@ from models.queries.queryForm943 import queryForm943
 
 
 
-def form_943_pdf_generator(company_id, year, period):
+def form_943_pdf_generator(company_id, year):
     rute = Path(__file__).parent.absolute()
     document_dir = rute.parent / 'output_files'
     source_file_name = 'template/f943.pdf'
     output_file_name = 'form_941.pdf'
 
-    data_entry_data = queryForm943(company_id, year, period)
+    data_entry_data = queryForm943(company_id, year)
     if len(data_entry_data) > 0:
         with fitz.open(document_dir / source_file_name) as doc:
             for page_number in range(len(doc)):

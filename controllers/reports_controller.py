@@ -2606,26 +2606,20 @@ def form_bonus_pdf_controller(company_id, year, period):
     return total_hours
 
 
-def form_943_pdf_controller(company_id, year, period):
-    try:
-        pdf = form_943_pdf_generator(company_id, year, period)
-        if pdf is None:
-            return Response(status_code=status.HTTP_404_NOT_FOUND, content="No data found")
+def form_943_pdf_controller(company_id, year):
+    
+    pdf = form_943_pdf_generator(company_id, year)
+    if pdf is None:
+        return Response(status_code=status.HTTP_404_NOT_FOUND, content="No data found")
 
-        if pdf:
-            return FileResponse(
-                pdf,
-                media_type="application/pdf",
-                filename="form_940.pdf"
-            )
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Se ha producido un error {str(e)}"
+    if pdf:
+        return FileResponse(
+            pdf,
+            media_type="application/pdf",
+            filename="form_940.pdf"
         )
-    finally:
-        session.close()
+
+    
 
 
 def form_unemployment_pdf_controller(company_id, year, period):

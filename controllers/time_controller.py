@@ -511,7 +511,10 @@ def update_vaction_time(employer_id, times, employer, year, month,time):
     if times:
         hours_worked = 0
         for time in times:
-            hours_worked += (time_to_minutes(time.regular_time) / 60) + (time_to_minutes(time.over_time) / 60) + (time_to_minutes(time.meal_time) / 60) + (time_to_minutes(time.sick_time) / 60) + (time_to_minutes(time.holiday_time) / 60) + (time_to_minutes(time.vacation_time) / 60) + time.hours_worked_salary
+            hours_worked += (time_to_minutes(time.regular_time) / 60) + (time_to_minutes(time.over_time) / 60) + (time_to_minutes(time.meal_time) / 60) + (time_to_minutes(time.sick_time) / 60) + (time_to_minutes(time.holiday_time) / 60) + (time_to_minutes(time.vacation_time) / 60)
+
+        if (employer.salary > 0 ):
+            hours_worked += time.hours_worked_salary
         
         hours_worked = int(hours_worked // 1)
         print("---------------------"+str(hours_worked))
@@ -575,7 +578,9 @@ def update_sicks_time(employer_id, times, employer: Employers, year, month,time)
     if times:
         hours_worked = 0
         for time in times:
-            hours_worked += (time_to_minutes(time.regular_time) / 60) + (time_to_minutes(time.over_time) / 60) + (time_to_minutes(time.meal_time) / 60) + (time_to_minutes(time.sick_time) / 60) + (time_to_minutes(time.holiday_time) / 60) + (time_to_minutes(time.vacation_time) / 60)+ time.hours_worked_salary
+            hours_worked += (time_to_minutes(time.regular_time) / 60) + (time_to_minutes(time.over_time) / 60) + (time_to_minutes(time.meal_time) / 60) + (time_to_minutes(time.sick_time) / 60) + (time_to_minutes(time.holiday_time) / 60) + (time_to_minutes(time.vacation_time) / 60)
+        if (employer.salary > 0 ):
+            hours_worked += time.hours_worked_salary
         
         hours_worked = int(hours_worked // 1)
           

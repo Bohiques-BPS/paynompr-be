@@ -10,6 +10,7 @@ from datetime import date
 from utils.time_func import getPeriodTime, getAgeEmployer
 import calendar
 from sqlalchemy import func, cast, Integer
+from sqlalchemy import extract
 
 def addZeroNumber(value):
     return f'{value}0' if len(value) == 1 else value
@@ -188,6 +189,7 @@ def getAmountVariosCompany(company_id, year, period = None):
       date_end = period['end']
 
     result = session.query(
+       
       func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay).label('wages'),
       func.sum(Time.regular_pay).label('regular_pay'),
       func.sum( Time.over_pay ).label('over_pay'),
@@ -208,6 +210,42 @@ def getAmountVariosCompany(company_id, year, period = None):
       ).select_from(Period).join(Time, Period.id == Time.period_id ).join(Employers, Time.employer_id == Employers.id).filter( Employers.company_id == company_id,  Period.period_end >= date_start ,Period.period_end <= date_end ).all()
       
     return result[0]
+
+
+
+def getAmountVariosCompanyByMouth(company_id, year):
+    date_start = date(year, 1, 1)
+    date_end = date(year, 12, 31)
+    result = session.query(
+  
+        extract('year', Period.period_end).label('year'),
+    extract('month', Period.period_end).label('month'),
+    func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay).label('wages'),
+    func.sum(Time.regular_pay).label('regular_pay'),
+    func.sum(Time.over_pay).label('over_pay'),
+    func.sum(Time.vacation_pay).label('vacation_pay'),
+    func.sum(Time.meal_pay).label('meal_pay'),
+    func.sum(Time.sick_pay).label('sick_pay'),
+    func.sum(Time.holyday_pay).label('holyday_pay'),
+    func.sum(Time.commissions).label('commissions'),
+    func.sum(Time.concessions).label('concessions'),
+    func.sum(Time.tips).label('tips'),
+    func.sum(Time.donation).label('donation'),
+    func.sum(Time.refund).label('refunds'),
+    func.sum(Time.medicare).label('medicares'),
+    func.sum(Time.bonus).label('bonus'),
+    func.sum(Time.social_tips).label('social_tips'),
+    func.sum(Time.secure_social).label('secure_social'),
+    func.sum(Time.tax_pr).label('taxes_pr')
+    ).select_from(Period) \
+    .join(Time, Period.id == Time.period_id) \
+    .join(Employers, Time.employer_id == Employers.id) \
+    .filter(Employers.company_id == company_id, Period.period_end >= date_start, Period.period_end <= date_end) \
+    .group_by(extract('year', Period.period_end), extract('month', Period.period_end)) \
+.order_by(extract('year', Period.period_end), extract('month', Period.period_end)) \
+    .all()
+    return result
+
    
 def convert_to_seconds(time_string):
     """Convierte una cadena de tiempo en formato HH:MM a segundos."""
