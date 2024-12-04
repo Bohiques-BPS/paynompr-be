@@ -220,7 +220,7 @@ def getAmountVariosCompanyByMouth(company_id, year):
   
         extract('year', Period.period_end).label('year'),
     extract('month', Period.period_end).label('month'),
-    func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay).label('wages'),
+    func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay + Time.commissions + Time.concessions+ Time.tips).label('wages'),
     func.sum(Time.regular_pay).label('regular_pay'),
     func.sum(Time.over_pay).label('over_pay'),
     func.sum(Time.vacation_pay).label('vacation_pay'),

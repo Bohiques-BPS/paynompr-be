@@ -18,19 +18,20 @@ def queryForm943(company_id, year):
     amount_varios_number = getAmountVariosCompany(company_id, year)
     amount_varios_number_mouth = getAmountVariosCompanyByMouth(company_id, year)
     monthly_wages = {str(month): 0 for month in range(1, 13)}  # Initialize with zeros
+    total_monthly_wages = 0
 
     for row in amount_varios_number_mouth:  # Populate with actual data
         month = row.month
-        monthly_wages[str(month)] = row.wages if row.wages is not None else 0
-
+        monthly_wages[str(month)] = row.wages * (15.30 /100) if row.wages is not None else 0
+        total_monthly_wages +=   roundedAmount(monthly_wages[str(month)])
+    total_monthly_wages = roundedAmount(total_monthly_wages)
     monthly_wages_json = json.dumps(monthly_wages)  # Convert to JSON string
-    print("-------------monthly_wages_json----------------")
-    print(monthly_wages_json)
+    
       
     
 
     # Calculate total
-    total_wages_no_tips = amount_varios_number.wages + amount_varios_number.commissions + amount_varios_number.concessions
+    total_wages_no_tips = amount_varios_number.wages + amount_varios_number.commissions + amount_varios_number.concessions+ amount_varios_number.tips
     total_wages_no_tips_number = addDecimal(roundedAmount(total_wages_no_tips))  
     total_wages = amount_varios_number.wages + amount_varios_number.commissions + amount_varios_number.concessions  + amount_varios_number.tips
     salary_security_social = addDecimal(roundedAmount(total_wages))
@@ -70,7 +71,7 @@ def queryForm943(company_id, year):
         "topmostSubform[0].Page2[0].Table_K-M[0].K[0].Tax[0].f2_45[0]" : str(monthly_wages["11"]),
 
         "topmostSubform[0].Page2[0].Table_K-M[0].L[0].Tax[0].f2_47[0]" : str(monthly_wages["12"]),
-
+        "topmostSubform[0].Page2[0].Table_K-M[0].M[0].Tax[0].f2_49[0]":str(total_monthly_wages),
 
 
         'topmostSubform[0].Page1[0].f1_7[0]': str(len(employers)), # Total of employees - Line 1
