@@ -94,38 +94,38 @@ def form_w2psse_txt_generator(company_id, year,resbmited = "1",resbmited_code = 
             countryPhysicalAddressCompany = company.country_physical_address if company.country_physical_address is not None else ''
 
             n_control = company.w2_first_control
-            total_20 = total_7+ rounded_amount_11-rounded_amount_tips
+            total_20 = roundedAmount(total_7+ rounded_amount_11-rounded_amount_tips)
 
-            acum_total_20 += total_20
-            total_21 = rounded_amount_secures_social+rounded_amount_social_tips
+            acum_total_20 += roundedAmount(total_20)
+            total_21 = roundedAmount(rounded_amount_secures_social+rounded_amount_social_tips)
 
             acum_total_21 +=total_21
-            total_22 = rounded_amount_wages_26+rounded_amount_11
+            total_22 = roundedAmount(rounded_amount_wages_26+rounded_amount_11)
 
-            acum_total_22 += total_22 
+            acum_total_22 += roundedAmount(total_22) 
             total_23 = rounded_amount_medicares
-            acum_total_23 += total_23
+            acum_total_23 += roundedAmount(total_23)
             total_24 = rounded_amount_tips
-            acum_total_24 += total_24
+            acum_total_24 += roundedAmount(total_24)
             total_16 = total_7
-            acum_total_16 += total_16
+            acum_total_16 += roundedAmount(total_16)
             total_7 = total_wages
-            acum_total_7 += total_7
+            acum_total_7 += roundedAmount(total_7)
             total_8 = rounded_amount_commissions
-            acum_total_8 += total_8
+            acum_total_8 += roundedAmount(total_8)
             total_9 = rounded_amount_concessions
-            acum_total_9 += total_9
+            acum_total_9 += roundedAmount(total_9)
             total_10 = rounded_amount_tips
-            acum_total_10 += total_10
+            acum_total_10 += roundedAmount(total_10)
             total_11 = rounded_amount_11
-            acum_total_11 += total_11
+            acum_total_11 += roundedAmount(total_11)
             total_13 = rounded_amount_taxes_pr
-            acum_total_13 += total_13
+            acum_total_13 += roundedAmount(total_13)
             total_14 = rounded_amount_taxes_pr
-            acum_total_14 += total_14
+            acum_total_14 += roundedAmount(total_14)
 
             total_6 = rounded_amount_donation
-            acum_total_6 += total_6
+            acum_total_6 += roundedAmount(total_6)
             total_19 = rounded_amount_aflac
             
             total_12 = rounded_amount_refunds
@@ -174,7 +174,7 @@ def REtxt(year,company):
         payer = "F"
     if (company.payer == "4"):
         payer = "H"
-    return "RE"+str(year)+add_to_right(text,1," ")+company.number_patronal.replace("-","")[:9]+add_to_right(text,9," ")+"0"+add_to_right(text,4," ")+add_to_right(text,9," ")+company.name.ljust(57)+company.physical_address[:22].ljust(22)+company.postal_address[:22].ljust(22)+COUNTRY[int(company.country_physical_address)-1][:22].ljust(22)+company.state_physical_address.ljust(2)+company.zipcode_physical_address.ljust(5)+add_to_right(text,4," ")+add_to_right(text,5," ")+add_to_right(text,23," ")+add_to_right(text,15," ")+add_to_right(text,2," ")+payer+"P"+"0"+company.contact.ljust(27)+company.contact_number.replace("-","").ljust(15)+add_to_right(text,5," ")+add_to_right(text,10," ")+company.email.ljust(40)+add_to_right(text,194," ")
+    return "RE"+str(year)+add_to_right(text,1," ")+company.number_patronal.replace("-","")[:9].ljust(9)+add_to_right(text,9," ")+"0"+add_to_right(text,4," ")+add_to_right(text,9," ")+company.name.ljust(57)+company.physical_address[:22].ljust(22)+company.postal_address[:22].ljust(22)+COUNTRY[int(company.country_physical_address)-1][:22].ljust(22)+company.state_physical_address.ljust(2)+company.zipcode_physical_address.ljust(5)+add_to_right(text,4," ")+add_to_right(text,5," ")+add_to_right(text,23," ")+add_to_right(text,15," ")+add_to_right(text,2," ")+payer+"P"+"0"+company.contact.ljust(27)+company.contact_number.replace("-","").ljust(15)+add_to_right(text,5," ")+add_to_right(text,10," ")+company.email.ljust(40)+add_to_right(text,194," ")
 
 def RWtxt(employer,total_20,total_21,total_22,total_23,total_24):
     total_20 = int(total_20 * 100)

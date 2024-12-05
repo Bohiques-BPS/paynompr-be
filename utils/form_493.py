@@ -10,7 +10,7 @@ def form_943_pdf_generator(company_id, year):
     rute = Path(__file__).parent.absolute()
     document_dir = rute.parent / 'output_files'
     source_file_name = 'template/f943.pdf'
-    output_file_name = 'form_941.pdf'
+    output_file_name = 'form_943.pdf'
 
     data_entry_data = queryForm943(company_id, year)
     if len(data_entry_data) > 0:
@@ -18,9 +18,15 @@ def form_943_pdf_generator(company_id, year):
             for page_number in range(len(doc)):
                 page = doc[page_number]
                 for field in page.widgets():
+                   
+
                     if field.field_type == fitz.PDF_WIDGET_TYPE_TEXT:
+                        print("----------------field------------------")
+                        print(field.field_name)
                         if field.field_name in data_entry_data:
                             field.field_value = data_entry_data[field.field_name]
+                            print("----------------field.field_name------------------")
+                            print(field.field_name)
                             field.update()
 
 
