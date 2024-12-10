@@ -95,7 +95,8 @@ def form_w2psse_txt_generator(company_id, year,resbmited = "1",resbmited_code = 
 
             n_control = company.w2_first_control
             total_20 = roundedAmount(roundedAmount(total_7)+ roundedAmount(rounded_amount_11)-roundedAmount(rounded_amount_tips))
-            
+            print("----------------total_20------------------")
+            print(total_20)
             acum_total_20 += roundedAmount(total_20)
             total_21 = roundedAmount(roundedAmount(rounded_amount_secures_social)+roundedAmount(rounded_amount_social_tips))
 
@@ -177,15 +178,15 @@ def REtxt(year,company):
     return "RE"+str(year)+add_to_right(text,1," ")+company.number_patronal.replace("-","")[:9].ljust(9)+add_to_right(text,9," ")+"0"+add_to_right(text,4," ")+add_to_right(text,9," ")+company.name.replace("&","y").ljust(57)+company.physical_address[:22].ljust(22)+company.postal_address[:22].ljust(22)+COUNTRY[int(company.country_physical_address)-1][:22].ljust(22)+company.state_physical_address.ljust(2)+company.zipcode_physical_address.ljust(5)+add_to_right(text,4," ")+add_to_right(text,5," ")+add_to_right(text,23," ")+add_to_right(text,15," ")+add_to_right(text,2," ")+payer+"P"+"0"+company.contact.ljust(27)+company.contact_number.replace("-","").ljust(15)+add_to_right(text,5," ")+add_to_right(text,10," ")+company.email.ljust(40)+add_to_right(text,194," ")
 
 def RWtxt(employer,total_20,total_21,total_22,total_23,total_24):
-    total_20 = int(total_20 * 100)
+    total_20 = round(total_20 * 100)
     total_20 = f"{total_20:011d}"
-    total_21 = int(total_21 * 100)
+    total_21 = round(total_21 * 100)
     total_21 = f"{total_21:011d}"
-    total_22 = int(total_22 * 100)
+    total_22 = round(total_22 * 100)
     total_22 = f"{total_22:011d}"
-    total_23 = int(total_23 * 100)
+    total_23 = round(total_23 * 100)
     total_23 = f"{total_23:011d}"
-    total_24 = int(total_24 * 100)
+    total_24 = round(total_24 * 100)
     total_24 = f"{total_24:011d}"
     
 
@@ -193,34 +194,34 @@ def RWtxt(employer,total_20,total_21,total_22,total_23,total_24):
     return "RW"+employer.social_security_number.replace("-","")[:9]+employer.first_name.ljust(15)+employer.middle_name.ljust(15)+(employer.last_name+" "+employer.mother_last_name).ljust(20)+add_to_right(text,4," ")+employer.address[:22].ljust(22)+employer.address[:22].ljust(22)+COUNTRY[int(employer.address_country)-1][:22].ljust(22)+employer.address_state.ljust(2)+employer.address_number.ljust(5)+add_to_right(text,4," ")+add_to_right(text,5," ")+add_to_right(text,23," ")+add_to_right(text,15," ")+add_to_right(text,2," ")+add_to_right(text,22,"0")+total_20+total_21+total_22+total_23+total_24+add_to_right(text,11," ")+add_to_right(text,66,"0")+add_to_right(text,11," ")+add_to_right(text,44,"0")+add_to_right(text,11," ")+add_to_right(text,77,"0")+add_to_right(text,1," ")+"0"+add_to_right(text,1," ")+"00"+add_to_right(text,23," ")
 
 def ROtxt(employer,total_7,total_8,total_9,total_10,total_11,total_13,total_14):
-    total_7 = int(total_7 * 100)
+    total_7 = round(total_7 * 100)
     total_7 = f"{total_7:011d}"    
-    total_8 = int(total_8 * 100)
+    total_8 = round(total_8 * 100)
     total_8 = f"{total_8:011d}" 
-    total_9 = int(total_9 * 100)
+    total_9 = round(total_9 * 100)
     total_9 = f"{total_9:011d}"
-    total_10 = int(total_10 * 100)
+    total_10 = round(total_10 * 100)
     total_10 = f"{total_10:011d}" 
-    total_11 = int(total_11 * 100)
+    total_11 = round(total_11 * 100)
     total_11 = f"{total_11:011d}"  
-    total_13 = int(total_13 * 100)
+    total_13 = round(total_13 * 100)
     total_13 = f"{total_13:011d}" 
     
     text = ""    
     return "RO"+add_to_right(text,9," ")+add_to_right(text,11,"0")+add_to_right(text,11,"0")+add_to_right(text,66,"0")+add_to_right(text,11," ")+add_to_right(text,44,"0")+add_to_right(text,120," ")+total_7+total_8+total_9+total_10+total_11+total_13+add_to_right(text,11,"0")+add_to_right(text,11," ")+add_to_right(text,22,"0")+add_to_right(text,128," ")
 
 def RStxt(employer,company,total_6,total_19,total_16,total_12,birthday):
-    total_6 = int(total_6 * 100)
+    total_6 = round(total_6 * 100)
     total_6 = f"{total_6:011d}" 
-    total_19 = int(total_19 * 100)
+    total_19 = round(total_19 * 100)
     total_19 = f"{total_19:011d}" 
-    total_12 = int(total_12 * 100)
+    total_12 = round(total_12 * 100)
     total_12 = f"{total_12:011d}" 
     text = ""  
     code = "  "
     if (total_16 > 0):
         code = "E"
-    total_16 = int(total_16 * 100)
+    total_16 = round(total_16 * 100)
     total_16 = f"{total_16:011d}" 
       
     return "RS"+add_to_right(text,2,"0")+add_to_right(text,5,"0")+employer.social_security_number.replace("-","")[:9]+employer.first_name.ljust(15)+employer.middle_name.ljust(15)+(employer.last_name+" "+employer.mother_last_name).ljust(20)+add_to_right(text,4," ")+employer.address[:22].ljust(22)+employer.address[:22].ljust(22)+COUNTRY[int(employer.address_country)-1][:22].ljust(22)+employer.address_state.ljust(2)+employer.address_number.ljust(5)+add_to_right(text,9," ")+add_to_right(text,23," ")+add_to_right(text,15," ")+add_to_right(text,2," ")+add_to_right(text,2," ")+add_to_right(text,6,"0")+add_to_right(text,40,"0")+add_to_right(text,5," ")+add_to_right(text,20,"0")+add_to_right(text,6," ")+add_to_right(text,64,"0")+add_to_right(text,75," ")+add_to_right(text,75," ")+add_to_right(text,25," ")
@@ -228,19 +229,19 @@ def RStxt(employer,company,total_6,total_19,total_16,total_12,birthday):
 def RTtxt(count,acum_total_20,acum_total_21,acum_total_22,acum_total_23,acum_total_24):
     text = ""  
     count = f"{count:07d}" 
-    acum_total_20 = int(acum_total_20 * 100)
+    acum_total_20 = round(acum_total_20 * 100)
     acum_total_20 = f"{acum_total_20:015d}"
 
-    acum_total_21 = int(acum_total_21 * 100)
+    acum_total_21 = round(acum_total_21 * 100)
     acum_total_21 = f"{acum_total_21:015d}"
 
-    acum_total_22 = int(acum_total_22 * 100)
+    acum_total_22 = round(acum_total_22 * 100)
     acum_total_22 = f"{acum_total_22:015d}"
 
-    acum_total_23 = int(acum_total_23 * 100)
+    acum_total_23 = round(acum_total_23 * 100)
     acum_total_23 = f"{acum_total_23:015d}"
 
-    acum_total_24 = int(acum_total_24 * 100)
+    acum_total_24 = round(acum_total_24 * 100)
     acum_total_24 = f"{acum_total_24:015d}"
       
     print("----------------acum_total_20------------------")
@@ -250,19 +251,19 @@ def RTtxt(count,acum_total_20,acum_total_21,acum_total_22,acum_total_23,acum_tot
 def RUtxt(count,acum_total_7,acum_total_8,acum_total_9,acum_total_10,acum_total_11,acum_total_13,acum_total_14):
     text = ""  
     count = f"{count:07d}" 
-    acum_total_7 = int(acum_total_7 * 100)
+    acum_total_7 = round(acum_total_7 * 100)
     acum_total_7 = f"{acum_total_7:015d}"
-    acum_total_8 = int(acum_total_8 * 100)
+    acum_total_8 = round(acum_total_8 * 100)
     acum_total_8 = f"{acum_total_8:015d}"
-    acum_total_9 = int(acum_total_9 * 100)
+    acum_total_9 = round(acum_total_9 * 100)
     acum_total_9 = f"{acum_total_9:015d}"
-    acum_total_10 = int(acum_total_10 * 100)
+    acum_total_10 = round(acum_total_10 * 100)
     acum_total_10 = f"{acum_total_10:015d}"
-    acum_total_11 = int(acum_total_11 * 100)
+    acum_total_11 = round(acum_total_11 * 100)
     acum_total_11 = f"{acum_total_11:015d}"
-    acum_total_13 = int(acum_total_13 * 100)
+    acum_total_13 = round(acum_total_13 * 100)
     acum_total_13 = f"{acum_total_13:015d}"
-    acum_total_14 = int(acum_total_14 * 100)
+    acum_total_14 = round(acum_total_14 * 100)
     acum_total_14 = f"{acum_total_14:015d}"
       
     return "RU"+count+add_to_right(text,15,"0")+add_to_right(text,15,"0")+add_to_right(text,90,"0")+add_to_right(text,15," ")+add_to_right(text,60,"0")+add_to_right(text,150," ")+acum_total_7+acum_total_8+acum_total_9+acum_total_10+acum_total_11+acum_total_13+add_to_right(text,45,"0")+add_to_right(text,23," ")
@@ -271,10 +272,10 @@ def RUtxt(count,acum_total_7,acum_total_8,acum_total_9,acum_total_10,acum_total_
 def RVtxt(count,company,acum_total_16,acum_total_6):
     text = ""  
     count = f"{count:07d}" 
-    acum_total_16 = int(acum_total_16 * 100)
+    acum_total_16 = round(acum_total_16 * 100)
     acum_total_16 = f"{acum_total_16:015d}"
 
-    acum_total_6 = int(acum_total_6 * 100)
+    acum_total_6 = round(acum_total_6 * 100)
     acum_total_6 = f"{acum_total_6:015d}"
       
     return "RV"+add_to_right(text,510," ")
