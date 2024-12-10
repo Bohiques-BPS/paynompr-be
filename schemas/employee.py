@@ -18,6 +18,7 @@ class EmployersSchema(BaseModel):
     address_country: Optional[str] = Field(None, max_length=100)
     address_number: Optional[str] = Field(None, max_length=20)
     phone_number: Optional[str] = Field(None, max_length=20)
+    retention_type: Optional[float] = Field(None, max_length=20)
     smartphone_number: Optional[str] = Field(None, max_length=20)
     marbete: Optional[str] = Field(None, max_length=50)
     type: Optional[int] = Field(None, ge=0)
