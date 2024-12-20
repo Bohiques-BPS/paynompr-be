@@ -140,26 +140,24 @@ def create_time_controller(time_data, employer_id):
             amount = total_income * count;
 
             if (amount <= 12500):
-                withholdingValue = "0";
+                withholdingValue = "0"
             if (amount > 12500 and amount <= 25000):
-                withholdingValue = "7";
-                exed_amount = amount - 12500;
+                withholdingValue = "7"
+               
             
-            if (amount > 25000 and amount <= 36000):
-                withholdingValue = "14";
-                exed_amount = amount - 25000;
+            if (amount > 25000 and amount <= 41500):
+                withholdingValue = "14"
+                
             
-            if (amount > 36000 and amount <= 50000):
-                withholdingValue = "19";
-                exed_amount = amount - 36000;
-            
-            if (amount > 50000 and amount <= 66000):
-                withholdingValue = "25";
-                exed_amount = amount - 50000;
+            if (amount > 41500 and amount <= 61500):
+                withholdingValue = "25"
+                      
             
             if (amount > 66000):
-                withholdingValue = "33";
-                exed_amount = amount - 66000;
+                withholdingValue = "33"
+               
+        
+        
             
 
         time_query = Time(
