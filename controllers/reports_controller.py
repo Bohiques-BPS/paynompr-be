@@ -789,6 +789,8 @@ def counterfoil_controller(company_id, employer_id, time_id):
     total_regular_time  = "00:00"
     total_regular_time_seconds = 0
 
+    
+
     total_over_time  = "00:00"
     total_over_time_seconds = 0
 
@@ -805,6 +807,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
     total_holiday_time_seconds = 0
     for time_entry in all_times_query:
         regular_time = time_entry.regular_time
+        hours_worked_salary = time_entry.hours_worked_salary
         over_time = time_entry.over_time
         mealt_time = time_entry.meal_time
         vacation_time = time_entry.vacation_time
@@ -818,7 +821,7 @@ def counterfoil_controller(company_id, employer_id, time_id):
             regular_hours, regular_minutes = map(int, regular_time.split(':'))
 
             # Convertir a segundos
-            regular_total_seconds = regular_hours * 3600 + regular_minutes * 60
+            regular_total_seconds = regular_hours + hours_worked_salary * 3600 + regular_minutes * 60
 
             # Convertir la cadena a horas y minutos
             over_hours, over_minutes = map(int, over_time.split(':'))
@@ -989,7 +992,16 @@ def counterfoil_controller(company_id, employer_id, time_id):
         aflac = time_query.aflac
 
         return float(secure_social) + float(ss_tips) + float(medicare) + float(inability) + float(choferil) + float(tax_pr)  + float(aflac) + float(time_query.asume) + float(time_query.donation)
-
+    # Function to add hours to HH:MM time string (new function)
+    def add_hours_to_time(time_str, hours_to_add):
+        try:
+            hours, minutes = map(int, time_str.split(':'))
+            total_minutes = hours * 60 + minutes
+            total_minutes += hours_to_add * 60  # Add the hours
+            new_hours, new_minutes = divmod(total_minutes, 60)
+            return f"{new_hours:02d}:{new_minutes:02d}"
+        except ValueError:
+            return "Invalid Time Format"  # Or handle the error as needed
     def calculate_payments():
         amount = 0
         for payment in payment_query:
@@ -1094,7 +1106,8 @@ def counterfoil_controller(company_id, employer_id, time_id):
         "company": company.name,
         "physical_address": company.physical_address,
         # TIME INFO
-        "regular_hours": time_query.regular_time,
+        "regular_hours": add_hours_to_time(time_query.regular_time, time_query.hours_worked_salary),  # Use the new function
+
         "over_hours": time_query.over_time,
         "meal_hours": time_query.meal_time,
         "holiday_hours": time_query.holiday_time,

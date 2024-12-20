@@ -278,6 +278,7 @@ def getBonusCompany(company_id, date_start, date_end,bonus):
 
         if bonus.reg:
           employee_totals[employer_id]['total_time'] += convert_to_seconds(time_entry.Time.regular_time)
+          employee_totals[employer_id]['total_time'] += time_entry.Time.hours_worked_salary * 3600
         if bonus.over:
           employee_totals[employer_id]['total_time'] += convert_to_seconds(time_entry.Time.over_time)
         if bonus.vacations:
