@@ -4,6 +4,7 @@ from database.config import session
 from models.queries.queryFormUnemployment import queryFormUnemployment
 import os
 
+"""
 def form_unemployment_pdf_generator(company_id, year, period):
 
     try:
@@ -85,11 +86,11 @@ def form_unemployment_pdf_generator(company_id, year, period):
     except Exception as e:
         print(f"An error occurred: {e}")
         return None
+"""    
     
     
     
-    
-def form_unemployment_pdf_generator22(company_id, year, period):
+def form_unemployment_pdf_generator(company_id, year, period):
     try:
         # Directory paths
         rute = Path(__file__).parent.absolute()
