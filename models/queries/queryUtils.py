@@ -128,14 +128,8 @@ def getAmountVariosCompany(company_id, year, period = None):
       func.sum(Time.social_tips).label('social_tips'),
       func.sum(Time.secure_social).label('secure_social'),
       func.sum(Time.tax_pr).label('taxes_pr')
-      ).join(Period).filter(
-        and_(
-          Employers.company_id == company_id,
-          Period.period_start >= date_start,
-          Period.period_end <= date_end
-        )
-      ).all()
-
+      ).join(Employers, Time.employer_id == Employers.id).join(Period, Period.id == Time.period_id ).filter( Employers.company_id == company_id,  Period.year == year ).all()
+      
     return result[0]
 
 
@@ -161,23 +155,22 @@ def getAmountVariosCompanyGroupByMonth(company_id, year, period = None):
       func.sum(Time.secure_social).label('secure_social'),
       func.sum(Time.tax_pr).label('taxes_pr'),
       func.date_trunc('month', Period.period_end).label('month'),
-      ).join(Period).filter(
-        and_(
-          Employers.company_id == company_id,
-          Period.period_start >= date_start,
-          Period.period_end <= date_end
-        )
+      ).join(Employers, Time.employer_id == Employers.id
+      ).join(Period, Period.id == Time.period_id 
+      
+      ).filter( Employers.company_id == company_id, Period.period_start >= date_start, Period.period_end <= date_end 
       ).group_by(func.date_trunc('month', Period.period_end)).order_by(func.date_trunc('month', Period.period_end)).all()
 
     return result
 
 def getEmployers7000(company_id, date_period):
-    arrayTotal = session.query(func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay + Time.commissions + Time.concessions + Time.bonus).label('total')).join(Employers).join(Period).filter(
-      and_(
+    arrayTotal = session.query(
+      func.sum(Time.regular_pay + Time.over_pay + Time.vacation_pay + Time.meal_pay + Time.sick_pay + Time.holyday_pay + Time.commissions + Time.concessions + Time.bonus).label('total')
+      ).join(Employers, Time.employer_id == Employers.id
+      ).join(Period, Period.id == Time.period_id ).filter(
         Employers.company_id == company_id,
         Period.period_start >= date_period['start'],
-        Period.period_end <= date_period['end']
-      )
+        Period.period_end <= date_period['end']      
     ).group_by(Time.employer_id).all()
     result = 0
     for value in arrayTotal:
@@ -195,12 +188,12 @@ def getEmployersAmount(company_id, date_period):
       Employers.licence,
       Employers.social_security_number,
       func.count(Time.period_id).label('total_weeks'),
-    ).join(Employers).join(Period).filter(
-      and_(
+      ).join(Employers, Time.employer_id == Employers.id
+      ).join(Period, Period.id == Time.period_id ).filter(
         Employers.company_id == company_id,
         Period.period_start >= date_period['start'],
         Period.period_end <= date_period['end']
-      )
+        
     ).group_by(Employers.id).all()
 
     return arrayTotal
